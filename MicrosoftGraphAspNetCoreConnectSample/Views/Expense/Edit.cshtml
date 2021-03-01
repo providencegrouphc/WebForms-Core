@@ -1,0 +1,462 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+
+<script>
+
+    $(window).load(function () {
+        $(window).resize(function () {
+            $("#showdelexpense").dialog("option", "position", { my: "center", at: "center", of: window });
+        });
+
+        $("#txtTotal").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtDistance").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+        });
+
+        if (document.getElementById('fUID').value == 'stop') {
+            document.getElementById('fupload').className = 'hidden'
+        } else {
+            document.getElementById('fupload').className = 'col-md-4'
+        }
+    });
+
+    $(function () {
+        $("#txtDate").datepicker();
+    });
+</script>
+
+<style>
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+    }
+
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+
+    .validation {
+        color: red;
+    }
+</style>
+<h1>Edit Expense</h1>
+<a href="/Expense">Return to Expense Home</a>
+<br />
+<br />
+
+@Html.Raw(ViewData["editdata"])
+
+<div class="hidden" style="padding-top:35px; max-width:310px;" id="fupload">
+    @using (Html.BeginForm("UploadFile", "Expense",
+      FormMethod.Post,
+      new
+      {
+          @class = "dropzone",
+          id = "dropzone-form",
+      }))
+    {
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+
+        </div>
+        <input name="fUID" id="fUID" type="text" value="@Html.Raw(ViewData["attachmentid"])" class="hidden" />}
+
+    <div id="imagelist">
+        @Html.Raw(ViewData["attachments"])
+    </div>
+    <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesub()" />
+    <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
+
+    <div id="supinfo" style="color:gray; font-size:12px"></div>
+    <input type="text" id="changesupinfo" class="hidden" />
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        Dropzone.options.dropzoneForm = {
+            paramName: "file",
+            maxFilesize: 20,
+            maxFiles: 4,
+
+            dictMaxFilesExceeded: "Custom max files msg",
+            dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+            success: function (file, response) {
+                this.removeFile(file);
+                $.get("/Expense/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                // This return statement is necessary to remove progress bar after uploading.
+                return file.previewElement.classList.add("dz-success");
+            }
+        };
+
+
+    </script>
+}
+
+<form asp-controller="Expense" asp-action="PostExpenseEdit" method="post">
+    <input type="text" class="hidden" id="strUID" name="strUID" />
+    <input type="text" class="hidden" id="strFacility" name="strFacility" />
+    <input type="text" class="hidden" id="strMerchant" name="strMerchant" />
+    <input type="text" class="hidden" id="strDate" name="strDate" />
+    <input type="text" class="hidden" id="strTotal" name="strTotal" />
+    <input type="text" class="hidden" id="strReimbursable" name="strReimbursalbe" />
+    <input type="text" class="hidden" id="strCategory" name="strCategory" />
+    <input type="text" class="hidden" id="strAttendees" name="strAttendees" />
+    <input type="text" class="hidden" id="strDescription" name="strDescription" />
+    <input type="text" class="hidden" id="strReport" name="strReport" />
+    <input type="button" id="subexpense" class="hidden" onclick="submit()" />
+</form>
+
+<form asp-controller="Expense" asp-action="PostDistanceEdit" method="post">
+    <input type="text" class="hidden" id="strDistUID" name="strDistUID" />
+    <input type="text" class="hidden" id="strDistFacility" name="strDistFacility" />
+    <input type="text" class="hidden" id="strDistFromAddress" name="strDistFromAddress" />
+    <input type="text" class="hidden" id="strDistToAddress" name="strDistToAddress" />
+    <input type="text" class="hidden" id="strDistDistance" name="strDistDistance" />
+    <input type="text" class="hidden" id="strDistRate" name="strDistRate" />
+    <input type="text" class="hidden" id="strDistDate" name="strDistDate" />
+    <input type="text" class="hidden" id="strDistTotal" name="strDistTotal" />
+    <input type="text" class="hidden" id="strDistReimbursable" name="strDistReimbursable" />
+    <input type="text" class="hidden" id="strDistCategory" name="strDistCategory" />
+    <input type="text" class="hidden" id="strDistDescription" name="strDistDescription" />
+    <input type="text" class="hidden" id="strDistReport" name="strDistReport" />
+    <input type="button" id="subdistnace" class="hidden" onclick="submit()" />
+</form>
+
+<form asp-controller="Expense" asp-action="PostMultiEdit" method="post">
+    <input type="text" class="hidden" id="strMultiUID" name="strMultiUID" />
+    <input type="text" class="hidden" id="strMultiFacility" name="strMultiFacility" />
+    <input type="text" class="hidden" id="strMultiMerchant" name="strMultiMerchant" />
+    <input type="text" class="hidden" id="strMultiDate" name="strMultiDate" />
+    <input type="text" class="hidden" id="strMultiTotal" name="strMultiTotal" />
+    <input type="text" class="hidden" id="strMultiCategory" name="strMultiCategory" />
+    <input type="text" class="hidden" id="strMultiDescription" name="strMultiDescription" />
+    <input type="button" id="submulti" class="hidden" onclick="submit()" />
+</form>
+
+
+    <form asp-controller="Expense" asp-action="PostDelExpenseEdit" method="post">
+        <input name="strDUID" id="strDUID" type="text" class="hidden" />
+        <input type="button" id="Dsubsup" class="hidden" onclick="submit()" />
+    </form>
+
+    <script>
+        function showdelexpense() {
+            $("#showdelexpense").dialog({
+                resizable: false,
+                height: "auto",
+                width: "300px",
+                modal: true
+            });
+        };
+    </script>
+
+    <div style="visibility:hidden; height:0px; display:none">
+        <div id="showdelexpense" title="Confirm">
+            <div style="margin-top:10px; margin-bottom:10px; font-weight:bold; text-align:center">Are you sure you want to delete this expense report?</div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-danger" onclick="delexpense()">Delete</button>
+                <button type="button" class="btn btn-secondary" onclick="$('#showdelexpense').dialog('close');" id="supclose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function delblob(blobname) {
+            $.get("/Expense/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+
+        }
+
+        function delexpense() {
+            document.getElementById("strDUID").value = document.getElementById("UID").value
+            document.getElementById('Dsubsup').click()
+        }
+
+        function calcmile() {
+            var distance = document.getElementById('txtDistance').value
+            distance = distance.replace(/,/g, '')
+            var amount = document.getElementById('ddRate').value * parseInt(distance)
+            amount = amount.toFixed(2)
+            document.getElementById('txtTotal').value = '$ ' + amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")
+        }
+
+        function validatesub() {
+            var errors = 0
+
+            var amount = document.getElementById('txtTotal').value
+            amount = amount.replace('$', '')
+            amount = amount.replace(' ', '')
+            amount = amount.replace(/,/g, '')
+
+            if (document.getElementById('txtMerchant').value == '') {
+                document.getElementById('validateMerchant').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strMerchant').value = document.getElementById('txtMerchant').value
+                document.getElementById('validateMerchant').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtDate').value, "MM/DD/YYYY", true).isValid()) {
+                document.getElementById('validateDate').className = 'hidden'
+                document.getElementById('strDate').value = document.getElementById('txtDate').value
+            } else {
+                document.getElementById('validateDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtTotal').value == '') {
+                document.getElementById('validateTotal').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTotal').value = amount
+                document.getElementById('validateTotal').className = 'hidden'
+            }
+
+            if (document.getElementById('cbreimbursable').checked) {
+                document.getElementById('strReimbursable').value = 'true'
+            } else {
+                document.getElementById('strReimbursable').value = 'false'
+            }
+
+            if (document.getElementById('ddCat').value == '') {
+                document.getElementById('validateCategory').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strCategory').value = document.getElementById('ddCat').value
+                document.getElementById('validateCategory').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFac').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strFacility').value = document.getElementById('ddFac').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtAttendees').value == '') {
+                document.getElementById('validateAttendees').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strAttendees').value = document.getElementById('txtAttendees').value
+                document.getElementById('validateAttendees').className = 'hidden'
+            }
+
+            if (document.getElementById('ddReport').value == '') {
+                document.getElementById('validateReport').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strReport').value = document.getElementById('ddReport').value
+                document.getElementById('validateReport').className = 'hidden'
+            }
+
+            document.getElementById('strDescription').value = document.getElementById('txtDescription').value
+            document.getElementById("strUID").value = document.getElementById("UID").value
+
+            if (errors == 0) {
+
+                document.getElementById('subexpense').click()
+            }
+        }
+
+
+        function validatesubdistance() {
+            var errors = 0
+            
+            var amount = document.getElementById('txtTotal').value
+            amount = amount.replace('$', '')
+            amount = amount.replace(' ', '')
+            amount = amount.replace(/,/g, '')
+
+            if (document.getElementById('ddFac').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistFacility').value = document.getElementById('ddFac').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtFromAddress').value == '') {
+                document.getElementById('validateFromAddress').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistFromAddress').value = document.getElementById('txtFromAddress').value
+                document.getElementById('validateFromAddress').className = 'hidden'
+            }
+
+            if (document.getElementById('txtToAddress').value == '') {
+                document.getElementById('validateToAddress').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistToAddress').value = document.getElementById('txtToAddress').value
+                document.getElementById('validateToAddress').className = 'hidden'
+            }
+
+            if (document.getElementById('txtDistance').value == '') {
+                document.getElementById('validateDistance').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistDistance').value = document.getElementById('txtDistance').value
+                document.getElementById('validateDistance').className = 'hidden'
+            }
+
+            if (document.getElementById('ddRate').value == '') {
+                document.getElementById('validateRate').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistRate').value = document.getElementById('ddRate').value
+                document.getElementById('validateRate').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtDate').value, "MM/DD/YYYY", true).isValid()) {
+                document.getElementById('validateDate').className = 'hidden'
+                document.getElementById('strDistDate').value = document.getElementById('txtDate').value
+            } else {
+                document.getElementById('validateDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtTotal').value == '') {
+                document.getElementById('validateTotal').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistTotal').value = amount
+                document.getElementById('validateTotal').className = 'hidden'
+            }
+
+            if (document.getElementById('ddCat').value == '') {
+                document.getElementById('validateCategory').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistCategory').value = document.getElementById('ddCat').value
+                document.getElementById('validateCategory').className = 'hidden'
+            }
+
+            if (document.getElementById('ddReport').value == '') {
+                document.getElementById('validateReport').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strDistReport').value = document.getElementById('ddReport').value
+                document.getElementById('validateReport').className = 'hidden'
+            }
+
+            if (document.getElementById('cbreimbursable').checked) {
+                document.getElementById('strDistReimbursable').value = 'true'
+            } else {
+                document.getElementById('strDistReimbursable').value = 'false'
+            }
+
+            document.getElementById('strDistDescription').value = document.getElementById('txtDescription').value
+            document.getElementById("strDistUID").value = document.getElementById("UID").value
+
+            if (errors == 0) {
+
+                document.getElementById('subdistnace').click()
+            }
+        }
+
+        function validatesubmulti() {
+            var errors = 0
+
+            var amount = document.getElementById('txtTotal').value
+            amount = amount.replace('$', '')
+            amount = amount.replace(' ', '')
+            amount = amount.replace(/,/g, '')
+
+            if (document.getElementById('ddFac').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strMultiFacility').value = document.getElementById('ddFac').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtMerchant').value == '') {
+                document.getElementById('validateMerchant').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strMultiMerchant').value = document.getElementById('txtMerchant').value
+                document.getElementById('validateMerchant').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtDate').value, "MM/DD/YYYY", true).isValid()) {
+                document.getElementById('validateDate').className = 'hidden'
+                document.getElementById('strMultiDate').value = document.getElementById('txtDate').value
+            } else {
+                document.getElementById('validateDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtTotal').value == '') {
+                document.getElementById('validateTotal').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strMultiTotal').value = amount
+                document.getElementById('validateTotal').className = 'hidden'
+            }
+
+            if (document.getElementById('ddCat').value == '') {
+                document.getElementById('validateCategory').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strMultiCategory').value = document.getElementById('ddCat').value
+                document.getElementById('validateCategory').className = 'hidden'
+            }
+
+            document.getElementById('strMultiDescription').value = document.getElementById('txtDescription').value
+            document.getElementById("strMultiUID").value = document.getElementById("UID").value
+
+            if (errors == 0) {
+
+                document.getElementById('submulti').click()
+            }
+        }
+    </script>
+
+    <script src="~/lib/jquery/jquery.js"></script>
+    <script src="~/lib/select2/js/select2.js"></script>
+    <script type="text/javascript">
+        $.noConflict();
+        jQuery(document).ready(function ($) {
+            $("#ddFac").select2();
+            $("#ddCat").select2();
+            $("#ddReport").select2();
+            $("#ddRate").select2();
+        });
+
+    </script>

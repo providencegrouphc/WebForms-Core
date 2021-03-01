@@ -1,0 +1,319 @@
+﻿@model MicrosoftGraphAspNetCoreConnectSample.Models.PrePaidObjects
+@if (!User.Identity.IsAuthenticated)
+{
+    <br />
+    <p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+        <p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+        @Html.Raw(ViewData["sidebar"])
+        <script src="~/js/jquery-1.12.4.js"></script>
+        <script src="~/js/jquery.inputmask.js"></script>
+        <script src="~/js/moment.js"></script>
+
+        <script type="text/javascript">
+            $(window).load(function () {
+                $("#txtDueDate").inputmask("99/99/9999");
+                $("#txtExpectedReceipt").inputmask("99/99/9999");
+                $("#txtBeginAmortization").inputmask("99/99/9999");
+                $("#txtAmount").inputmask({
+                    'alias': 'numeric', 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+                });
+            });
+        </script>
+
+        <style>
+            .txtbox {
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+                height: 28px;
+                width: 100%;
+            }
+
+            .txtboxnoheight {
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+                width: 100%;
+            }
+
+            .txtlabel {
+                margin-top: 15px;
+            }
+
+            .float {
+                float: left;
+                width: 200px;
+                margin-top: 15px;
+            }
+
+            .subbutton {
+                background-color: #1b1464;
+                border-radius: 5px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                width: 100px;
+                color: white;
+                text-decoration: none;
+                border: none
+            }
+
+                .subbutton:hover {
+                    background-color: #2b3791
+                }
+
+            .validation {
+                color: red;
+            }
+        </style>
+        <h1>New</h1>
+        <hr />
+        <a href="/PrePaid">Return to Pre Paid Home</a>
+        <form asp-controller="PrePaid" asp-action="PostNew" method="post">
+            <div class="txtlabel">* Facility</div>
+            <div>@Html.DropDownListFor(model => model.operationlist, new SelectList(Model.operationlist, "operationName", "operationName"), new { @id = "ddFacility", @name = "ddFacility" })</div>
+            <div id="validateFacility" class="hidden">Please make a selection.</div>
+            <div class="txtlabel">* Amount</div>
+            <div><input type="text" id="txtAmount" class="txtbox" name="Amount" /></div>
+            <div id="validateAmount" class="hidden">Please enter a valid number.</div>
+            <div class="txtlabel">* Invoice Due Date</div>
+            <div><input type="text" id="txtDueDate" class="txtbox" name="DueDate" /></div>
+            <div id="validateDueDate" class="hidden">Please enter a valid date.</div>
+            <div class="float">Paid</div>
+            <div class="txtlabel">
+                <input type="radio" value="True" name="paid" checked="checked" id="rdYes" />&nbsp;Yes
+                <input type="radio" value="False" name="paid" />&nbsp;No
+            </div>
+            <div class="txtlabel">* Expected Receipt Date</div>
+            <div><input type="text" id="txtExpectedReceipt" class="txtbox" name="ExpectedReceipt" /></div>
+            <div id="validateExpectedReceipt" class="hidden">Please enter a valid date.</div>
+            <div class="txtlabel">* Begin Amortization Date</div>
+            <div><input type="text" id="txtBeginAmortization" class="txtbox" name="BeginAmortization" /></div>
+            <div id="validateBeginAmortization" class="hidden">Please enter a valid date.</div>
+            <div class="txtlabel">* How Many Months Amortized</div>
+            <div>
+                <select class="txtbox" id="ddMonths">
+                    <option></option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                    <option>11</option>
+                    <option>12</option>
+                    <option>13</option>
+                    <option>14</option>
+                    <option>15</option>
+                    <option>16</option>
+                    <option>17</option>
+                    <option>18</option>
+                    <option>19</option>
+                    <option>20</option>
+                    <option>21</option>
+                    <option>22</option>
+                    <option>23</option>
+                    <option>24</option>
+                    <option>25</option>
+                    <option>26</option>
+                    <option>27</option>
+                    <option>28</option>
+                    <option>29</option>
+                    <option>30</option>
+                    <option>31</option>
+                    <option>32</option>
+                    <option>33</option>
+                    <option>34</option>
+                    <option>35</option>
+                    <option>36</option>
+                    <option>37</option>
+                    <option>38</option>
+                    <option>39</option>
+                    <option>40</option>
+                    <option>41</option>
+                    <option>42</option>
+                    <option>43</option>
+                    <option>44</option>
+                    <option>45</option>
+                    <option>46</option>
+                    <option>47</option>
+                    <option>48</option>
+                    <option>49</option>
+                    <option>50</option>
+                </select>
+            </div>
+            <div id="validateMonths" class="hidden">Please make a selection.</div>
+            <div class="txtlabel">* Vendor</div>
+            <div>@Html.DropDownListFor(model => model.PrePaidVendorslist, new SelectList(Model.PrePaidVendorslist, "PrePaidVendorsName", "PrePaidVendorsName"), new { @id = "ddVendors" })</div>
+            <div id="validateVendors" class="hidden">Please make a selection.</div>
+            <div class="txtlabel">* Type Of License</div>
+            <div>
+                <select id="ddType" style="width:280px">
+                    <option></option>
+                </select>
+            </div>
+            <div id="validateType" class="hidden">Please make a selection.</div>
+            <div class="txtlabel">* GL Code</div>
+            <div>
+                <select id="ddGL" style="width:280px">
+                    <option></option>
+                    <option>6900.890 Licenses and Taxes</option>
+                    <option>1108.100 Prepaid Licenses</option>
+                </select>
+            </div>
+            <div id="validateGL" class="hidden">Please make a selection.</div>
+            <div class="txtlabel">Notes</div>
+            <div><textarea class="txtboxnoheight" rows="10" id="txtNotes" name="txtNotes"></textarea></div>
+            <input type="button" id="postsubmit" class="hidden" value="Submit" onclick="submit()" />
+            <input type="text" id="txtFacility" class="hidden" name="txtFacility" />
+            <input type="text" id="txtMonths" class="hidden" name="txtMonths" />
+            <input type="text" id="txtVendors" class="hidden" name="txtVendors" />
+            <input type="text" id="txtType" class="hidden" name="txtType" />
+            <input type="text" id="txtGL" class="hidden" name="txtGL" />
+            <input type="text" id="txtPaid" class="hidden" name="txtPaid" />
+            <input type="text" id="txtNewAmount" class="hidden" name="txtNewAmount" />
+        </form>
+        <input type="button" class="btn btn-primary" style="margin-top:15px;" value="Submit" onclick="validate()" />
+
+        <script src="~/lib/jquery/jquery.js"></script>
+        <script src="~/lib/select2/js/select2.js"></script>
+        <script type="text/javascript">
+            $.noConflict();
+            jQuery(document).ready(function ($) {
+                $("#ddFacility").select2();
+                $("#ddVendors").select2();
+                $("#ddMonths").select2();
+                $("#ddGL").select2();
+                $("#ddType").select2();
+
+                $('#ddVendors').on('select2:select', function (e) {
+                    $.get("/PrePaid/VendorChange", { stritem: e.params.data.text }, function (data) { vendorchange(data); });
+                });
+            });
+
+            function vendorchange(data) {
+                var options = data.split(",");
+                var currentdd = document.getElementById("ddType");
+                //Remove all current locations
+                while (currentdd.options.length) {
+                    currentdd.remove(0);
+                }
+                //Put locations in dropdown list
+                var popdd = options;
+                if (popdd) {
+                    var i;
+                    for (i = 0; i < popdd.length; i++) {
+                        var popddd = new Option(popdd[i]);
+
+                        currentdd.options.add(popddd);
+                    }
+                }
+            }
+
+            function submit() {
+
+            }
+
+            function validate() {
+                var errors = 0
+
+                var amount = document.getElementById('txtAmount').value
+                amount = amount.replace('$', '')
+                amount = amount.replace(' ', '')
+                amount = amount.replace(',', '')
+
+                if (document.getElementById('ddFacility').value == '') {
+                    document.getElementById('validateFacility').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('txtFacility').value = document.getElementById('ddFacility').value
+                    document.getElementById('validateFacility').className = 'hidden'
+                }
+
+                if (document.getElementById('txtAmount').value == '') {
+                    document.getElementById('validateAmount').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('txtNewAmount').value = amount
+                    document.getElementById('validateAmount').className = 'hidden'
+                }
+
+                if (moment(document.getElementById('txtDueDate').value, "MM/DD/YYYY", true).isValid()) {
+                    document.getElementById('validateDueDate').className = 'hidden'
+                } else {
+                    document.getElementById('validateDueDate').className = 'validation'
+                    errors = 1
+                }
+
+                if (moment(document.getElementById('txtExpectedReceipt').value, "MM/DD/YYYY", true).isValid()) {
+                    document.getElementById('validateExpectedReceipt').className = 'hidden'
+                } else {
+                    document.getElementById('validateExpectedReceipt').className = 'validation'
+                    errors = 1
+                }
+
+                if (moment(document.getElementById('txtBeginAmortization').value, "MM/DD/YYYY", true).isValid()) {
+                    document.getElementById('validateBeginAmortization').className = 'hidden'
+                } else {
+                    document.getElementById('validateBeginAmortization').className = 'validation'
+                    errors = 1
+                }
+
+                if (document.getElementById('ddMonths').value == '') {
+                    document.getElementById('validateMonths').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('txtMonths').value = document.getElementById('ddMonths').value
+                    document.getElementById('validateMonths').className = 'hidden'
+                }
+
+                if (document.getElementById('ddVendors').value == '') {
+                    document.getElementById('validateVendors').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('txtVendors').value = document.getElementById('ddVendors').value
+                    document.getElementById('validateVendors').className = 'hidden'
+                }
+
+                if (document.getElementById('ddType').value == '') {
+                    document.getElementById('validateType').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('txtType').value = document.getElementById('ddType').value
+                    document.getElementById('validateType').className = 'hidden'
+                }
+
+                if (document.getElementById('ddGL').value == '') {
+                    document.getElementById('validateGL').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('txtGL').value = document.getElementById('ddGL').value
+                    document.getElementById('validateGL').className = 'hidden'
+                }
+
+                if (document.getElementById('rdYes').checked) {
+                    document.getElementById('txtPaid').value = 'true'
+                } else {
+                    document.getElementById('txtPaid').value = 'false'
+                }
+
+                if (errors == 0) {
+                    document.getElementById('postsubmit').click()
+                }
+            }
+
+        </script>
+    }
+}

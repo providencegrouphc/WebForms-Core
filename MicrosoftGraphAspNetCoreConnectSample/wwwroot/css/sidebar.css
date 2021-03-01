@@ -1,0 +1,27 @@
+﻿.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #d9dadb;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    border-right: 1px solid #1b1464;
+    white-space: nowrap;
+}
+
+    .sidebar a {
+        padding: 4px 4px 4px 32px;
+        text-decoration: none;
+        font-size: 15px;
+        color: #383838;
+        display: block;
+        transition: 0.3s;
+    }
+
+        .sidebar a:hover {
+            color: #707070;
+        }

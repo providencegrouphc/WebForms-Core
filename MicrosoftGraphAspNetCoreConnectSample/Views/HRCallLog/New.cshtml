@@ -1,0 +1,308 @@
+﻿@if (!User.Identity.IsAuthenticated)
+{
+    <br />
+    <p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+        <p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+
+        @Html.Raw(ViewData["sidebar"])
+        <script src="~/js/dropzone/dropzone.js"></script>
+        <link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+        <script src="~/js/jquery-1.12.4.js"></script>
+        <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+        <script src="~/js/UI/jquery-ui.js"></script>
+        <script src="~/js/jquery.inputmask.js"></script>
+        <script src="~/js/moment.js"></script>
+
+
+        <style>
+            .txtbox {
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+                height: 28px;
+                width: 100% !important;
+            }
+
+            .txtlabel {
+                margin-top: 15px;
+            }
+
+            .validation {
+                color: red;
+            }
+
+            .dropzone {
+                border: 1px solid #aaa !important;
+                border-radius: 5px !important;
+            }
+
+            .imgdiv {
+                border: 1px solid #aaa;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+
+                .imgdiv table {
+                    width: 280px;
+                    table-layout: fixed;
+                }
+
+            .imgdivtd {
+                width: 170px;
+                word-wrap: break-word;
+                padding-right: 10px
+            }
+        </style>
+
+        <h1>New Call</h1>
+        <hr />
+        <a href="/HRCallLog">Return to Call Log Home</a>
+        <div style="height:10px"></div>
+        <table id="tblTimer">
+            <tr>
+                <td id="timer" style="width:150px; border:1px solid #aaa; border-radius: 5px; text-align:center; font-size:25px; font-weight:bold">00:00:00</td>
+                <td style="padding-left:5px;">
+                    <input type="button" class="btn btn-primary" id="stop" value="Stop" onclick="stoptimer()" />
+                    <input type="button" class="hidden" id="start" value="Start" onclick="starttimer()" />
+                </td>
+            </tr>
+        </table>
+
+        <script>
+
+            var myVar = setInterval(myTimer, 1000);
+            var myCount = 0
+            function myTimer() {
+                myCount = myCount + 1
+                var hours = Math.floor(myCount / 60 / 60);
+                var minutes = Math.floor(myCount / 60) - (hours * 60);
+                var seconds = myCount % 60;
+                document.getElementById("timer").innerHTML = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+                document.getElementById("txtDuration").value = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+            }
+
+            function stoptimer() {
+                clearInterval(myVar)
+                document.getElementById("stop").className = "hidden"
+                document.getElementById("start").className = "btn btn-primary"
+            }
+
+            function starttimer() {
+                myVar = setInterval(myTimer, 1000);
+                document.getElementById("start").className = "hidden"
+                document.getElementById("stop").className = "btn btn-primary"
+            }
+
+            function manualtime() {
+                clearInterval(myVar)
+                document.getElementById('tblTimer').className = 'hidden'
+                document.getElementById('mantime').className = 'hidden'
+                document.getElementById('txtDuration').disabled = false
+                document.getElementById('txtDuration').value = ''
+                $('#txtDuration').inputmask(
+                    "99:99:99", {
+                    placeholder: "HH:MM:SS"
+                }
+                );
+            }
+
+            function delblob(blobname) {
+                $.get("/HRCallLog/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+
+            }
+
+            function validatesub() {
+                var errors = 0
+                clearInterval(myVar)
+                document.getElementById("stop").className = "hidden"
+                document.getElementById("start").className = "btn btn-primary"
+
+                if (document.getElementById('txtCaller').value == '') {
+                    document.getElementById('validateCaller').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strCaller').value = document.getElementById('txtCaller').value
+                    document.getElementById('validateCaller').className = 'hidden'
+                }
+
+                if (document.getElementById('ddFac').value == '') {
+                    document.getElementById('validateFacility').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strFacility').value = document.getElementById('ddFac').value
+                    document.getElementById('validateFacility').className = 'hidden'
+                }
+
+                if (document.getElementById('ddDepartment').value == '') {
+                    document.getElementById('validateDepartment').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strDepartment').value = document.getElementById('ddDepartment').value
+                    document.getElementById('validateDepartment').className = 'hidden'
+                }
+
+                if (document.getElementById('ddUnion').value == 'No') {
+                    document.getElementById('strUnion').value = 'False'
+                } else {
+                    document.getElementById('strUnion').value = 'True'
+                }
+
+                if (document.getElementById('ddCategory').value == '') {
+                    document.getElementById('validateCategory').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strCategory').value = document.getElementById('ddCategory').value
+                    document.getElementById('validateCategory').className = 'hidden'
+                }
+
+                if (document.getElementById('ddPrivate').value == 'No') {
+                    document.getElementById('strPrivate').value = 'False'
+                } else {
+                    document.getElementById('strPrivate').value = 'True'
+                }
+
+                var duration = document.getElementById('txtDuration').value
+                if (document.getElementById('txtDuration').value == '' || duration.includes('S') || duration.includes('M') || duration.includes('H')) {
+                    document.getElementById('validateDuration').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strDuration').value = document.getElementById('txtDuration').value
+                    document.getElementById('validateDuration').className = 'hidden'
+                }
+
+                if (document.getElementById('txtNotes').value == '') {
+                    document.getElementById('validateNotes').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strNotes').value = document.getElementById('txtNotes').value
+                    document.getElementById('validateNotes').className = 'hidden'
+                }
+
+                if (errors == 0) {
+                    document.getElementById('subnew').click()
+                }
+
+            }
+        </script>
+
+        <form asp-controller="HRCallLog" asp-action="PostNew" method="post" class="hidden">
+            <input type="text" id="strAttUID" name="strAttUID" value="@Html.Raw(ViewData["UID"])" />
+            <input type="text" id="strCaller" name="strCaller" />
+            <input type="text" id="strFacility" name="strFacility" />
+            <input type="text" id="strDepartment" name="strDepartment" />
+            <input type="text" id="strUnion" name="strUnion" />
+            <input type="text" id="strCategory" name="strCategory" />
+            <input type="text" id="strPrivate" name="strPrivate" />
+            <input type="text" id="strDuration" name="strDuration" />
+            <input type="text" id="strNotes" name="strNotes" />
+            <input type="button" id="subnew" onclick="submit()" />
+        </form>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="txtlabel">Caller</div>
+                <div><input type="text" class="txtbox" id="txtCaller" name="txtCaller" /></div>
+                <div id="validateCaller" class="hidden">Please enter a caller.</div>
+
+                <div class="txtlabel">Facility</div>
+                <div>@Html.Raw(ViewData["Facilities"])</div>
+                <div id="validateFacility" class="hidden">Please select a facility.</div>
+
+                <div class="txtlabel">Department</div>
+                <div>@Html.Raw(ViewData["Department"])</div>
+                <div id="validateDepartment" class="hidden">Please select a department.</div>
+
+                <div class="txtlabel">Union Member</div>
+                <div>
+                    <select id="ddUnion" class="txtbox" style="width: 280px !important">
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
+
+                <div class="txtlabel">Category</div>
+                <div>@Html.Raw(ViewData["Category"])</div>
+                <div id="validateCategory" class="hidden">Please select a category.</div>
+
+                <div class="txtlabel">Make Private</div>
+                <div>
+                    <select id="ddPrivate" class="txtbox" style="width: 280px !important">
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
+
+                <div class="txtlabel">Duration</div>
+                <div><input type="text" class="txtbox" id="txtDuration" name="txtDuration" disabled="disabled" /></div>
+                <a style="font-size:12px" href="#" id="mantime" onclick="manualtime()">Manually enter time</a>
+                <div id="validateDuration" class="hidden">Please enter a duration.</div>
+            </div>
+            <div class="col-md-4" style="max-width: 310px;">
+                <div class="txtlabel">Notes</div>
+                <div><textarea class="txtbox" style="height:150px" id="txtNotes"></textarea></div>
+                <div id="validateNotes" class="hidden">Please enter notes.</div>
+
+                @using (Html.BeginForm("UploadFile", "HRCallLog",
+FormMethod.Post,
+new
+{
+   @class = "dropzone",
+   id = "dropzone-form",
+}))
+                {
+                    <div class="fallback">
+                        <input name="file" type="file" multiple />
+
+                    </div>
+                    <input id="fUID" name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+
+                <div id="imagelist">
+
+                </div>
+                <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Save Call" onclick="validatesub()" />
+            </div>
+        </div>
+        @section Scripts{
+            <script type="text/javascript">
+                Dropzone.options.dropzoneForm = {
+                    paramName: "file",
+                    maxFilesize: 20,
+                    maxFiles: 4,
+
+                    dictMaxFilesExceeded: "Custom max files msg",
+                    dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                    success: function (file, response) {
+                        this.removeFile(file);
+                        $.get("/HRCallLog/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                        // This return statement is necessary to remove progress bar after uploading.
+                        return file.previewElement.classList.add("dz-success");
+                    }
+                };
+
+
+            </script>
+        }
+
+        <script src="~/lib/jquery/jquery.js"></script>
+        <script src="~/lib/select2/js/select2.js"></script>
+        <script type="text/javascript">
+            $.noConflict();
+            jQuery(document).ready(function ($) {
+                $("#ddFac").select2();
+                $("#ddDepartment").select2();
+                $("#ddUnion").select2();
+                $("#ddCategory").select2();
+                $("#ddPrivate").select2();
+            });</script>
+    }
+}

@@ -1,0 +1,161 @@
+﻿
+@if (!User.Identity.IsAuthenticated)
+{
+    <br />
+    <p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+        <p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+
+
+        @Html.Raw(ViewData["sidebar"])
+        <script src="~/js/jquery-1.12.4.js"></script>
+        <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+        <script src="~/js/UI/jquery-ui.js"></script>
+
+        <script>
+            $(window).resize(function () {
+                $("#showadditions").dialog("option", "position", { my: "center", at: "center", of: window });
+            });
+        </script>
+
+        <div id="alert" class="alert alert-info @(TempData["Message"] == null ? "hidden" : null)" role="alert">
+            @Html.Raw(TempData["Message"])
+        </div>
+
+        <h1>Pre Paid Licenses</h1>
+        <hr />
+        <a href="/PrePaid/New" class="btn btn-primary">Create New</a>
+        <button type="submit" class="btn btn-primary" onclick="showadditions()">Create Report</button>
+        <form asp-controller="PrePaid" asp-action="GenReport" method="post" class="hidden">
+            <input type="button" value="Create" onclick="submit()" id="genreport" />
+            <input type="text" id="txtMonth" name="txtMonth" />
+            <input type="text" id="txtYear" name="txtYear" />
+        </form>
+        <br />
+        <br />
+        <label>Show Completed</label>
+        <input type="checkbox" onclick="checkchange(this)" />
+        <script type="text/javascript">
+            jQuery(document).ready(function ($) {
+                setTimeout(function () {
+                    $("#alert").hide("slow");
+
+                }, 2000);
+
+                var table = $('#example').DataTable({
+                    responsive: true,
+                    "columnDefs": [
+                        { "targets": [0], "visible": false, "searchable": false },
+                        { "targets": [7], "visible": false, "searchable": true }
+                    ]
+                })
+
+                table
+                    .columns(7)
+                    .search('YES')
+                    .draw();
+
+
+                $('#example tbody').on('click', 'tr', function () {
+                    var data = table.row(this).data();
+                    document.getElementById('txtID').value = data[0]
+                    document.getElementById('postsubmit').click()
+                });
+
+            });
+
+            function checkchange(value) {
+                var table = $('#example').DataTable();
+                table.destroy();
+
+                var table = $('#example').DataTable({
+                    responsive: true,
+                    "columnDefs": [
+                        { "targets": [0], "visible": false, "searchable": false },
+                        { "targets": [7], "visible": false, "searchable": true }
+                    ]
+                })
+
+                if (value.checked == true) {
+                    table
+                        .columns(7)
+                        .search()
+                        .draw();
+                } else {
+                    table
+                        .columns(7)
+                        .search('YES')
+                        .draw();
+                }
+
+            }
+
+            function genreport() {
+                document.getElementById('txtMonth').value = document.getElementById('ddmonth').value
+                document.getElementById('txtYear').value = document.getElementById('ddyear').value
+                $('#showadditions').dialog('close');
+                document.getElementById('genreport').click()
+
+            }
+
+            function submit() {
+
+            }
+
+        </script>
+
+        <script src="~/datatables/datatables.min.js"></script>
+        <script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+        <link rel="stylesheet" href="~/datatables/datatables.min.css" />
+
+        @Html.Raw(ViewData["prepaidtable"])
+
+        <form asp-controller="PrePaid" asp-action="PostEdit" method="post">
+            <input type="button" id="postsubmit" class="hidden" value="Submit" onclick="submit()" />
+            <input type="text" id="txtID" class="hidden" name="txtID" />
+        </form>
+
+        <script>
+            function showadditions() {
+                $("#showadditions").dialog({
+                    resizable: false,
+                    height: "auto",
+                    width: "300px",
+                    modal: true
+                });
+            };
+        </script>
+
+        <div style="visibility:hidden; height:0px; display:none">
+            <div id="showadditions" title="Add Additions">
+                <div class="txtlabel">Month</div>
+                <div>
+                    @Html.Raw(ViewData["prepaidgetmonths"])
+                </div>
+
+                <div class="txtlabel">Year</div>
+                <div>
+                    @Html.Raw(ViewData["prepaidgetyears"])
+                </div>
+
+                <br />
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="genreport()">Submit</button>
+                    <button type="button" class="btn btn-secondary" onclick="$('#showadditions').dialog('close');">Close</button>
+                </div>
+            </div>
+        </div>
+
+
+    }
+}
+

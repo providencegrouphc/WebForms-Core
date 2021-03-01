@@ -1,0 +1,21 @@
+﻿
+
+@{ ViewData["Title"] = "Home Page"; }
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        openNav();
+    });
+
+</script>
+
+
+
+@if (!User.Identity.IsAuthenticated)
+{
+<br />
+                <p>Choose <b>Sign in</b> at the top of the page.</p>}
+@if (User.Identity.IsAuthenticated)
+{
+        @Html.Raw(ViewData["sidebar"])
+}

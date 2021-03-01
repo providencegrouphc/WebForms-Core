@@ -1,0 +1,276 @@
+﻿@if (!User.Identity.IsAuthenticated)
+{
+    <br />
+    <p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+        <p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+
+        @Html.Raw(ViewData["sidebar"])
+        <script src="~/js/jquery-1.12.4.js"></script>
+        <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+        <script src="~/js/UI/jquery-ui.js"></script>
+        <style>
+            .tabseta {
+                position: relative;
+                display: inline-block;
+                padding: 10px 20px 10px 20px;
+                border: 1px solid transparent;
+                border-bottom: 0;
+                cursor: pointer;
+                font-size: 14px;
+                border-color: #ccc;
+                border-bottom: 1px solid #fff;
+                margin-bottom: -1px;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+            }
+
+            .tabsetb {
+                position: relative;
+                display: inline-block;
+                padding: 10px 20px 10px 20px;
+                border: 1px solid transparent;
+                border-bottom: 0;
+                cursor: pointer;
+                font-size: 14px;
+                border-color: #eee;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                background-color: #eee;
+            }
+
+                .tabsetb:hover {
+                    background-color: #ccc;
+                }
+
+
+            .tab-panelsx {
+                border: 1px solid #ccc;
+                padding: 20px;
+                margin-top: -5px;
+                border-top-right-radius: 5px;
+                border-bottom-right-radius: 5px;
+                border-bottom-left-radius: 5px;
+            }
+
+            .tableFixHead {
+                overflow-y: auto;
+                height: 200px;
+                width: 350px;
+            }
+
+                .tableFixHead thead th {
+                    position: sticky;
+                    top: 0;
+                    background-color: #1b1464;
+                    color: white;
+                }
+
+            table {
+                border-collapse: collapse;
+                width: 350px;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+
+            th {
+                background: #eee;
+            }
+
+            td, th {
+                border: 1px solid #ddd;
+                padding: 5px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            tr:hover {
+                background-color: #ddd;
+            }
+
+            .txtbox {
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+                height: 28px;
+                width: 100%;
+            }
+
+            .txtlabel {
+                margin-top: 10px;
+            }
+
+            .validation {
+                color: red;
+            }
+        </style>
+
+        <script>
+            $(window).resize(function () {
+                $("#showdel").dialog("option", "position", { my: "center", at: "center", of: window });
+                $("#showadd").dialog("option", "position", { my: "center", at: "center", of: window });
+            });
+
+            function tabchange(tabname, tabb, tabbb) {
+
+                document.getElementById(tabname).className = "tabseta"
+                document.getElementById(tabb).className = "tabsetb"
+                document.getElementById(tabbb).className = "tabsetb"
+
+                document.getElementById('Z' + tabname).className = "tab-panelsx"
+                document.getElementById('Z' + tabb).className = "hidden"
+                document.getElementById('Z' + tabbb).className = "hidden"
+            }
+
+            function admindel() {
+                var id = document.getElementById('passid').value
+                var type = document.getElementById('passtype').value
+
+                if (type == 'Admins') {
+                    $.get("/HRCallLog/DelAdmin", { strid: id }, function (data) { document.getElementById('tbladmin').innerHTML = data });
+                }
+
+                if (type == 'Category') {
+                    $.get("/HRCallLog/DelCat", { strid: id }, function (data) { document.getElementById('tblcats').innerHTML = data });
+                }
+
+                if (type == 'Department') {
+                    $.get("/HRCallLog/DelDept", { strid: id }, function (data) { document.getElementById('tbldept').innerHTML = data });
+                }
+
+                $('#showdel').dialog('close');
+            }
+
+            function adminadd() {
+                var type = document.getElementById('addtype').innerHTML
+                var strtext = document.getElementById('addtext').value
+
+                if (strtext == '') {
+                    document.getElementById('addvalidate').className = 'validation'
+                } else {
+                    document.getElementById('addvalidate').className = 'hidden'
+                    document.getElementById('addtext').value = ''
+                    document.getElementById('addtype').innerHTML = ''
+
+                    if (type == 'Administrator Email') {
+                        $.get("/HRCallLog/AddAdmin", { strtext: strtext }, function (data) { document.getElementById('tbladmin').innerHTML = data });
+                    }
+
+                    if (type == 'Category') {
+                        $.get("/HRCallLog/AddCat", { strtext: strtext }, function (data) { document.getElementById('tblcats').innerHTML = data });
+                    }
+
+                    if (type == 'Department') {
+                        $.get("/HRCallLog/AddDept", { strtext: strtext }, function (data) { document.getElementById('tbldept').innerHTML = data });
+                    }
+
+                    $('#showadd').dialog('close');
+                }
+
+
+            }
+        </script>
+
+        <h1>Admin</h1>
+        <hr />
+        <a href="/HRCallLog">Return to Call Log Home</a>
+        <div style="height:20px"></div>
+        <div class="tabset">
+            <label id="Expense" class="tabseta" onclick="tabchange('Expense', 'Distance', 'Multiple')">Administrators</label>
+            <label id="Distance" class="tabsetb" onclick="tabchange('Distance', 'Expense', 'Multiple')">Categories</label>
+            <label id="Multiple" class="tabsetb" onclick="tabchange('Multiple', 'Expense', 'Distance')">Departments</label>
+            <div id="ZExpense" class="tab-panelsx">
+                <div id="tbladmin">@Html.Raw(ViewData["getadmins"])</div>
+                <div style="width:350px; text-align:right; margin-top:5px">
+                    <button type="submit" class="btn btn-primary" onclick="showadd('Administrator Email')">Add Administrator</button>
+                </div>
+
+
+            </div>
+
+            <div id="ZDistance" class="hidden">
+                <div id="tblcats">@Html.Raw(ViewData["getcats"])</div>
+                <div style="width:350px; text-align:right; margin-top:5px">
+                    <button type="submit" class="btn btn-primary" onclick="showadd('Category')">Add Category</button>
+                </div>
+            </div>
+
+            <div id="ZMultiple" class="hidden">
+                <div id="tbldept">@Html.Raw(ViewData["getdept"])</div>
+                <div style="width:350px; text-align:right; margin-top:5px">
+                    <button type="submit" class="btn btn-primary" onclick="showadd('Department')">Add Department</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function deladmin(id, passname, type) {
+                document.getElementById('idpass').innerHTML = 'Are you sure you want to remove<br/>' + passname + '?';
+                document.getElementById('passid').value = id;
+                document.getElementById('passtype').value = type;
+                $("#showdel").dialog({
+                    resizable: false,
+                    height: "auto",
+                    width: "420px",
+                    modal: true
+                });
+            };
+        </script>
+
+        <div style="visibility:hidden; height:0px; display:none">
+            <div id="showdel" title="Confirm">
+
+                <div id="idpass" style="text-align:center; font-weight:bold"></div>
+                <input type="text" class="hidden" id="passid" />
+                <input type="text" class="hidden" id="passtype" />
+                <br />
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="admindel()">Remove</button>
+                    <button type="button" class="btn btn-secondary" onclick="$('#showdel').dialog('close');">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function showadd(type) {
+                document.getElementById('addtype').innerHTML = type;
+                document.getElementById('addvalidate').innerHTML = 'Please enter a ' + type;
+                $("#showadd").dialog({
+                    resizable: false,
+                    height: "auto",
+                    width: "420px",
+                    modal: true
+                });
+            };
+        </script>
+
+        <div style="visibility:hidden; height:0px; display:none">
+            <div id="showadd" title="Add">
+
+                <div id="addtype" class="txtlabel"></div>
+                <input type="text" class="txtbox" id="addtext" />
+                <div id="addvalidate" class="hidden"></div>
+                <br /><br />
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="adminadd()">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="$('#showadd').dialog('close');">Close</button>
+                </div>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,100 @@
+﻿@Html.Raw(ViewData["sidebar"])
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        width: 250px !important;
+        padding: 5px;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+</style>
+<h1>Supervisor View</h1>
+<a href="/Expense/Sup">Return to Supervisor Home</a>
+<br />
+<br />
+<form asp-controller="Expense" asp-action="PostSupSave" method="post">
+    <input name="strUID" id="strUID" type="text" class="hidden" />
+    <input name="strStatus" id="strStatus" type="text" class="hidden" />
+    <input name="strNotes" id="strNotes" type="text" class="hidden" />
+    <input name="strUser" id="strUser" type="text" class="hidden" />
+    <input type="button" id="subsup" class="hidden" onclick="submit()" />
+</form>
+
+<form asp-controller="Expense" asp-action="PostDelExpense" method="post">
+    <input name="strDUID" id="strDUID" type="text" class="hidden" />
+    <input type="button" id="Dsubsup" class="hidden" onclick="submit()" />
+</form>
+
+
+    @Html.Raw(ViewData["supeditdata"])
+
+    <script>
+        $(window).resize(function () {
+            $("#showdelexpense").dialog("option", "position", { my: "center", at: "center", of: window });
+        });
+
+        function showdelexpense() {
+            $("#showdelexpense").dialog({
+                resizable: false,
+                height: "auto",
+                width: "300px",
+                modal: true
+            });
+        };
+    </script>
+
+    <div style="visibility:hidden; height:0px; display:none">
+        <div id="showdelexpense" title="Confirm">
+            <div style="margin-top:10px; margin-bottom:10px; font-weight:bold; text-align:center">Are you sure you want to delete this expense report?</div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-danger" onclick="delexpense()">Delete</button>
+                <button type="button" class="btn btn-secondary" onclick="$('#showdelexpense').dialog('close');" id="supclose">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function validatesub() {
+            document.getElementById("strUID").value = document.getElementById("UID").value
+            document.getElementById("strNotes").value = document.getElementById("txtNotes").value
+            document.getElementById("strUser").value = document.getElementById("txtUser").value
+            document.getElementById("strStatus").value = document.getElementById("ddStatus").value
+            document.getElementById('subsup').click()
+        }
+
+        function delexpense() {
+            document.getElementById("strDUID").value = document.getElementById("UID").value
+            document.getElementById('Dsubsup').click()
+        }
+
+        function delblob(blobname) {
+            $.get("/Expense/DelBlob", { stritem: document.getElementById('AUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+
+        }
+    </script>

@@ -1,0 +1,252 @@
+﻿
+
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <br />
+    <p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+        <p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+
+        @Html.Raw(ViewData["sidebar"])
+        <style>
+            .next-weekpicker1 {
+                visibility: hidden !important;
+            }
+
+            .previous-weekpicker1 {
+                visibility: hidden !important;
+            }
+
+            .form-control {
+                border-radius: 5px !important;
+                border: 1px solid #aaa;
+            }
+
+            .txtbox {
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+                height: 28px;
+                width: 100%;
+            }
+
+            .txtboxnoheight {
+                background-color: #fff;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+                width: 100%;
+            }
+
+            .txtlabel {
+                margin-top: 15px;
+            }
+
+            .float {
+                float: left;
+                width: 200px;
+                margin-top: 15px;
+            }
+
+            .subbutton {
+                background-color: #1b1464;
+                border-radius: 5px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                width: 100px;
+                color: white;
+                text-decoration: none;
+                border: none
+            }
+
+                .subbutton:hover {
+                    background-color: #2b3791
+                }
+
+            .validation {
+                color: red;
+            }
+
+            .tableFixHead {
+                overflow-y: auto;
+                height: 200px;
+            }
+
+                .tableFixHead thead th {
+                    position: sticky;
+                    top: 0;
+                    background-color: #1b1464;
+                    color: white;
+                }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+
+            th {
+                background: #eee;
+            }
+
+            td, th {
+                border: 1px solid #ddd;
+                padding: 5px;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            tr:hover {
+                background-color: #ddd;
+            }
+
+            .fixed_header {
+                width: auto;
+                table-layout: fixed;
+                border-collapse: collapse;
+            }
+
+                .fixed_header td, .fixed_header th {
+                    border: 1px solid #ddd;
+                    padding: 5px;
+                }
+
+                .fixed_header tr:nth-child(even) {
+                    background-color: #f2f2f2;
+                }
+
+                .fixed_header tr:hover {
+                    background-color: #ddd;
+                }
+
+                .fixed_header th {
+                    padding-top: 12px;
+                    padding-bottom: 12px;
+                    text-align: left;
+                    background-color: #1b1464;
+                    color: white;
+                }
+
+                .fixed_header tbody {
+                    display: block;
+                    width: 100%;
+                    overflow: auto;
+                    max-height: 150px;
+                }
+
+                .fixed_header thead tr {
+                    display: block;
+                }
+
+                .fixed_header thead {
+                    background: black;
+                    color: #fff;
+                }
+
+                .fixed_header th, .fixed_header td {
+                    padding: 5px;
+                    text-align: left;
+                    width: 200px
+                }
+        </style>
+        <h1>Forecast</h1>
+
+
+        <div class="txtlabel">Facility</div>
+        @Html.Raw(ViewData["forecastoperations"])
+        <div id="validateFacility" class="hidden">Please make a selection.</div>
+        <div class="txtlabel">* Amount</div>
+        <div><input type="text" id="txtAmount" class="txtbox" name="Amount" /></div>
+        <div id="validateAmount" class="hidden">Please enter a valid number.</div>
+
+        <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/pingcheng/bootstrap4-datetimepicker/master/build/css/bootstrap-datetimepicker.min.css">
+
+        <div class="input-group date align-items-center" style="width:100%">
+            <div id="weekpicker1"></div>
+        </div>
+
+        <input type="button" class="btn btn-primary" style="margin-top:15px;" value="Submit" onclick="validate()" />
+
+
+
+        <h3>Projection History</h3>
+        <div id="forecast"></div>
+
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js" type="text/javascript"></script>
+        <script src="https://cdn.rawgit.com/pingcheng/bootstrap4-datetimepicker/master/build/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+        <script src="~/js/bootstrap-weekpicker.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+
+            var weekpicker = $("#weekpicker1").weekpicker();
+        </script>
+
+
+        <script src="~/lib/jquery/jquery.js"></script>
+        <script src="~/lib/select2/js/select2.js"></script>
+        <script type="text/javascript">
+            $.noConflict();
+            jQuery(document).ready(function ($) {
+                $.get("/FacilityForecast/getforcast", { strFacility: document.getElementById('ddfacility').value }, function (data) { document.getElementById('forecast').innerHTML = data; });
+                $("#ddfacility").select2();
+                $('#ddfacility').on('select2:select', function (e) {
+                    $.get("/FacilityForecast/getforcast", { strFacility: e.params.data.text }, function (data) { document.getElementById('forecast').innerHTML = data; });
+                });
+            });
+
+
+            function validate() {
+                var errors = 0
+                var selweek = ""
+                $(".form-control").each(function () {
+                    selweek = $(this).val();
+                });
+
+                if (document.getElementById('ddfacility').value == '') {
+                    document.getElementById('validateFacility').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('validateFacility').className = 'hidden'
+                }
+
+                if (document.getElementById('txtAmount').value == '') {
+                    document.getElementById('validateAmount').className = 'validation'
+                    errors = 1
+                } else {
+                    if (isNaN(document.getElementById('txtAmount').value)) {
+                        document.getElementById('validateAmount').className = 'validation'
+                        errors = 1
+                    } else {
+                        document.getElementById('validateAmount').className = 'hidden'
+                    }
+                }
+
+                if (errors == 0) {
+                    $.get("/FacilityForecast/AddForecast", { strFacility: document.getElementById('ddfacility').value, strAmount: document.getElementById('txtAmount').value, strWeek: selweek }, function (data) { document.getElementById('forecast').innerHTML = data });
+                }
+
+
+            }
+        </script>
+    }
+}
+
+

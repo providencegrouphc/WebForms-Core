@@ -1,0 +1,516 @@
+﻿@model MicrosoftGraphAspNetCoreConnectSample.Models.prepaidedit
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+@Html.Raw(ViewData["sidebar"])
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+
+<script>
+    $(window).resize(function () {
+        $("#showadditions").dialog("option", "position", { my: "center", at: "center", of: window });
+        $("#showpayment").dialog("option", "position", { my: "center", at: "center", of: window });
+        $("#shownotes").dialog("option", "position", { my: "center", at: "center", of: window });
+    });
+
+    $(window).load(function () {
+        $("#txtAddAmount").inputmask({
+            'alias': 'numeric', 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+    });
+</script>
+
+<style>
+    .ui-dialog-titlebar {
+        background-color: white;
+        border: none;
+        border-radius: 0px;
+        border-bottom: 1px solid #aaa;
+        font-size: 15px
+    }
+
+    .ui-dialog-titlebar-close {
+        background-color: white;
+        border: none;
+    }
+
+        .ui-dialog-titlebar-close:hover {
+            background-color: white;
+            border: none;
+        }
+
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100%;
+    }
+
+    .txtboxnoheight {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        width: 100%;
+    }
+
+    .txtlabel {
+        margin-top: 10px;
+    }
+
+    .float {
+        float: left;
+        width: 200px;
+        margin-top: 15px;
+    }
+
+    .subbutton {
+        background-color: #1b1464;
+        border-radius: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        width: 100px;
+        color: white;
+        text-decoration: none;
+        border: none
+    }
+
+        .subbutton:hover {
+            background-color: #2b3791
+        }
+
+    .validation {
+        color: red;
+    }
+
+    .fixed_header {
+        width: auto;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+        .fixed_header td, .fixed_header th {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        .fixed_header tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .fixed_header tr:hover {
+            background-color: #ddd;
+        }
+
+        .fixed_header th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #1b1464;
+            color: white;
+        }
+
+        .fixed_header tbody {
+            display: block;
+            width: 100%;
+            overflow: auto;
+            max-height: 150px;
+        }
+
+        .fixed_header thead tr {
+            display: block;
+        }
+
+        .fixed_header thead {
+            background: black;
+            color: #fff;
+        }
+
+        .fixed_header th, .fixed_header td {
+            padding: 5px;
+            text-align: left;
+            width: 200px
+        }
+
+    .tableFixHead {
+        overflow-y: auto;
+        height: 200px;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            background-color: #1b1464;
+            color: white;
+        }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        padding: 8px;
+    }
+
+    th {
+        background: #eee;
+    }
+
+    td, th {
+        border: 1px solid #ddd;
+        padding: 5px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #ddd;
+    }
+
+
+    textarea {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        width: 100%;
+    }
+</style>
+
+@{ var data = ViewBag.Message;}
+<h1>Details</h1>
+<hr />
+<a href="/PrePaid" id="homeclick">Return to Pre Paid Home</a>
+<div id="alert" class="alert alert-info" role="alert" style="margin-top:15px;">
+    Remaining Balance: @data.balance
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="hidden" id="editid">@data.ID</div>
+        <div class="txtlabel"><label>Facility</label></div>
+        <div>@data.facility</div>
+        <div class="txtlabel"><label>Amount</label></div>
+        <div>@data.amount</div>
+        <div class="txtlabel"><label>Invoice Due Date</label></div>
+        <div>@data.invoiceduedate</div>
+        <div class="txtlabel"><label>Paid</label></div>
+        <div>@data.paid</div>
+        <div class="txtlabel"><label>Expected Receipt Date</label></div>
+        <div>@data.expectedreceiptdate</div>
+        <div class="txtlabel"><label>Begin Amortization Date</label></div>
+        <div>@data.beginamortizationdate</div>
+        <div class="txtlabel"><label>How Many Months Amortized</label></div>
+        <div style="float:left" id="totalmonths">@data.monthsamortized</div>
+        <div style="margin-left:70px"><a href="#" onclick="showmonths()">(edit)</a></div>
+        <div class="txtlabel"><label>Vendor</label></div>
+        <div>@data.vendor</div>
+        <div class="txtlabel"><label>Type of License</label></div>
+        <div>@data.typeoflicense</div>
+        <div class="txtlabel"><label>GL Code</label></div>
+        <div>@data.glcode</div>
+        <div style="padding-top:10px;"><button type="submit" class="btn btn-primary" onclick="showconfirm()">Delete Record</button></div>
+    </div>
+
+    <div class="col-md" style="margin-left:15px">
+        <div style="float:left; font-size:20px">Notes</div>
+        <div style="text-align:right; padding-bottom:5px">
+            <button type="button" class="btn btn-primary" onclick="shownotes()">Edit Notes</button>
+        </div>
+        <div style="border: 1px solid black; height: 100px; overflow-y:scroll; margin-bottom:10px" id="bodynotes">
+            @data.notes
+        </div>
+
+        <div style="float:left; font-size:20px;">Additions After</div>
+        <div style="text-align:right; padding-bottom:5px">
+            <button type="submit" class="btn btn-primary" onclick="showadditions()">Add Additions</button>
+        </div>
+        <div id="getadditions">@Html.Raw(ViewData["prepaidadditions"])</div>
+
+        <div style="font-size:20px; padding-bottom:10px;">Scheduled Payments</div>
+        <div id="getpayments">@Html.Raw(ViewData["prepaidgetpayments"])</div>
+
+    </div>
+</div>
+
+<script>
+    function shownotes() {
+        $("#shownotes").dialog({
+            resizable: false,
+            height: "auto",
+            width: "420px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="shownotes" title="Edit Notes">
+        <textarea rows="5" cols="2" id="txtNotes" style="max-width:400px">@data.notes</textarea>
+
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="updatenotes()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#shownotes').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showpayment(paymentid, amount, paymentdate, invoice, check, tracking) {
+        document.getElementById('paymentid').value = paymentid;
+        document.getElementById('txtPayAmount').value = amount;
+        document.getElementById('txtPaymentDate').value = paymentdate;
+        document.getElementById('txtInvoice').value = invoice;
+        document.getElementById('txtCheck').value = check;
+        document.getElementById('txtTracking').value = tracking;
+        $("#showpayment").dialog({
+            resizable: false,
+            height: "auto",
+            width: "300px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showpayment" title="Add Payment">
+        <input type="text" id="paymentid" class="hidden" />
+        <div class="txtlabel">* Payment Date</div>
+        <div><input type="text" id="txtPaymentDate" class="txtbox" disabled="disabled" /></div>
+        <div id="validatePaymentDate" class="hidden">Please enter a valid date.</div>
+
+        <div class="txtlabel">* Amount Paid</div>
+        <div><input type="text" id="txtPayAmount" class="txtbox" disabled="disabled" /></div>
+        <div id="validatepaymentamount" class="hidden">Please select an amount.</div>
+
+        <div class="txtlabel">* Invoice Number</div>
+        <div><input type="text" id="txtInvoice" class="txtbox" name="Amount" /></div>
+        <div id="validateInvoice" class="hidden">Please enter a value.</div>
+
+        <div class="txtlabel">Check Number</div>
+        <div><input type="text" id="txtCheck" class="txtbox" name="Amount" /></div>
+
+        <div class="txtlabel">Tracking Number</div>
+        <div><input type="text" id="txtTracking" class="txtbox" name="Amount" /></div>
+
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="addpayment()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showpayment').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function showadditions() {
+        $("#showadditions").dialog({
+            resizable: false,
+            height: "auto",
+            width: "300px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showadditions" title="Add Additions">
+        <div class="txtlabel">* Amount</div>
+        <div><input type="text" id="txtAddAmount" class="txtbox" name="Amount" /></div>
+        <div id="validateAddAmount" class="hidden">Please enter a valid number.</div>
+
+        <div class="txtlabel">* Reason</div>
+        <div><input type="text" id="txtAddReason" class="txtbox" name="Amount" /></div>
+        <div id="validateAddReason" class="hidden">Please enter a reason.</div>
+
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="addadditional()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showadditions').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function showmonths() {
+        $("#showmonths").dialog({
+            resizable: false,
+            height: "auto",
+            width: "350px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showmonths" title="Change Months Amortized">
+        <p>In how many months do you want the remaining balance amortized?</p>
+        <select class="txtbox" id="ddmonths">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>11</option>
+            <option>12</option>
+            <option>13</option>
+            <option>14</option>
+            <option>15</option>
+            <option>16</option>
+            <option>17</option>
+            <option>18</option>
+            <option>19</option>
+            <option>20</option>
+            <option>21</option>
+            <option>22</option>
+            <option>23</option>
+            <option>24</option>
+            <option>25</option>
+            <option>26</option>
+            <option>27</option>
+            <option>28</option>
+            <option>29</option>
+            <option>30</option>
+            <option>31</option>
+            <option>32</option>
+            <option>33</option>
+            <option>34</option>
+            <option>35</option>
+            <option>36</option>
+            <option>37</option>
+            <option>38</option>
+            <option>39</option>
+            <option>40</option>
+            <option>41</option>
+            <option>42</option>
+            <option>43</option>
+            <option>44</option>
+            <option>45</option>
+            <option>46</option>
+            <option>47</option>
+            <option>48</option>
+            <option>49</option>
+            <option>50</option>
+        </select>
+
+        <br />
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="updatemonths()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showmonths').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showconfirm() {
+        $("#showconfirm").dialog({
+            resizable: false,
+            height: "auto",
+            width: "350px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showconfirm" title="Confrim">
+        <div class="txtlabel">Are you sure you want to delete this record?</div>
+
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="delrecord()">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showconfirm').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updatenotes() {
+        $.get("/PrePaid/ChangeNotes", { stritem: document.getElementById('txtNotes').value, strid: document.getElementById('editid').innerHTML }, function (data) { document.getElementById('bodynotes').innerHTML = data });
+
+        $('#shownotes').dialog('close');
+    }
+
+    function addpayment() {
+        var errors = 0
+
+
+
+        if (document.getElementById('txtInvoice').value == '') {
+            document.getElementById('validateInvoice').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateInvoice').className = 'hidden'
+        }
+
+        if (errors == 0) {
+            $.get("/PrePaid/AddPayment", { strid: document.getElementById('editid').innerHTML, paymentid: document.getElementById('paymentid').value, invoice: document.getElementById('txtInvoice').value, check: document.getElementById('txtCheck').value, tracking: document.getElementById('txtTracking').value }, function (data) { document.getElementById('getpayments').innerHTML = data });
+            $('#showpayment').dialog('close');
+        }
+
+
+    }
+
+    function addadditional() {
+        var errors = 0
+
+        var amount = document.getElementById('txtAddAmount').value
+        amount = amount.replace('$', '')
+        amount = amount.replace(' ', '')
+        amount = amount.replace(',', '')
+
+        if (document.getElementById('txtAddAmount').value == '') {
+            document.getElementById('validateAddAmount').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateAddAmount').className = 'hidden'
+        }
+
+        if (document.getElementById('txtAddReason').value == '') {
+            document.getElementById('validateAddReason').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateAddReason').className = 'hidden'
+        }
+
+        if (errors == 0) {
+            $.get("/PrePaid/AddAdditional", { strid: document.getElementById('editid').innerHTML, amountpaid: amount, reason: document.getElementById('txtAddReason').value }, function (data) { document.getElementById('getadditions').innerHTML = data });
+            $.get("/PrePaid/getpayments", { PREPAIDID: document.getElementById('editid').innerHTML }, function (data) { document.getElementById('getpayments').innerHTML = data });
+            $.get("/PrePaid/getbalance", { PREPAIDID: document.getElementById('editid').innerHTML }, function (data) { document.getElementById('alert').innerHTML = data });
+            $('#showadditions').dialog('close');
+        }
+    }
+
+    function updatemonths() {
+        $.get("/PrePaid/ChangeMonths", { strid: document.getElementById('editid').innerHTML, strmonths: document.getElementById('ddmonths').value }, function (data) { document.getElementById('getpayments').innerHTML = data });
+        $.get("/PrePaid/totalmonths", { strid: document.getElementById('editid').innerHTML }, function (data) { document.getElementById('totalmonths').innerHTML = data });
+        $('#showmonths').dialog('close');
+    }
+
+    function delrecord() {
+        $.get("/PrePaid/DelRecord", { strid: document.getElementById('editid').innerHTML }, function (data) { });
+        document.getElementById('homeclick').click();
+    }
+
+</script>

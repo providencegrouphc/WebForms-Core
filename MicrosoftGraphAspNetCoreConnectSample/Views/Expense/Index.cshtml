@@ -1,0 +1,154 @@
+﻿
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+
+<script src="~/datatables/datatables.min.js"></script>
+<script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="~/datatables/datatables.min.css" />
+
+
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        setTimeout(function () {
+            $("#alert").hide("slow");
+
+        }, 2000);
+
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[6, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false },
+                { "targets": [8], "visible": false, "searchable": true }
+            ]
+        })
+
+        table
+            .columns(8)
+            .search('no')
+            .draw();
+
+
+        $('#example tbody').on('click', 'tr', function () {
+            var data = table.row(this).data();
+            postsubmit(data[0])
+            //document.getElementById('txtID').value = data[0]
+            //document.getElementById('postsubmit').click()
+        });
+    });
+
+    function checkchange(value) {
+        var table = $('#example').DataTable();
+        table.destroy();
+
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[6, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false },
+                { "targets": [8], "visible": false, "searchable": true }
+            ]
+        })
+
+        if (value.checked == true) {
+            table
+                .columns(8)
+                .search()
+                .draw();
+        } else {
+            table
+                .columns(8)
+                .search('no')
+                .draw();
+        }
+
+
+    }
+
+    function postsubmit(row) {
+        document.getElementById('strUID').value = row
+        document.getElementById('subedit').click()
+    }
+</script>
+<table style="width:100%; margin-bottom:20px">
+    <tr>
+        <td style="vertical-align:top"><h1>Expense Reimbursement</h1></td>
+        <td style="text-align:right; padding-left:20px">@Html.Raw(ViewData["checksup"])</td>
+    </tr>
+</table>
+
+<div id="alert" class="alert alert-info @(TempData["Message"] == null ? "hidden" : null)" role="alert">
+    @Html.Raw(TempData["Message"])
+</div>
+
+<form asp-controller="Expense" asp-action="PostEdit" method="post">
+    <input name="strUID" id="strUID" type="text" class="hidden" />
+    <input type="button" id="subedit" class="hidden" onclick="submit()" />
+</form>
+
+
+<table style="width:100%">
+    <tr>
+        <td><a href="/Expense/New" class="btn btn-primary">New Expense</a></td>
+        <td style="text-align:right; vertical-align:bottom"><label>Show Completed</label>&nbsp;&nbsp;<input type="checkbox" onclick="checkchange(this)" /></td>
+
+    </tr>
+</table>
+
+<form asp-controller="Expense" asp-action="GenReport" method="post" class="hidden">
+    <input type="button" value="Create" onclick="submit()" id="genreportgo" />
+    <input type="text" id="txtMonth" name="txtMonth" />
+    <input type="text" id="txtYear" name="txtYear" />
+</form>
+
+<br />
+@Html.Raw(ViewData["sidebar"])
+@Html.Raw(ViewData["ownexpense"])
+
+<script>
+    $(window).resize(function () {
+        $("#genreport").dialog("option", "position", { my: "center", at: "center", of: window });
+    });
+
+    function genreport() {
+        $("#genreport").dialog({
+            resizable: false,
+            height: "auto",
+            width: "300px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="genreport" title="Expense Report">
+        <div class="txtlabel">Month</div>
+        <div>
+            @Html.Raw(ViewData["getmonths"])
+        </div>
+        <br />
+        <div class="txtlabel">Year</div>
+        <div>
+            @Html.Raw(ViewData["getyears"])
+        </div>
+
+        <br />
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="genreportgo()">Generate</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#genreport').dialog('close');" id="supclose">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function genreportgo() {
+        document.getElementById('txtMonth').value = document.getElementById('ddmonth').value
+        document.getElementById('txtYear').value = document.getElementById('ddyear').value
+        $('#showadditions').dialog('close');
+        document.getElementById('genreportgo').click()
+    }
+</script>

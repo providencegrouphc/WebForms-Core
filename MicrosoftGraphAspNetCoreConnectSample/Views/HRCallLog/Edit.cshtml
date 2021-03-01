@@ -1,0 +1,265 @@
+﻿
+@if (!User.Identity.IsAuthenticated)
+{
+<br />
+<p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+<p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<style>
+    .txtNotes {
+        border: 1px solid #aaa;
+        width: 300px;
+        height: 200px;
+        padding: 5px 5px 5px 5px;
+        overflow-y: scroll;
+        background-color: white;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+
+    .collapsible {
+        background-color: #337ab7;
+        color: white;
+        cursor: pointer;
+        padding: 5px;
+        width: 100%;
+        border: 1px solid #2e6da4;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+
+        .active, .collapsible:hover {
+            background-color: #286090;
+            border: 1px solid #204d74;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+    .active:after {
+        content: "\2212";
+    }
+
+    .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: #f1f1f1;
+    }
+</style>
+
+@Html.Raw(ViewData["sidebar"])
+
+<h1>Call Details</h1>
+<hr />
+<a href="/HRCallLog">Return to Call Log Home</a>
+
+<input type="text" value="@Html.Raw(ViewData["passid"])" class="hidden" id="passid" />
+<br />
+<br />
+@Html.Raw(ViewData["loginfo"])
+<div class="row">
+    <div class="col-md-4">
+        @Html.Raw(ViewData["calldetail"])
+        <div style="height:5px;"></div>
+        <table style="width:300px">
+            <tr>
+                <td><button type="submit" class="btn btn-primary" onclick="showaddnotes()">Add Notes</button></td>
+                <td style="text-align:right"><button type="submit" class="btn btn-primary" onclick="addcall()">Add Call</button></td>
+            </tr>
+        </table>
+
+        <div style="height:10px"></div>
+        @Html.Raw(ViewData["additionalcalls"])
+
+        <form asp-controller="HRCallLog" asp-action="PostAddCall" method="post" class="hidden">
+            <input type="text" id="txtID" name="txtID" />
+            <input type="button" id="subedit" onclick="submit()" />
+        </form>
+
+    </div>
+    <div class="col-md-4">
+
+        @using (Html.BeginForm("UploadFile", "HRCallLog",
+ FormMethod.Post,
+ new
+ {
+     @class = "dropzone",
+     id = "dropzone-form",
+ }))
+            {
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+
+        </div>
+        <input id="fUID" name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+
+        <div id="imagelist">
+            @Html.Raw(ViewData["uploads"])
+        </div>
+
+        @section Scripts{
+            <script type="text/javascript">
+                Dropzone.options.dropzoneForm = {
+                    paramName: "file",
+                    maxFilesize: 20,
+                    maxFiles: 4,
+
+                    dictMaxFilesExceeded: "Custom max files msg",
+                    dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                    success: function (file, response) {
+                        this.removeFile(file);
+                        $.get("/HRCallLog/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                        // This return statement is necessary to remove progress bar after uploading.
+                        return file.previewElement.classList.add("dz-success");
+                    }
+                };
+
+
+            </script>
+        }
+
+    </div>
+</div>
+
+
+
+<script>
+    function showaddnotes(type) {
+        document.getElementById('txtAddNotes').value = '';
+        $("#showaddnotes").dialog({
+            resizable: false,
+            height: "auto",
+            width: "420px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showaddnotes" title="Add Notes">
+        <div style="width:100%; text-align:center">
+            <textarea id="txtAddNotes" style="height:100px; width:300px"></textarea>
+        </div>
+
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="addnotes()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showaddnotes').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function shownewnotes(passid) {
+        document.getElementById('txtnewNotes').value = '';
+        document.getElementById('txtnewid').value = passid;
+        $("#shownewnotes").dialog({
+            resizable: false,
+            height: "auto",
+            width: "420px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="shownewnotes" title="Add Notes">
+        <div style="width:100%; text-align:center">
+            <textarea id="txtnewNotes" style="height:100px; width:300px"></textarea>
+            <input type="text" id="txtnewid" class="hidden" />
+        </div>
+
+        <br />
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="addnewnotes()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#shownewnotes').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(window).resize(function () {
+        $("#showaddnotes").dialog("option", "position", { my: "center", at: "center", of: window });
+    });
+
+    function delblob(blobname) {
+        $.get("/HRCallLog/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+
+    }
+
+    function addnotes() {
+        $.get("/HRCallLog/AddNotes", { stritem: document.getElementById('txtAddNotes').value, strid: document.getElementById('passid').value }, function (data) { document.getElementById('strNotes').innerHTML = data });
+        $('#showaddnotes').dialog('close');
+    }
+
+    function addnewnotes() {
+        $.get("/HRCallLog/AddNotes", { stritem: document.getElementById('txtnewNotes').value, strid: document.getElementById('txtnewid').value }, function (data) { document.getElementById(document.getElementById('txtnewid').value).innerHTML = data });
+        $('#shownewnotes').dialog('close');
+    }
+
+    function addcall() {
+        document.getElementById('txtID').value = document.getElementById('passid').value
+        document.getElementById('subedit').click()
+    }
+
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    }
+</script>
+    }
+}

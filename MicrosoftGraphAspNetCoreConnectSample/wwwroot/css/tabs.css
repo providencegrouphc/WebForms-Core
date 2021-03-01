@@ -1,0 +1,200 @@
+body {padding:0 0 0 0; margin:0 0 0 0}         
+     
+
+        ul, ol {
+            
+            margin-right:155px;
+            margin-top:0;
+        }
+        /* navigation 1 CSS */
+
+        #nav ul, ol{
+
+        }
+        #nav ul li {
+            border-right: none;
+            width: 200px;
+            height: 40px;
+            display: block;
+            visibility: visible;
+            font-size:14px;
+        }
+
+            #nav ul li a {
+                border-right: none;
+                color: #333;
+            }
+
+            #nav ul li:hover {
+                background: #dceaf4;
+            }
+
+        #nav ul {
+            display: none;
+            visibility: hidden;
+            position: absolute;
+            top: 50px;
+            z-index: 1;
+            background: #e5f1f9;
+            width: 200px;
+            padding: 0;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        }
+
+        #nav li:hover > ul {
+            display: block;
+            visibility: visible;
+        }
+
+        #nav {
+            height: 33px;
+            font-size: 16px;
+            font-family: Arial;
+            font-weight:bold;
+            background: #333;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+            #nav li {
+                list-style: none;
+                display: block;
+                float: left;
+                height: 45px;
+                position: relative;
+                padding-top:5px;
+            }
+
+                #nav li a {
+                    line-height: 40px;
+                    text-decoration: none;
+                    height: 80px;
+                    color: #eee;
+                    display: block;
+                    margin: 0;
+                    padding: 0px 30px 10px 30px;
+                }
+
+            #nav .site-name, #nav .site-name:hover {
+                padding-left: 10px;
+                padding-right: 10px;
+                color: #eee;
+                font: italic 20px/38px Georgia, "Times New Roman", Times, serif;
+                width: 200px;
+            }
+
+                #nav .site-name a {
+                    width: 199px;
+                    overflow: hidden;
+                }
+
+            #nav li:hover {
+                background: #004575;
+            }
+
+            #nav ul li:last-child, #nav ul li:last-child a {
+                border-bottom: none;
+            }
+
+            #nav ul ul, #nav ul ul ul {
+                top: 0;
+                left: 200px;
+                display: none;
+                visibility: hidden;
+                z-index: 1;
+            }
+
+
+ul.tabs
+{
+    padding: 7px 0;
+    font-size: 0;
+    margin:0;
+    list-style-type: none;
+    text-align: left;
+}
+        
+ul.tabs li
+{
+    display: inline;
+    margin: 0;
+    margin-right:3px;
+}
+        
+ul.tabs li a
+{
+    font: normal 12px Verdana;
+    text-decoration: none;
+    position: relative;
+    padding: 7px 16px;
+    border: 1px solid #CCC;
+    border-bottom-color:#B7B7B7;
+    color: #000;
+    background: #fff;
+    border-radius: 3px 3px 0 0;
+    outline:none;
+}
+        
+ul.tabs li a:visited
+{
+    color: #000;
+}
+        
+ul.tabs li a:hover
+{
+    border: 1px solid #B7B7B7;
+    background:#ddd;
+}
+        
+ul.tabs li.selected a, ul.tabs li.selected a:hover
+{
+    position: relative;
+    top: 0px;
+    font-weight:bold;
+    background: #eee;
+    border: 1px solid #B7B7B7;
+    border-bottom-color: #eee;
+    padding-right: -5px;
+}
+        
+        
+ul.tabs li.selected a:hover
+{
+    text-decoration: none;
+}
+     
+
+div.tabcontents
+{
+    border-top: 1px solid #B7B7B7; padding: 0px;
+    background-color:#FFF;
+    border-radius: 0 3px 3px 3px;
+}
+
+.closeable
+{
+	background-image: url('close.png')  ;
+	height: 16px;
+	width: 16px;
+	display: inline-block;
+	position: relative;
+    right: -13px;
+    top: 4px;
+    width: 16px;
+}
+.tabLoader
+{
+	background-image: url('tab_loader.gif')  ;
+	height: 16px;
+	width: 16px;
+	display: inline-block;
+	position: relative;
+    right: -13px;
+    top: 4px;
+    width: 16px;
+}
+.tabcontents .unselected
+{
+	display: none;
+}
+

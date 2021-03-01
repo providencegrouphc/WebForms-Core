@@ -1,0 +1,88 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+
+<script src="~/datatables/datatables.min.js"></script>
+<script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="~/datatables/datatables.min.css" />
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        setTimeout(function () {
+            $("#alert").hide("slow");
+
+        }, 2000);
+
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[6, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false },
+                { "targets": [8], "visible": false, "searchable": true }
+            ]
+        })
+
+        table
+            .columns(8)
+            .search('no')
+            .draw();
+
+
+        $('#example tbody').on('click', 'tr', function () {
+            var data = table.row(this).data();
+            document.getElementById('txtID').value = data[0]
+            document.getElementById('postsubmit').click()
+        });
+    });
+
+    function checkchange(value) {
+        var table = $('#example').DataTable();
+        table.destroy();
+
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[6, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false },
+                { "targets": [8], "visible": false, "searchable": true }
+            ]
+        })
+
+        if (value.checked == true) {
+            table
+                .columns(8)
+                .search()
+                .draw();
+        } else {
+            table
+                .columns(8)
+                .search('no')
+                .draw();
+        }
+
+
+    }
+
+</script>
+
+
+<h1>Supervisor View</h1>
+<a href="/Expense">Return to Expense Home</a>
+
+<table style="width:100%">
+    <tr>
+        <td></td>
+        <td style="text-align:right; vertical-align:bottom"><label>Show Completed</label>&nbsp;&nbsp;<input type="checkbox" onclick="checkchange(this)" /></td>
+
+    </tr>
+</table>
+
+<br />
+
+@Html.Raw(ViewData["supexpense"])
+
+<form asp-controller="Expense" asp-action="PostSupEdit" method="post">
+    <input type="button" id="postsubmit" class="hidden" value="Submit" onclick="submit()" />
+    <input type="text" id="txtID" class="hidden" name="txtID" />
+</form>
