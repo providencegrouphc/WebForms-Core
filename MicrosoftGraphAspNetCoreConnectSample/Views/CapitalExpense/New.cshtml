@@ -1,0 +1,356 @@
+﻿
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+
+
+
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        $('#txtTitle').maxlength()
+        $('#txtDepartment').maxlength()
+        $('#txtVendor').maxlength()
+        $('#txtProblem').maxlength()
+        $('#txtRecommended').maxlength()
+    });
+
+    $(window).load(function () {
+
+        $("#txtLowBid").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtHighBid").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtRecBid").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtTotal").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtBidCount").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+        });
+    });
+
+    $(function () {
+        $("#txtDate").datepicker();
+    });
+</script>
+
+<h1>New Request</h1>
+<hr />
+<a href="/CapitalExpense">Return to Capital Expense Home</a>
+<div style="height:15px"></div>
+<h4>Request Information</h4>
+<hr style="margin:0px" />
+<form asp-controller="CapitalExpense" asp-action="PostExpense" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Facility</div>
+            <div>@Html.Raw(ViewData["Facilities"])</div>
+            <div id="validateFacility" class="hidden">Please select a facility.</div>
+
+            <div class="txtlabel">Department</div>
+            <div><input type="text" maxlength="25" id="txtDepartment" class="txtbox" name="txtDepartment" /></div>
+            <div id="validateDepartment" class="hidden">Please enter a department.</div>
+
+            <div class="txtlabel">Request Title</div>
+            <div><input type="text" maxlength="25" id="txtTitle" class="txtbox" name="txtTitle" /></div>
+            <div id="validateTitle" class="hidden">Please enter a title.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Problem History</div>
+            <div><textarea id="txtProblem" name="txtProblem" maxlength="500" class="txtbox" style="height:150px"></textarea></div>
+            <div id="validateProblem" class="hidden">Please enter a problem.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Recommended Solution</div>
+            <div><textarea id="txtRecommended" name="txtRecommended" maxlength="500" class="txtbox" style="height:150px"></textarea></div>
+            <div id="validateRecommended" class="hidden">Please enter a solution.</div>
+        </div>
+    </div>
+
+    <div style="height:15px"></div>
+    <h4>Bid Information</h4>
+    <hr style="margin:0px" />
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Low Bid</div>
+            <div><input type="text" id="txtLowBid" class="txtbox" name="txtLowBid" /></div>
+            <div id="validateLowBid" class="hidden">Please enter a low bid.</div>
+
+            <div class="txtlabel">High Bid</div>
+            <div><input type="text" id="txtHighBid" class="txtbox" name="txtHighBid" /></div>
+            <div id="validateHighBid" class="hidden">Please enter a high bid.</div>
+
+            <div class="txtlabel">Bid Count</div>
+            <div><input type="text" id="txtBidCount" class="txtbox" name="txtBidCount" /></div>
+            <div id="validateBidCount" class="hidden">Please enter a bid count.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Recommended Vendor</div>
+            <div><input type="text" id="txtVendor" maxlength="25" class="txtbox" name="txtVendor" /></div>
+            <div id="validateVendor" class="hidden">Please enter a vendor.</div>
+
+            <div class="txtlabel">Recommended Bid</div>
+            <div><input type="text" id="txtRecBid" class="txtbox" name="txtRecBid" /></div>
+            <div id="validateRecBid" class="hidden">Please enter a bid.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Estimated Total Cost</div>
+            <div><input type="text" id="txtTotal" class="txtbox" name="txtTotal" /></div>
+            <div id="validateTotal" class="hidden">Please enter a cost.</div>
+
+            <div class="txtlabel">Estimated Completion Date</div>
+            <div><input type="text" id="txtDate" class="txtbox" name="txtDate" /></div>
+            <div id="validateDate" class="hidden">Please enter a valid date.</div>
+        </div>
+    </div>
+
+    <input type="text" id="txtFac" name="txtFac" class="hidden" />
+    <input type="text" id="strLowBid" name="strLowBid" class="hidden" />
+    <input type="text" id="strHighBid" name="strHighBid" class="hidden" />
+    <input type="text" id="strRecBid" name="strRecBid" class="hidden" />
+    <input type="text" id="strTotal" name="strTotal" class="hidden" />
+    <input type="text" id="strBidCount" name="strBidCount" class="hidden" />
+    <input name="UID" id="UID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
+    <input type="button" id="subexpense" class="hidden" onclick="submit()" />
+</form>
+    <div style="height:15px"></div>
+    <h4>Attachments</h4>
+    <hr style="margin:0px" />
+    <div class="row">
+        <div class="col-md-4" style="padding-top:35px; max-width:310px;">
+            @using (Html.BeginForm("UploadFile", "CapitalExpense",
+                FormMethod.Post,
+                new
+                {
+                    @class = "dropzone",
+                    id = "dropzone-form",
+                }))
+            {
+                <div class="fallback">
+                    <input name="file" type="file" multiple />
+                </div>
+                <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+        </div>
+        <div class="col-md-4">
+            <div id="imagelist"></div>
+        </div>
+    </div>
+    <div style="height:15px"></div>
+
+    <hr style="margin:0px" />
+    <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Expense" onclick="validatesub()" />
+    @section Scripts{
+        <script type="text/javascript">
+            Dropzone.options.dropzoneForm = {
+                paramName: "file",
+                maxFilesize: 20,
+                maxFiles: 4,
+
+                dictMaxFilesExceeded: "Custom max files msg",
+                dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                success: function (file, response) {
+                    this.removeFile(file);
+                    $.get("/CapitalExpense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                    // This return statement is necessary to remove progress bar after uploading.
+                    return file.previewElement.classList.add("dz-success");
+                }
+            };
+
+
+        </script>
+    }
+    <script>
+        function delblob(blobname) {
+            $.get("/CapitalExpense/DelBlob", { stritem: document.getElementById('UID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+        }
+
+        function validatesub() {
+            var errors = 0
+
+            var LowBid = document.getElementById('txtLowBid').value
+            LowBid = LowBid.replace('$', '')
+            LowBid = LowBid.replace(' ', '')
+            LowBid = LowBid.replace(/,/g, '')
+
+            var HighBid = document.getElementById('txtHighBid').value
+            HighBid = HighBid.replace('$', '')
+            HighBid = HighBid.replace(' ', '')
+            HighBid = HighBid.replace(/,/g, '')
+
+            var RecBid = document.getElementById('txtRecBid').value
+            RecBid = RecBid.replace('$', '')
+            RecBid = RecBid.replace(' ', '')
+            RecBid = RecBid.replace(/,/g, '')
+
+            var Total = document.getElementById('txtTotal').value
+            Total = Total.replace('$', '')
+            Total = Total.replace(' ', '')
+            Total = Total.replace(/,/g, '')
+
+            var BidCount = document.getElementById('txtBidCount').value
+            BidCount = BidCount.replace('$', '')
+            BidCount = BidCount.replace(' ', '')
+            BidCount = BidCount.replace(/,/g, '')
+
+            if (document.getElementById('ddfacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('txtFac').value = document.getElementById('ddfacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtDepartment').value == '') {
+                document.getElementById('validateDepartment').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateDepartment').className = 'hidden'
+            }
+
+            if (document.getElementById('txtTitle').value == '') {
+                document.getElementById('validateTitle').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateTitle').className = 'hidden'
+            }
+
+            if (document.getElementById('txtProblem').value == '') {
+                document.getElementById('validateProblem').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateProblem').className = 'hidden'
+            }
+
+            if (document.getElementById('txtRecommended').value == '') {
+                document.getElementById('validateRecommended').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateRecommended').className = 'hidden'
+            }
+
+            if (document.getElementById('txtVendor').value == '') {
+                document.getElementById('validateVendor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateVendor').className = 'hidden'
+            }
+
+            if (document.getElementById('txtLowBid').value == '') {
+                document.getElementById('validateLowBid').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strLowBid').value = LowBid
+                document.getElementById('validateLowBid').className = 'hidden'
+            }
+
+            if (document.getElementById('txtHighBid').value == '') {
+                document.getElementById('validateHighBid').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strHighBid').value = HighBid
+                document.getElementById('validateHighBid').className = 'hidden'
+            }
+
+            if (document.getElementById('txtRecBid').value == '') {
+                document.getElementById('validateRecBid').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strRecBid').value = RecBid
+                document.getElementById('validateRecBid').className = 'hidden'
+            }
+
+            if (document.getElementById('txtTotal').value == '') {
+                document.getElementById('validateTotal').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTotal').value = Total
+                document.getElementById('validateTotal').className = 'hidden'
+            }
+
+            if (document.getElementById('txtBidCount').value == '') {
+                document.getElementById('validateBidCount').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strBidCount').value = BidCount
+                document.getElementById('validateBidCount').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtDate').value, "MM/DD/YYYY", true).isValid()) {
+                document.getElementById('validateDate').className = 'hidden'
+            } else {
+                document.getElementById('validateDate').className = 'validation'
+                errors = 1
+            }
+
+            if (errors == 0) {
+                document.getElementById('subexpense').click()
+            }
+        }
+    </script>
+
+    <script src="~/lib/jquery/jquery.js"></script>
+    <script src="~/lib/select2/js/select2.js"></script>
+    <script type="text/javascript">
+        $.noConflict();
+        jQuery(document).ready(function ($) {
+            $("#ddfacility").select2();
+        });
+
+    </script>
+

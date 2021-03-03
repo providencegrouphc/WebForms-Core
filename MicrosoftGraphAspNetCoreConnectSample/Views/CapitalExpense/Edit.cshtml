@@ -1,0 +1,55 @@
+﻿<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+
+
+
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+</style>
+
+<h1>Edit</h1>
+
+@Html.Raw(ViewData["getdetails"])

@@ -321,3 +321,6 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Debug\netcoreapp3.1\PGWebFormsCore.pdb
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Debug\netcoreapp3.1\PGWebFormsCore.genruntimeconfig.cache
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Debug\netcoreapp3.1\Razor\Views\HRCallLog\AddNew.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Debug\netcoreapp3.1\Razor\Views\CapitalExpense\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Debug\netcoreapp3.1\Razor\Views\CapitalExpense\New.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Debug\netcoreapp3.1\Razor\Views\CapitalExpense\Edit.cshtml.g.cs
