@@ -1,4 +1,21 @@
-﻿
+﻿@if (!User.Identity.IsAuthenticated)
+{
+<br />
+<p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+<p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+
+@Html.Raw(ViewData["sidebar"])
 <script src="~/js/jquery-1.12.4.js"></script>
 <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
 <script src="~/js/UI/jquery-ui.js"></script>
@@ -9,30 +26,30 @@
 
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
-        
-                setTimeout(function () {
-                    $("#alert").hide("slow");
 
-                }, 2000);
+        setTimeout(function () {
+            $("#alert").hide("slow");
 
-                var table = $('#example').DataTable({
-                    responsive: true,
-                    "order": [[1, "asc"]],
-                    "columnDefs": [
-                        { "targets": [0], "visible": false, "searchable": false },
-                        { "targets": [7], "visible": false, "searchable": true }
-                    ]
-                })
+        }, 2000);
 
-                //$('input.column_filter').on('keyup click', function () {
-                //    filterColumn($(this).parents('tr').attr('data-column'));
-                //});
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[1, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false },
+                { "targets": [7], "visible": false, "searchable": true }
+            ]
+        })
 
-                $('#example tbody').on('click', 'tr', function () {
-                    var data = table.row(this).data();
-                    document.getElementById('txtID').value = data[0]
-                    document.getElementById('subedit').click()
-                });
+        //$('input.column_filter').on('keyup click', function () {
+        //    filterColumn($(this).parents('tr').attr('data-column'));
+        //});
+
+        $('#example tbody').on('click', 'tr', function () {
+            var data = table.row(this).data();
+            document.getElementById('txtID').value = data[0]
+            document.getElementById('subedit').click()
+        });
 
         var status = ""
         if (document.getElementById('cbStatus').checked == true) {
@@ -47,15 +64,15 @@
             )
             .draw();
 
-            });
+    });
 
-            function filterColumn(i) {
-                $('#example').DataTable()
-                    .column(i)
-                    .search(
-                        $('#col' + i + '_filter').val()
-                    )
-                    .draw();
+    function filterColumn(i) {
+        $('#example').DataTable()
+            .column(i)
+            .search(
+                $('#col' + i + '_filter').val()
+            )
+            .draw();
     }
 
     function filterStatus() {
@@ -190,21 +207,22 @@
 
 
 <script>
-                var coll = document.getElementsByClassName("collapsible");
-                var i;
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
 
-                for (i = 0; i < coll.length; i++) {
-                    coll[i].addEventListener("click", function () {
-                        this.classList.toggle("active");
-                        var content = this.nextElementSibling;
-                        if (content.style.maxHeight) {
-                            content.style.maxHeight = null;
-                        } else {
-                            content.style.maxHeight = content.scrollHeight + "px";
-                        }
-                    });
-                }
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    }
 </script>
 
 <br />
 @Html.Raw(ViewData["getexpense"])
+}}

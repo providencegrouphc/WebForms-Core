@@ -1,4 +1,22 @@
-﻿<script src="~/js/dropzone/dropzone.js"></script>
+﻿@if (!User.Identity.IsAuthenticated)
+{
+<br />
+<p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (TempData["checkauth"].ToString() == "0")
+    {
+<p>You are not authorized to view this page.</p>
+    }
+
+    if (TempData["checkauth"].ToString() == "1")
+    {
+
+@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
 <link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
 
 <script src="~/js/jquery-1.12.4.js"></script>
@@ -50,6 +68,262 @@
     }
 </style>
 
-<h1>Edit</h1>
+<script>
+    $(document).ready(function () {
 
-@Html.Raw(ViewData["getdetails"])
+        $('#txtTitle').maxlength()
+        $('#txtDepartment').maxlength()
+        $('#txtVendor').maxlength()
+        $('#txtProblem').maxlength()
+        $('#txtRecommended').maxlength()
+    });
+
+    $(window).load(function () {
+        $.get("/CapitalExpense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+
+        $("#txtLowBid").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtHighBid").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtRecBid").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtTotal").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtBidCount").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+        });
+    });
+
+    $(function () {
+        $("#txtDate").datepicker();
+    });
+</script>
+
+<h1>Expense Details</h1>
+<hr />
+<a href="/CapitalExpense">Return to Capital Expense Home</a>
+<div style="height:15px"></div>
+@Html.Raw(ViewData["subinfo"])
+<h4>Request Information</h4>
+<hr style="margin:0px" />
+<form asp-controller="CapitalExpense" asp-action="PostExpenseEdit" method="post">
+
+    @Html.Raw(ViewData["getdetails"])
+
+    <input type="text" id="passid" name="passid" class="hidden" value="@Html.Raw(ViewData["passid"])" />
+    <input type="text" id="txtFac" name="txtFac" class="hidden" />
+    <input type="text" id="strLowBid" name="strLowBid" class="hidden" />
+    <input type="text" id="strHighBid" name="strHighBid" class="hidden" />
+    <input type="text" id="strRecBid" name="strRecBid" class="hidden" />
+    <input type="text" id="strTotal" name="strTotal" class="hidden" />
+    <input type="text" id="strBidCount" name="strBidCount" class="hidden" />
+    <input name="UID" id="UID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
+    <input type="button" id="subexpense" class="hidden" onclick="submit()" />
+</form>
+
+<form asp-controller="CapitalExpense" asp-action="PostStatusChange" method="post">
+    <input type="text" id="strStatusNotes" name="strStatusNotes" class="hidden" />
+    <input type="text" id="strStatus" name="strStatus" class="hidden" />
+    <input name="statusid" id="statusid" type="text" value="@Html.Raw(ViewData["passid"])" class="hidden" />
+    <input type="button" id="substatus" class="hidden" onclick="submit()" />
+</form>
+
+<div style="height:15px"></div>
+<h4>Attachments</h4>
+<hr style="margin:0px" />
+<div class="row">
+    <div class="col-md-4" style="padding-top:35px; max-width:310px;">
+        @using (Html.BeginForm("UploadFile", "CapitalExpense",
+            FormMethod.Post,
+            new
+            {
+                @class = "dropzone",
+                id = "dropzone-form",
+            }))
+            {
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+        </div>
+        <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+    </div>
+    <div class="col-md-4">
+        <div id="imagelist"></div>
+    </div>
+</div>
+<div style="height:15px"></div>
+
+<hr style="margin:0px" />
+@Html.Raw(ViewData["subbtn"])
+@section Scripts{
+    <script type="text/javascript">
+        Dropzone.options.dropzoneForm = {
+            paramName: "file",
+            maxFilesize: 20,
+            maxFiles: 4,
+
+            dictMaxFilesExceeded: "Custom max files msg",
+            dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+            success: function (file, response) {
+                this.removeFile(file);
+                $.get("/CapitalExpense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                // This return statement is necessary to remove progress bar after uploading.
+                return file.previewElement.classList.add("dz-success");
+            }
+        };
+
+
+    </script>
+}
+<script>
+    function changestatus() {
+        document.getElementById('strStatusNotes').value = document.getElementById('txtApprovalNotes').value
+        document.getElementById('strStatus').value = document.getElementById('ddstatus').value
+        document.getElementById('substatus').click()
+    }
+
+    function delblob(blobname) {
+        $.get("/CapitalExpense/DelBlob", { stritem: document.getElementById('UID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+    }
+
+    function validatesub() {
+        var errors = 0
+
+        var LowBid = document.getElementById('txtLowBid').value
+        LowBid = LowBid.replace('$', '')
+        LowBid = LowBid.replace(' ', '')
+        LowBid = LowBid.replace(/,/g, '')
+
+        var HighBid = document.getElementById('txtHighBid').value
+        HighBid = HighBid.replace('$', '')
+        HighBid = HighBid.replace(' ', '')
+        HighBid = HighBid.replace(/,/g, '')
+
+        var RecBid = document.getElementById('txtRecBid').value
+        RecBid = RecBid.replace('$', '')
+        RecBid = RecBid.replace(' ', '')
+        RecBid = RecBid.replace(/,/g, '')
+
+        var Total = document.getElementById('txtTotal').value
+        Total = Total.replace('$', '')
+        Total = Total.replace(' ', '')
+        Total = Total.replace(/,/g, '')
+
+        var BidCount = document.getElementById('txtBidCount').value
+        BidCount = BidCount.replace('$', '')
+        BidCount = BidCount.replace(' ', '')
+        BidCount = BidCount.replace(/,/g, '')
+
+        if (document.getElementById('ddfacility').value == '') {
+            document.getElementById('validateFacility').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('txtFac').value = document.getElementById('ddfacility').value
+            document.getElementById('validateFacility').className = 'hidden'
+        }
+
+        if (document.getElementById('txtDepartment').value == '') {
+            document.getElementById('validateDepartment').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateDepartment').className = 'hidden'
+        }
+
+        if (document.getElementById('txtTitle').value == '') {
+            document.getElementById('validateTitle').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateTitle').className = 'hidden'
+        }
+
+        if (document.getElementById('txtProblem').value == '') {
+            document.getElementById('validateProblem').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateProblem').className = 'hidden'
+        }
+
+        if (document.getElementById('txtRecommended').value == '') {
+            document.getElementById('validateRecommended').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateRecommended').className = 'hidden'
+        }
+
+        if (document.getElementById('txtVendor').value == '') {
+            document.getElementById('validateVendor').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateVendor').className = 'hidden'
+        }
+
+        if (document.getElementById('txtLowBid').value == '') {
+            document.getElementById('validateLowBid').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strLowBid').value = LowBid
+            document.getElementById('validateLowBid').className = 'hidden'
+        }
+
+        if (document.getElementById('txtHighBid').value == '') {
+            document.getElementById('validateHighBid').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strHighBid').value = HighBid
+            document.getElementById('validateHighBid').className = 'hidden'
+        }
+
+        if (document.getElementById('txtRecBid').value == '') {
+            document.getElementById('validateRecBid').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strRecBid').value = RecBid
+            document.getElementById('validateRecBid').className = 'hidden'
+        }
+
+        if (document.getElementById('txtTotal').value == '') {
+            document.getElementById('validateTotal').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strTotal').value = Total
+            document.getElementById('validateTotal').className = 'hidden'
+        }
+
+        if (document.getElementById('txtBidCount').value == '') {
+            document.getElementById('validateBidCount').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strBidCount').value = BidCount
+            document.getElementById('validateBidCount').className = 'hidden'
+        }
+
+        if (moment(document.getElementById('txtDate').value).isValid()) {
+            document.getElementById('validateDate').className = 'hidden'
+        } else {
+            document.getElementById('validateDate').className = 'validation'
+            errors = 1
+        }
+
+        if (errors == 0) {
+            document.getElementById('subexpense').click()
+        }
+    }
+</script>
+
+<script src="~/lib/jquery/jquery.js"></script>
+<script src="~/lib/select2/js/select2.js"></script>
+<script type="text/javascript">
+    $.noConflict();
+    jQuery(document).ready(function ($) {
+        $("#ddfacility").select2();
+    });
+
+</script>
+}}

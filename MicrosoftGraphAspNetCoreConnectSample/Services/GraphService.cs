@@ -426,7 +426,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
                         }
                         else
                         {
-                            parentname += Convert.ToString(idr["groupallowed"]) + ",";
+                            parentname += Convert.ToString(idr["parentname"]) + ",";
                             returntext += "<div class=\"sideheader\">" + Convert.ToString(idr["parentname"]) + "</div>";
                             returntext += "<div><a href = \"/" + Convert.ToString(idr["webpath"]) + "\">" + Convert.ToString(idr["childname"]) + "</a></div>";
                         }
@@ -450,7 +450,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
                                 }
                                 else
                                 {
-                                    parentname += Convert.ToString(idr["groupallowed"]) + ",";
+                                    parentname += Convert.ToString(idr["parentname"]) + ",";
                                     returntext += "<div class=\"sideheader\">" + Convert.ToString(idr["parentname"]) + "</div>";
                                     returntext += "<div><a href = \"/" + Convert.ToString(idr["webpath"]) + "\">" + Convert.ToString(idr["childname"]) + "</a></div>";
                                 }
@@ -462,7 +462,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
                 }
             }
             con.Close();
-            return returntext + "</div><footer class=\"footer\"><i>Powered by:</i><br /><img src=\"css/PacsTechLogo-2.jpg\" /></footer></div>";
+            return returntext + "</div><footer class=\"footer\"><i>Powered by:</i><br /><img src=\"https://pgwebforms-core.azurewebsites.net/PacsTechLogo-2.jpg\" /></footer></div>";
         }
 
 

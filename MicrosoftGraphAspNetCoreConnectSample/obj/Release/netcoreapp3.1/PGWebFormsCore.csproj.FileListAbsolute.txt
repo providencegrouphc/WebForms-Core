@@ -320,3 +320,6 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\staticwebassets\PGWebFormsCore.StaticWebAssets.Manifest.cache
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\staticwebassets\PGWebFormsCore.StaticWebAssets.xml
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\PGWebFormsCore.genruntimeconfig.cache
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CapitalExpense\Edit.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CapitalExpense\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CapitalExpense\New.cshtml.g.cs
