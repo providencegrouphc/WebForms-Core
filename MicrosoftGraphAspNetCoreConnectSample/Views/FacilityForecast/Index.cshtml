@@ -10,12 +10,12 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-    if (TempData["checkauth"].ToString() == "0")
+    if (ViewData["checkauth"].ToString() == "0")
     {
         <p>You are not authorized to view this page.</p>
     }
 
-    if (TempData["checkauth"].ToString() == "1")
+    if (ViewData["checkauth"].ToString() == "1")
     {
 
         @Html.Raw(ViewData["sidebar"])

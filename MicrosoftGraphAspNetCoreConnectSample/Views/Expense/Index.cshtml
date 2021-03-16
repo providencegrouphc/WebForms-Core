@@ -81,8 +81,8 @@
     </tr>
 </table>
 
-<div id="alert" class="alert alert-info @(TempData["Message"] == null ? "hidden" : null)" role="alert">
-    @Html.Raw(TempData["Message"])
+<div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
+    @Html.Raw(ViewData["Message"])
 </div>
 
 <form asp-controller="Expense" asp-action="PostEdit" method="post">

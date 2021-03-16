@@ -34,13 +34,14 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Controllers
 
 
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string strSave)
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "PrePaid");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "PrePaid");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["prepaidgetyears"] = getyear();
             ViewData["prepaidgetmonths"] = getmonth();
             ViewData["prepaidtable"] = getprepaidtable();
+            ViewData["Message"] = strSave;
             return View();
         }
 
@@ -498,7 +499,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Controllers
         [Authorize]
         public async Task<IActionResult> New()
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "PrePaid");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "PrePaid");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             PrePaidObjects PassPrePaidObjects = new PrePaidObjects
                 {
@@ -542,8 +543,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Controllers
                 cmd.ExecuteNonQuery();
                 con.Close();
 
-                TempData["Message"] = "Success! Your record was saved.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { strSave = "Success! Your record was saved." });
             }
             catch (ServiceException se)
             {

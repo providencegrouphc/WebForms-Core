@@ -36,9 +36,10 @@ namespace PGWebFormsCore.Controllers
             _configuration = configuration;
         }
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string strSave)
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
+            ViewData["Message"] = strSave;
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["getcalllogs"] = getcalllogs();
             ViewData["checkadmin"] = checkadmin();
@@ -47,7 +48,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> New()
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["Facilities"] = getFacilities();
             ViewData["Department"] = getDepartments();
@@ -59,7 +60,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> AddNew(string passid)
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["Facilities"] = getFacilitiesPass(passid);
             ViewData["Department"] = getDepartmentsPass(passid);
@@ -74,7 +75,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Admin()
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["getadmins"] = getadmins();
             ViewData["getcats"] = getcats();
@@ -85,7 +86,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string passid)
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "HRCallLog");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["passid"] = passid;
             ViewData["calldetail"] = getdetails(passid);
@@ -1217,8 +1218,7 @@ namespace PGWebFormsCore.Controllers
             cmd.ExecuteNonQuery();
             con.Close();
 
-            TempData["Message"] = "Success! Your record was edited.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { strSave = "Success! Your record was saved." });
         }
 
         [HttpPost]

@@ -35,9 +35,10 @@ namespace PGWebFormsCore.Controllers
             _configuration = configuration;
         }
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string strSave)
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "CapitalExpense");
+            ViewData["Message"] = strSave;
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "CapitalExpense");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             string strcheck = await financecheckog();
             string btnnew = "";
@@ -61,7 +62,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> New()
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "CapitalExpense");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "CapitalExpense");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["Facilities"] = await operationlist();
             ViewData["UID"] = getGUID();
@@ -71,7 +72,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string passid)
         {
-            TempData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "CapitalExpense");
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "CapitalExpense");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             string strcheck = await financecheck(passid);
             string subbtn = "";
@@ -753,8 +754,7 @@ namespace PGWebFormsCore.Controllers
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, "daniel.stump@pacshc.com", HttpContext, subject, body);
 
-                TempData["Message"] = "Success! Your record was saved.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { strSave = "Success! Your record was saved." });
             }
             catch (ServiceException se)
             {
@@ -803,8 +803,7 @@ namespace PGWebFormsCore.Controllers
 
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
-                TempData["Message"] = "Success! Your record was saved.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { strSave = "Success! Your record was saved." });
             }
             catch (ServiceException se)
             {
@@ -865,8 +864,7 @@ namespace PGWebFormsCore.Controllers
                 //Send the email.
                 await GraphService.SendEmail(graphClient, _env, returntext, HttpContext, subject, body);
 
-                TempData["Message"] = "Success! Your record was saved.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { strSave = "Success! Your record was saved." });
             }
             catch (ServiceException se)
             {

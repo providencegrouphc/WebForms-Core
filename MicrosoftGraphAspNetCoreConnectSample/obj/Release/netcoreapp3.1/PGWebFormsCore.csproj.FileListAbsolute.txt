@@ -293,10 +293,7 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\Sup.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\SupEdit.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\FacilityForecast\Index.cshtml.g.cs
-C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Home\About.cshtml.g.cs
-C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Home\Contact.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Home\Index.cshtml.g.cs
-C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Home\Privacy.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRCallLog\AddNew.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRCallLog\Admin.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRCallLog\Edit.cshtml.g.cs
@@ -323,3 +320,9 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CapitalExpense\Edit.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CapitalExpense\Index.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CapitalExpense\New.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\Finance.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\FinanceEdit.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRChangeForm\Edit.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRChangeForm\HRView.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRChangeForm\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\SupportTicket\Index.cshtml.g.cs

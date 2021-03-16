@@ -1,0 +1,1363 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+
+<script>
+    $(window).load(function () {
+        setTimeout(function () {
+            $("#alert").hide("slow");
+
+        }, 4000);
+
+        $("#txtZip").inputmask("99999");
+        $("#txtFMLARDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtFMLASDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtPRCDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtRehireDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtStatusDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtSharedDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtTransferDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtPhone").inputmask("(999) 999-9999");
+
+        $("#txtPRCRate").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtRehireRate").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtStatusRate").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtSharedRate").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+
+        $("#txtTransferRate").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+        });
+    });
+
+    $(function () {
+        $("#txtFMLARDate").datepicker();
+        $("#txtFMLASDate").datepicker();
+        $("#txtPRCDate").datepicker();
+        $("#txtRehireDate").datepicker();
+        $("#txtStatusDate").datepicker();
+        $("#txtSharedDate").datepicker();
+        $("#txtTransferDate").datepicker();
+    });
+</script>
+
+<style>
+    .yesno {
+        border: 1px solid #aaa;
+        background-color: white;
+        padding: 5px;
+        transition: 1s;
+        cursor: pointer;
+        width: 50px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+        transition: 1s;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+</style>
+<h1>Change Request</h1>
+@Html.Raw(ViewData["HRCheck"])
+<hr />
+<div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
+    @Html.Raw(ViewData["Message"])
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+
+        <div class="txtlabel">Employee Name</div>
+        <div><input type="text" maxlength="500" id="txtEmployee" class="txtbox" name="txtEmployee" /></div>
+        <div id="validateEmployee" class="hidden">Please enter a employee.</div>
+
+        <div class="txtlabel">Shared Employee</div>
+        <div onclick="changeyesno()"><input type="text" disabled="disabled" value="No" style="cursor:pointer" maxlength="25" id="txtShared" class="txtbox" name="txtShared" /></div>
+    </div>
+    <div class="col-md-4">
+        <div class="txtlabel">Facility</div>
+        <div>@Html.Raw(ViewData["oplist"])</div>
+        <div id="validateFacility" class="hidden">Please select a facility.</div>
+
+        <div class="txtlabel">Supervisor Name</div>
+        <div><input type="text" maxlength="500" id="txtSupervisor" class="txtbox" name="txtSupervisor" /></div>
+        <div id="validateSupervisor" class="hidden">Please enter a Supervisor.</div>
+    </div>
+</div>
+<div class="txtlabel">Action</div>
+<div>
+    <select class="txtbox" id="ddAction" onchange="changeaction(this)">
+        <option></option>
+        <option>Address Change</option>
+        <option>Name Change</option>
+        <option>Non-FMLA</option>
+        <option>Pay Rate Change</option>
+        <option>Phone Number Change</option>
+        <option>Rehire</option>
+        <option>Shared</option>
+        <option>Status Change</option>
+        <option>Transfer</option>
+    </select>
+</div>
+<div id="validateAction" class="hidden">Please select a action.</div>
+
+<div class="row">
+    <hr id="hrdiv" class="hidden" />
+    <h4 style="color:red" id="headmsg"></h4>
+
+
+
+    <div id="frmAddressChange" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">New Address</div>
+            <div><input type="text" maxlength="500" id="txtAddress" class="txtbox" name="option1" /></div>
+            <div id="validateAddress" class="hidden">Please enter a address.</div>
+
+            <div class="txtlabel">Address 2</div>
+            <div><input type="text" maxlength="500" id="txtAddress2" class="txtbox" name="option2" /></div>
+
+            <div class="txtlabel">City</div>
+            <div><input type="text" maxlength="500" id="txtCity" class="txtbox" name="option3" /></div>
+            <div id="validateCity" class="hidden">Please enter a city.</div>
+
+            <div class="txtlabel">State</div>
+            <div style="width:100%">@Html.Raw(ViewData["statelist"])</div>
+            <div id="validateState" class="hidden">Please select a state.</div>
+
+            <div class="txtlabel">Zip</div>
+            <div><input type="text" maxlength="500" id="txtZip" class="txtbox" name="option5" /></div>
+            <div id="validateZip" class="hidden">Please enter a zip.</div>
+
+            <input type="text" class="hidden" id="strACEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strACFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strACShare" name="strShare" />
+            <input type="text" class="hidden" id="strACSup" name="strSup" />
+            <input type="text" class="hidden" id="strACAction" name="strAction" />
+            <input type="text" class="hidden" id="strACUID" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+            <input type="text" class="hidden" id="strState" name="option4" />
+
+            <input type="button" id="subaddress" class="hidden" onclick="submit()" />
+        </form>
+    </div>
+
+    <script>
+        function validateaddress() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strACEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strACFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strACSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (document.getElementById('txtAddress').value == '') {
+                document.getElementById('validateAddress').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateAddress').className = 'hidden'
+            }
+
+            if (document.getElementById('txtCity').value == '') {
+                document.getElementById('validateCity').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateCity').className = 'hidden'
+            }
+
+            if (document.getElementById('ddStates').value == '') {
+                document.getElementById('validateState').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strState').value = document.getElementById('ddStates').value
+                document.getElementById('validateState').className = 'hidden'
+            }
+
+            if (document.getElementById('txtZip').value == '') {
+                document.getElementById('validateZip').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateZip').className = 'hidden'
+            }
+
+            document.getElementById('strACShare').value = document.getElementById('txtShared').value
+            document.getElementById('strACAction').value = document.getElementById('ddAction').value
+
+            if (errors == 0) {
+                document.getElementById('subaddress').click()
+            }
+        }
+    </script>
+
+
+
+    <div id="frmNameChange" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">New Name</div>
+            <div><input type="text" maxlength="500" id="txtName" class="txtbox" name="option1" /></div>
+            <div id="validateName" class="hidden">Please enter a name.</div>
+
+            <input type="text" class="hidden" id="strNameEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strNameFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strNameShare" name="strShare" />
+            <input type="text" class="hidden" id="strNameSup" name="strSup" />
+            <input type="text" class="hidden" id="strNameAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subname" class="hidden" onclick="submit()" />
+        </form>
+    </div>
+
+    <script>
+        function validatename() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strNameEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strNameFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strNameSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (document.getElementById('txtName').value == '') {
+                document.getElementById('validateName').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateName').className = 'hidden'
+            }
+
+            document.getElementById('strNameShare').value = document.getElementById('txtShared').value
+            document.getElementById('strNameAction').value = document.getElementById('ddAction').value
+
+            if (errors == 0) {
+                document.getElementById('subname').click()
+            }
+        }
+    </script>
+
+
+
+
+    <div id="frmNonFMLA" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">Effective Date</div>
+            <div><input type="text" maxlength="500" id="txtFMLASDate" class="txtbox" name="option1" /></div>
+            <div id="validateFMLASDate" class="hidden">Please enter a effective date.</div>
+
+            <div class="txtlabel">Return Date</div>
+            <div><input type="text" maxlength="500" id="txtFMLARDate" class="txtbox" name="option2" /></div>
+            <div id="validateFMLARDate" class="hidden">Please enter a return date.</div>
+
+            <input type="text" class="hidden" id="strFMLAEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strFMLAFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strFMLAShare" name="strShare" />
+            <input type="text" class="hidden" id="strFMLASup" name="strSup" />
+            <input type="text" class="hidden" id="strFMLAAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subfmla" class="hidden" onclick="submit()" />
+        </form>
+    </div>
+
+    <script>
+        function validateFMLA() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strFMLAEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strFMLAFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strFMLASup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtFMLASDate').value).isValid()) {
+                document.getElementById('validateFMLASDate').className = 'hidden'
+            } else {
+                document.getElementById('validateFMLASDate').className = 'validation'
+                errors = 1
+            }
+
+            if (moment(document.getElementById('txtFMLARDate').value).isValid()) {
+                document.getElementById('validateFMLARDate').className = 'hidden'
+            } else {
+                errors = 1
+                document.getElementById('validateFMLARDate').className = 'validation'
+            }
+
+            document.getElementById('strFMLAShare').value = document.getElementById('txtShared').value
+            document.getElementById('strFMLAAction').value = document.getElementById('ddAction').value
+
+            if (errors == 0) {
+                document.getElementById('subfmla').click()
+            }
+        }
+    </script>
+
+
+
+
+    <div id="frmPayRateChange" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">Effective Date</div>
+            <div><input type="text" maxlength="500" id="txtPRCDate" class="txtbox" name="option1" /></div>
+            <div id="validatePRCDate" class="hidden">Please enter a effective date.</div>
+
+            <div class="txtlabel">Pay Rate</div>
+            <div><input type="text" maxlength="500" id="txtPRCRate" class="txtbox" name="option2" /></div>
+            <div id="validatePRCRate" class="hidden">Please enter a pay rate.</div>
+
+            <div class="txtlabel">
+                <input type="radio" checked="checked" id="rdPRCsal" name="rdsal" /> Hourly  <br />
+                <input type="radio" name="rdsal" /> Salary
+            </div>
+            <input type="text" class="hidden" id="strPRCSalary" name="option3" />
+
+            <div class="txtlabel">Reason</div>
+            <div>
+                <select class="txtbox" onchange="ddreasonchange(this)">
+                    <option>Merit</option>
+                    <option>Annual Increase</option>
+                    <option>Promotion</option>
+                    <option>Adjustment</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="hidden" id="lblPRCOther">Other Reason</div>
+            <div><input type="text" maxlength="500" id="txtPRCOther" class="hidden" value="Merit" name="option4" /></div>
+            <div id="validatePRCOther" class="hidden">Please enter a other reason.</div>
+
+            <input type="text" class="hidden" id="strPRCEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strPRCFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strPRCShare" name="strShare" />
+            <input type="text" class="hidden" id="strPRCSup" name="strSup" />
+            <input type="text" class="hidden" id="strPRCAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subprc" class="hidden" onclick="submit()" />
+        </form>
+    </div>
+
+    <script>
+        function validatePRC() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strPRCEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strPRCFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strPRCSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtPRCDate').value).isValid()) {
+                document.getElementById('validatePRCDate').className = 'hidden'
+            } else {
+                document.getElementById('validatePRCDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtPRCRate').value == '') {
+                document.getElementById('validatePRCRate').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validatePRCRate').className = 'hidden'
+            }
+
+            if (document.getElementById('txtPRCOther').value == '') {
+                document.getElementById('validatePRCOther').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validatePRCOther').className = 'hidden'
+            }
+
+            document.getElementById('strPRCShare').value = document.getElementById('txtShared').value
+            document.getElementById('strPRCAction').value = document.getElementById('ddAction').value
+
+            if (document.getElementById('rdPRCsal').checked == true) {
+                document.getElementById('strPRCSalary').value = 'Hourly'
+            } else {
+                document.getElementById('strPRCSalary').value = 'Salary'
+            }
+
+            if (errors == 0) {
+                document.getElementById('subprc').click()
+            }
+        }
+    </script>
+
+
+
+
+    <div id="frmPhoneChange" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">New Phone Number</div>
+            <div><input type="text" maxlength="500" id="txtPhone" class="txtbox" name="option1" /></div>
+            <div id="validatePhone" class="hidden">Please enter a phone number.</div>
+
+            <input type="text" class="hidden" id="strPhoneEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strPhoneFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strPhoneShare" name="strShare" />
+            <input type="text" class="hidden" id="strPhoneSup" name="strSup" />
+            <input type="text" class="hidden" id="strPhoneAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subPhone" class="hidden" onclick="submit()" />
+        </form>
+    </div>
+
+    <script>
+        function validatephone() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strPhoneEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strPhoneFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strPhoneSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (document.getElementById('txtPhone').value == '') {
+                document.getElementById('validatePhone').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validatePhone').className = 'hidden'
+            }
+
+            document.getElementById('strPhoneShare').value = document.getElementById('txtShared').value
+            document.getElementById('strPhoneAction').value = document.getElementById('ddAction').value
+
+            if (errors == 0) {
+                document.getElementById('subPhone').click()
+            }
+        }
+    </script>
+
+
+
+
+    <div id="frmStatusChange" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">Effective Date</div>
+            <div><input type="text" maxlength="500" id="txtStatusDate" class="txtbox" name="option1" /></div>
+            <div id="validateStatusDate" class="hidden">Please enter a effective date.</div>
+
+            <div class="txtlabel">Change Type</div>
+            <div>
+                <select class="txtbox" id="ddStatusType">
+                    <option>Full Time</option>
+                    <option>Part Time</option>
+                    <option>Job</option>
+                    <option>Department</option>
+                </select>
+            </div>
+            <input type="text" class="hidden" id="strStatusType" name="option2" />
+
+            <div class="txtlabel">Job</div>
+            <div><input type="text" maxlength="500" id="txtStatusJob" class="txtbox" name="option3" /></div>
+            <div id="validateStatusJob" class="hidden">Please enter a job.</div>
+
+            <div class="txtlabel">Department</div>
+            <div><input type="text" maxlength="500" id="txtStatusDept" class="txtbox" name="option4" /></div>
+            <div id="validateStatusDept" class="hidden">Please enter a department.</div>
+
+            <div class="txtlabel">Pay Rate</div>
+            <div><input type="text" maxlength="500" id="txtStatusRate" class="txtbox" name="option5" /></div>
+            <div id="validateStatusRate" class="hidden">Please enter a pay rate.</div>
+
+            <table>
+                <tr>
+                    <td>
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdsal" id="rdStatusSal" /> Hourly  <br />
+                            <input type="radio" name="rdsal" /> Salary
+                        </div>
+                    </td>
+                    <td style="padding-left:100px;">
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdsc" id="rdStatusFP" /> Full Time  <br />
+                            <input type="radio" name="rdsc" /> Part Time
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <input type="text" class="hidden" id="strStatusSal" name="option6" />
+            <input type="text" class="hidden" id="strStatusFP" name="option7" />
+
+            <input type="text" class="hidden" id="strStatusEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strStatusFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strStatusShare" name="strShare" />
+            <input type="text" class="hidden" id="strStatusSup" name="strSup" />
+            <input type="text" class="hidden" id="strStatusAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subStatus" class="hidden" onclick="submit()" />
+
+        </form>
+
+    </div>
+
+    <script>
+        function validateStatus() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strStatusEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strStatusFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strStatusSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtStatusDate').value).isValid()) {
+                document.getElementById('validateStatusDate').className = 'hidden'
+            } else {
+                document.getElementById('validateStatusDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtStatusJob').value == '') {
+                document.getElementById('validateStatusJob').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateStatusJob').className = 'hidden'
+            }
+
+            if (document.getElementById('txtStatusDept').value == '') {
+                document.getElementById('validateStatusDept').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateStatusDept').className = 'hidden'
+            }
+
+            if (document.getElementById('txtStatusRate').value == '') {
+                document.getElementById('validateStatusRate').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateStatusRate').className = 'hidden'
+            }
+
+            document.getElementById('strStatusType').value = document.getElementById('ddStatusType').value
+            document.getElementById('strStatusShare').value = document.getElementById('txtShared').value
+            document.getElementById('strStatusAction').value = document.getElementById('ddAction').value
+
+            if (document.getElementById('rdStatusSal').checked == true) {
+                document.getElementById('strStatusSal').value = 'Hourly'
+            } else {
+                document.getElementById('strStatusSal').value = 'Salary'
+            }
+
+            if (document.getElementById('rdStatusFP').checked == true) {
+                document.getElementById('strStatusFP').value = 'Full Time'
+            } else {
+                document.getElementById('strStatusFP').value = 'Part Time'
+            }
+
+            if (errors == 0) {
+                document.getElementById('subStatus').click()
+            }
+        }
+    </script>
+
+
+
+    <div id="frmRehire" class="hidden">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">Effective Date</div>
+            <div><input type="text" maxlength="500" id="txtRehireDate" class="txtbox" name="option1" /></div>
+            <div id="validateRehireDate" class="hidden">Please enter a effective date.</div>
+
+            <div class="txtlabel">Job</div>
+            <div><input type="text" maxlength="500" id="txtRehireJob" class="txtbox" name="option2" /></div>
+            <div id="validateRehireJob" class="hidden">Please enter a job.</div>
+
+            <div class="txtlabel">Department</div>
+            <div><input type="text" maxlength="500" id="txtRehireDept" class="txtbox" name="option3" /></div>
+            <div id="validateRehireDept" class="hidden">Please enter a department.</div>
+
+            <div class="txtlabel">Pay Rate</div>
+            <div><input type="text" maxlength="500" id="txtRehireRate" class="txtbox" name="option4" /></div>
+            <div id="validateRehireRate" class="hidden">Please enter a pay rate.</div>
+
+            <table>
+                <tr>
+                    <td>
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdRehireSal" id="rdRehireSal" /> Hourly  <br />
+                            <input type="radio" name="rdRehireSal" /> Salary
+                        </div>
+                    </td>
+                    <td style="padding-left:100px;">
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdRehireFP" id="rdRehireFP" /> Full Time  <br />
+                            <input type="radio" name="rdRehireFP" /> Part Time
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <input type="text" class="hidden" id="strRehireSal" name="option5" />
+            <input type="text" class="hidden" id="strRehireFP" name="option6" />
+
+            <input type="text" class="hidden" id="strRehireEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strRehireFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strRehireShare" name="strShare" />
+            <input type="text" class="hidden" id="strRehireSup" name="strSup" />
+            <input type="text" class="hidden" id="strRehireAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subRehire" class="hidden" onclick="submit()" />
+
+        </form>
+
+    </div>
+
+    <script>
+        function validateRehire() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strRehireEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strRehireFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strRehireSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtRehireDate').value).isValid()) {
+                document.getElementById('validateRehireDate').className = 'hidden'
+            } else {
+                document.getElementById('validateRehireDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtRehireJob').value == '') {
+                document.getElementById('validateRehireJob').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateRehireJob').className = 'hidden'
+            }
+
+            if (document.getElementById('txtRehireDept').value == '') {
+                document.getElementById('validateRehireDept').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateRehireDept').className = 'hidden'
+            }
+
+            if (document.getElementById('txtRehireRate').value == '') {
+                document.getElementById('validateRehireRate').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateRehireRate').className = 'hidden'
+            }
+
+
+            document.getElementById('strRehireShare').value = document.getElementById('txtShared').value
+            document.getElementById('strRehireAction').value = document.getElementById('ddAction').value
+
+            if (document.getElementById('rdRehireSal').checked == true) {
+                document.getElementById('strRehireSal').value = 'Hourly'
+            } else {
+                document.getElementById('strRehireSal').value = 'Salary'
+            }
+
+            if (document.getElementById('rdRehireFP').checked == true) {
+                document.getElementById('strRehireFP').value = 'Full Time'
+            } else {
+                document.getElementById('strRehireFP').value = 'Part Time'
+            }
+
+            if (errors == 0) {
+                document.getElementById('subRehire').click()
+            }
+        }
+    </script>
+
+
+    <div class="hidden" id="frmShared">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">Effective Date</div>
+            <div><input type="text" maxlength="500" id="txtSharedDate" class="txtbox" name="option1" /></div>
+            <div id="validateSharedDate" class="hidden">Please enter a effective date.</div>
+
+            <div class="txtlabel">Home Facility</div>
+            <div>@Html.Raw(ViewData["SharedHome"])</div>
+            <div id="validateSharedHome" class="hidden">Please select a facility.</div>
+            <input type="text" class="hidden" id="strSharedHome" name="option2" />
+
+            <div class="txtlabel">Shared Facility</div>
+            <div>@Html.Raw(ViewData["SharedShared"])</div>
+            <div id="validateSharedShared" class="hidden">Please select a facility.</div>
+            <input type="text" class="hidden" id="strSharedShared" name="option3" />
+
+            <div class="txtlabel">Job</div>
+            <div><input type="text" maxlength="500" id="txtSharedJob" class="txtbox" name="option4" /></div>
+            <div id="validateSharedJob" class="hidden">Please enter a job.</div>
+
+            <div class="txtlabel">Department</div>
+            <div><input type="text" maxlength="500" id="txtSharedDept" class="txtbox" name="option5" /></div>
+            <div id="validateSharedDept" class="hidden">Please enter a department.</div>
+
+            <div class="txtlabel">Pay Rate</div>
+            <div><input type="text" maxlength="500" id="txtSharedRate" class="txtbox" name="option6" /></div>
+            <div id="validateSharedRate" class="hidden">Please enter a pay rate.</div>
+
+            <table>
+                <tr>
+                    <td>
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdsal" id="rdSharedSal" /> Hourly  <br />
+                            <input type="radio" name="rdsal" /> Salary
+                        </div>
+                    </td>
+                    <td style="padding-left:100px;">
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdsc" id="rdSharedFP" /> Full Time  <br />
+                            <input type="radio" name="rdsc" /> Part Time
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <input type="text" class="hidden" id="strSharedSal" name="option7" />
+            <input type="text" class="hidden" id="strSharedFP" name="option8" />
+
+            <input type="text" class="hidden" id="strSharedEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strSharedFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strSharedShare" name="strShare" />
+            <input type="text" class="hidden" id="strSharedSup" name="strSup" />
+            <input type="text" class="hidden" id="strSharedAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subShared" class="hidden" onclick="submit()" />
+
+        </form>
+    </div>
+
+    <script>
+        function validateShared() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strSharedEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strSharedFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strSharedSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtSharedDate').value).isValid()) {
+                document.getElementById('validateSharedDate').className = 'hidden'
+            } else {
+                document.getElementById('validateSharedDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtSharedJob').value == '') {
+                document.getElementById('validateSharedJob').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateSharedJob').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSharedDept').value == '') {
+                document.getElementById('validateSharedDept').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateSharedDept').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSharedRate').value == '') {
+                document.getElementById('validateSharedRate').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateSharedRate').className = 'hidden'
+            }
+
+            if (document.getElementById('ddSharedHome').value == '') {
+                document.getElementById('validateSharedHome').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strSharedHome').value = document.getElementById('ddSharedHome').value
+                document.getElementById('validateSharedHome').className = 'hidden'
+            }
+
+            if (document.getElementById('ddSharedShared').value == '') {
+                document.getElementById('validateSharedShared').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strSharedShared').value = document.getElementById('ddSharedShared').value
+                document.getElementById('validateSharedShared').className = 'hidden'
+            }
+
+
+            document.getElementById('strSharedShare').value = document.getElementById('txtShared').value
+            document.getElementById('strSharedAction').value = document.getElementById('ddAction').value
+
+            if (document.getElementById('rdSharedSal').checked == true) {
+                document.getElementById('strSharedSal').value = 'Hourly'
+            } else {
+                document.getElementById('strSharedSal').value = 'Salary'
+            }
+
+            if (document.getElementById('rdSharedFP').checked == true) {
+                document.getElementById('strSharedFP').value = 'Full Time'
+            } else {
+                document.getElementById('strSharedFP').value = 'Part Time'
+            }
+
+            if (errors == 0) {
+                document.getElementById('subShared').click()
+            }
+        }
+    </script>
+
+
+
+    <div class="hidden" id="frmTransfer">
+        <form asp-controller="HRChangeForm" asp-action="PostRequest" method="post">
+            <div class="txtlabel">Effective Date</div>
+            <div><input type="text" maxlength="500" id="txtTransferDate" class="txtbox" name="option1" /></div>
+            <div id="validateTransferDate" class="hidden">Please enter a effective date.</div>
+
+            <div class="txtlabel">From Facility</div>
+            <div>@Html.Raw(ViewData["TransferHome"])</div>
+            <div id="validateTransferHome" class="hidden">Please select a facility.</div>
+            <input type="text" class="hidden" id="strTransferHome" name="option2" />
+
+            <div class="txtlabel">To Facility</div>
+            <div>@Html.Raw(ViewData["TransferTransfer"])</div>
+            <div id="validateTransferTransfer" class="hidden">Please select a facility.</div>
+            <input type="text" class="hidden" id="strTransferTransfer" name="option3" />
+
+            <div class="txtlabel">Job</div>
+            <div><input type="text" maxlength="500" id="txtTransferJob" class="txtbox" name="option4" /></div>
+            <div id="validateTransferJob" class="hidden">Please enter a job.</div>
+
+            <div class="txtlabel">Department</div>
+            <div><input type="text" maxlength="500" id="txtTransferDept" class="txtbox" name="option5" /></div>
+            <div id="validateTransferDept" class="hidden">Please enter a department.</div>
+
+            <div class="txtlabel">Pay Rate</div>
+            <div><input type="text" maxlength="500" id="txtTransferRate" class="txtbox" name="option6" /></div>
+            <div id="validateTransferRate" class="hidden">Please enter a pay rate.</div>
+
+            <table>
+                <tr>
+                    <td>
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdsal" id="rdTransferSal" /> Hourly  <br />
+                            <input type="radio" name="rdsal" /> Salary
+                        </div>
+                    </td>
+                    <td style="padding-left:100px;">
+                        <div class="txtlabel">
+                            <input type="radio" checked="checked" name="rdsc" id="rdTransferFP" /> Full Time  <br />
+                            <input type="radio" name="rdsc" /> Part Time
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <input type="text" class="hidden" id="strTransferSal" name="option7" />
+            <input type="text" class="hidden" id="strTransferFP" name="option8" />
+
+            <input type="text" class="hidden" id="strTransferEmployee" name="strEmployee" />
+            <input type="text" class="hidden" id="strTransferFacility" name="strFacility" />
+            <input type="text" class="hidden" id="strTransferShare" name="strShare" />
+            <input type="text" class="hidden" id="strTransferSup" name="strSup" />
+            <input type="text" class="hidden" id="strTransferAction" name="strAction" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subTransfer" class="hidden" onclick="submit()" />
+
+        </form>
+    </div>
+
+    <script>
+        function validateTransfer() {
+            var errors = 0
+
+            if (document.getElementById('txtEmployee').value == '') {
+                document.getElementById('validateEmployee').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTransferEmployee').value = document.getElementById('txtEmployee').value
+                document.getElementById('validateEmployee').className = 'hidden'
+            }
+
+            if (document.getElementById('ddFacility').value == '') {
+                document.getElementById('validateFacility').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTransferFacility').value = document.getElementById('ddFacility').value
+                document.getElementById('validateFacility').className = 'hidden'
+            }
+
+            if (document.getElementById('txtSupervisor').value == '') {
+                document.getElementById('validateSupervisor').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTransferSup').value = document.getElementById('txtSupervisor').value
+                document.getElementById('validateSupervisor').className = 'hidden'
+            }
+
+            if (moment(document.getElementById('txtTransferDate').value).isValid()) {
+                document.getElementById('validateTransferDate').className = 'hidden'
+            } else {
+                document.getElementById('validateTransferDate').className = 'validation'
+                errors = 1
+            }
+
+            if (document.getElementById('txtTransferJob').value == '') {
+                document.getElementById('validateTransferJob').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateTransferJob').className = 'hidden'
+            }
+
+            if (document.getElementById('txtTransferDept').value == '') {
+                document.getElementById('validateTransferDept').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateTransferDept').className = 'hidden'
+            }
+
+            if (document.getElementById('txtTransferRate').value == '') {
+                document.getElementById('validateTransferRate').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateTransferRate').className = 'hidden'
+            }
+
+            if (document.getElementById('ddTransferHome').value == '') {
+                document.getElementById('validateTransferHome').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTransferHome').value = document.getElementById('ddTransferHome').value
+                document.getElementById('validateTransferHome').className = 'hidden'
+            }
+
+            if (document.getElementById('ddTransferTransfer').value == '') {
+                document.getElementById('validateTransferTransfer').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('strTransferTransfer').value = document.getElementById('ddTransferTransfer').value
+                document.getElementById('validateTransferTransfer').className = 'hidden'
+            }
+
+
+            document.getElementById('strTransferShare').value = document.getElementById('txtShared').value
+            document.getElementById('strTransferAction').value = document.getElementById('ddAction').value
+
+            if (document.getElementById('rdTransferSal').checked == true) {
+                document.getElementById('strTransferSal').value = 'Hourly'
+            } else {
+                document.getElementById('strTransferSal').value = 'Salary'
+            }
+
+            if (document.getElementById('rdTransferFP').checked == true) {
+                document.getElementById('strTransferFP').value = 'Full Time'
+            } else {
+                document.getElementById('strTransferFP').value = 'Part Time'
+            }
+
+            if (errors == 0) {
+                document.getElementById('subTransfer').click()
+            }
+        }
+    </script>
+
+
+
+    <div class="hidden" id="frmAttach" style="padding-top:35px; max-width:310px;">
+        @using (Html.BeginForm("UploadFile", "HRChangeForm",
+FormMethod.Post,
+new
+{
+   @class = "dropzone",
+   id = "dropzone-form",
+}))
+        {
+            <div class="fallback">
+                <input name="file" type="file" multiple />
+            </div>
+            <input name="fUID" id="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+        <div id="imagelist"></div>
+
+
+        <div style="height:15px"></div>
+
+
+        @section Scripts{
+            <script type="text/javascript">
+                Dropzone.options.dropzoneForm = {
+                    paramName: "file",
+                    maxFilesize: 20,
+                    maxFiles: 4,
+
+                    dictMaxFilesExceeded: "Custom max files msg",
+                    dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                    success: function (file, response) {
+                        this.removeFile(file);
+                        $.get("/HRChangeForm/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                        // This return statement is necessary to remove progress bar after uploading.
+                        return file.previewElement.classList.add("dz-success");
+                    }
+                };
+
+
+            </script>
+        }
+    </div>
+</div>
+
+<input id="btnSub" type="button" class="hidden" style="margin-bottom:10px;margin-top:15px;" value="Submit" onclick="validatesub()" />
+
+<script>
+    function validatesub() {
+        var ddaction = document.getElementById('ddAction').value
+
+        if (ddaction == 'Address Change') {
+            validateaddress()
+        }
+
+        if (ddaction == 'Name Change') {
+            validatename()
+        }
+
+        if (ddaction == 'Non-FMLA') {
+            validateFMLA()
+        }
+
+        if (ddaction == 'Pay Rate Change') {
+            validatePRC()
+        }
+
+        if (ddaction == 'Phone Number Change') {
+            validatephone()
+        }
+
+        if (ddaction == 'Rehire') {
+            validateRehire()
+        }
+
+        if (ddaction == 'Status Change') {
+            validateStatus()
+        }
+
+        if (ddaction == 'Shared') {
+            validateShared()
+        }
+
+        if (ddaction == 'Transfer') {
+            validateTransfer()
+        }
+    }
+
+    function delblob(blobname) {
+        $.get("/HRChangeForm/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+    }
+
+    function ddreasonchange(ddvalue) {
+        if (ddvalue.value == 'Other') {
+            document.getElementById('txtPRCOther').className = 'txtbox'
+            document.getElementById('lblPRCOther').className = 'txtlabel'
+            document.getElementById('txtPRCOther').value = ''
+        } else {
+            document.getElementById('txtPRCOther').className = 'hidden'
+            document.getElementById('lblPRCOther').className = 'hidden'
+            document.getElementById('txtPRCOther').value = ddvalue.value
+            document.getElementById('validatePRCOther').className = 'hidden'
+        }
+    }
+    function changeyesno() {
+        if (document.getElementById('txtShared').value == 'Yes') {
+            document.getElementById('txtShared').value = 'No'
+        } else {
+            document.getElementById('txtShared').value = 'Yes'
+        }
+
+    }
+
+    function changeaction(ddvalue) {
+        if (ddvalue.value == 'Address Change') {
+            document.getElementById('frmAddressChange').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = ''
+            document.getElementById('ddStates').style.width = "100%"
+        } else {
+            document.getElementById('frmAddressChange').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Name Change') {
+            document.getElementById('frmNameChange').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = 'New SSN card and/or New Govt. issued ID Required.'
+        } else {
+            document.getElementById('frmNameChange').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Non-FMLA') {
+            document.getElementById('frmNonFMLA').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = ''
+        } else {
+            document.getElementById('frmNonFMLA').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Pay Rate Change') {
+            document.getElementById('frmPayRateChange').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = 'Effective date should be the 1st day of the pay period.'
+        } else {
+            document.getElementById('frmPayRateChange').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Phone Number Change') {
+            document.getElementById('frmPhoneChange').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = ''
+        } else {
+            document.getElementById('frmPhoneChange').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Status Change') {
+            document.getElementById('frmStatusChange').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = ''
+        } else {
+            document.getElementById('frmStatusChange').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Rehire') {
+            document.getElementById('frmRehire').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = 'Attach new W-4 and Direct Deposit Forms if over 30 days.'
+        } else {
+            document.getElementById('frmRehire').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Shared') {
+            document.getElementById('frmShared').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = 'Benefits/PTO will be set up in the home facility.'
+        } else {
+            document.getElementById('frmShared').className = 'hidden'
+        }
+
+        if (ddvalue.value == 'Transfer') {
+            document.getElementById('frmTransfer').className = 'col-md-4'
+            document.getElementById('headmsg').innerHTML = ''
+        } else {
+            document.getElementById('frmTransfer').className = 'hidden'
+        }
+
+        if (ddvalue.value == '') {
+            document.getElementById('frmAttach').className = 'hidden'
+            document.getElementById('hrdiv').className = 'hidden'
+            document.getElementById('headmsg').innerHTML = ''
+            document.getElementById('btnSub').className = 'hidden'
+        } else {
+            document.getElementById('frmAttach').className = 'col-md-4'
+            document.getElementById('hrdiv').className = ''
+            document.getElementById('btnSub').className = 'btn btn-primary'
+        }
+    }
+</script>
+
+
+<script src="~/lib/jquery/jquery.js"></script>
+<script src="~/lib/select2/js/select2.js"></script>
+<script type="text/javascript">
+    $.noConflict();
+    jQuery(document).ready(function ($) {
+        $("#ddFacility").select2();
+        $("#ddAction").select2();
+        $("#ddStates").select2();
+        $("#ddSharedHome").select2();
+        $("#ddSharedShared").select2();
+        $("#ddTransferHome").select2();
+        $("#ddTransferTransfer").select2();
+    });
+
+
+
+</script>

@@ -6,12 +6,12 @@
 }
 @if (User.Identity.IsAuthenticated)
 {
-    if (TempData["checkauth"].ToString() == "0")
+    if (ViewData["checkauth"].ToString() == "0")
     {
         <p>You are not authorized to view this page.</p>
     }
 
-    if (TempData["checkauth"].ToString() == "1")
+    if (ViewData["checkauth"].ToString() == "1")
     {
 
         @Html.Raw(ViewData["sidebar"])
@@ -114,8 +114,8 @@
         <hr />
         <div>@Html.Raw(ViewData["checkadmin"])</div>
 
-        <div id="alert" class="alert alert-info @(TempData["Message"] == null ? "hidden" : null)" role="alert">
-            @Html.Raw(TempData["Message"])
+        <div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
+            @Html.Raw(ViewData["Message"])
         </div>
         <form asp-controller="HRCallLog" asp-action="PostEdit" method="post" class="hidden">
             <input type="text" id="txtID" name="txtID" />

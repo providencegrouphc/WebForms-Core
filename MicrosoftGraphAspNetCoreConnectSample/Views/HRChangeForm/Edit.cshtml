@@ -1,0 +1,58 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+<h1>Details</h1>
+<a href="/HRChangeForm/HRView">Return to HR View</a>
+<hr />
+<style>
+    .textlabel {
+        font-weight: bold;
+        padding-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+</style>
+
+<form asp-controller="HRChangeForm" asp-action="PostSaveNotes" method="post" class="hidden">
+    <input type="text" id="txtID" name="txtID" value="@Html.Raw(ViewData["passid"])" />
+    <input type="text" id="strNotes" name="strNotes" />
+    <input type="text" id="strComplete" name="strComplete" />
+    <input type="button" id="subedit" onclick="submit()" />
+</form>
+
+<script>
+    function validatesub() {
+        document.getElementById('strNotes').value = document.getElementById('txtNotes').value
+
+        if (document.getElementById('cbComplete').checked) {
+            document.getElementById('strComplete').value = 'yes'
+        } else {
+            document.getElementById('strComplete').value = 'no'
+        }
+        document.getElementById('subedit').click();
+    }
+</script>
+
+@Html.Raw(ViewData["getdetails"])
