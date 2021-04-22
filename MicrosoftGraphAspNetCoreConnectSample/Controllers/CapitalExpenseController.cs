@@ -749,7 +749,7 @@ namespace PGWebFormsCore.Controllers
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
                 string subject = "Expense Report Submitted";
-                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>.";
+                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/Expense\">HERE</a>.";
 
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, "daniel.stump@pacshc.com", HttpContext, subject, body);
@@ -859,7 +859,7 @@ namespace PGWebFormsCore.Controllers
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
                 string subject = "You expense report has been " + strStatus;
-                string body = "You expense report has been " + strStatus +".<br/><br/>You can view the report <a href=\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>.";
+                string body = "You expense report has been " + strStatus + ".<br/><br/>You can view the report <a href=\"https://pacs-technology.com//Expense\">HERE</a>.";
 
                 //Send the email.
                 await GraphService.SendEmail(graphClient, _env, returntext, HttpContext, subject, body);

@@ -326,3 +326,13 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRChangeForm\HRView.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRChangeForm\Index.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\SupportTicket\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\DepartmentQuestions\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\CasambaRequest\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRSeparation\Edit.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRSeparation\HRView.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\HRSeparation\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\Add.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\Record.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\SupportTicket\Calendar.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\SupSearch.cshtml.g.cs

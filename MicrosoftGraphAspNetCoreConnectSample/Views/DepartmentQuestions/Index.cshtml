@@ -1,0 +1,189 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+        width: 280px;
+        margin-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+
+    .yesno {
+        border: 1px solid #aaa;
+        background-color: white;
+        padding: 5px;
+        transition: 1s;
+        cursor: pointer;
+        width: 50px;
+        border-radius: 5px;
+        text-align: center;
+    }
+</style>
+
+<script>
+    $(window).load(function () {
+        setTimeout(function () {
+            $("#alert").hide("slow");
+        }, 4000);
+
+    });
+</script>
+
+<h1>Department Questions</h1>
+<hr />
+
+<div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
+    @Html.Raw(ViewData["Message"])
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="DepartmentQuestions" asp-action="PostTicket" method="post" id="ticketform">
+            <div class="txtlabel">Name</div>
+            <div><input type="text" maxlength="500" id="txtName" class="txtbox" value="@Html.Raw(ViewData["username"])" name="txtName" /></div>
+
+            <div class="txtlabel">Email</div>
+            <div><input type="text" maxlength="500" id="txtEmail" class="txtbox" value="@Html.Raw(ViewData["email"])" name="txtEmail" /></div>
+
+            <div class="txtlabel">Phone Number</div>
+            <div><input type="text" maxlength="25" id="txtPhone" class="txtbox" name="txtPhone" /></div>
+
+            <div class="txtlabel">Department</div>
+            <div>@Html.Raw(ViewData["department"])</div>
+            <div id="validateDepartment" class="hidden">Please select a department.</div>
+
+            <div class="txtlabel">Question/Comment</div>
+            <textarea style="height:100px" class="txtbox" id="txtNotes" name="txtNotes"></textarea>
+            <div id="validateNotes" class="hidden">Please enter some details.</div>
+
+            <input type="text" class="hidden" id="strType" name="strType" />
+            <input type="text" class="hidden" id="strTypeAction" name="strTypeAction" />
+            <input type="text" class="hidden" id="strNotes" name="strNotes" />
+            <input type="text" class="hidden" name="strUID" value="@Html.Raw(ViewData["UID"])" />
+
+            <input type="button" id="subTicket" class="hidden" onclick="submit()" />
+        </form>
+    </div>
+
+    <div class="col-md-4" id="uploadform">
+
+
+        @using (Html.BeginForm("UploadFile", "SupportTicket",
+   FormMethod.Post,
+   new
+   {
+       @class = "dropzone",
+       id = "dropzone-form",
+   }))
+        {
+            <div class="fallback">
+                <input name="file" type="file" multiple />
+            </div>
+            <input name="fUID" id="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+        <div id="imagelist"></div>
+
+
+        <div style="height:15px"></div>
+
+
+        @section Scripts{
+            <script type="text/javascript">
+                Dropzone.options.dropzoneForm = {
+                    paramName: "file",
+                    maxFilesize: 20,
+                    maxFiles: 4,
+
+                    dictMaxFilesExceeded: "Custom max files msg",
+                    dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                    success: function (file, response) {
+                        this.removeFile(file);
+                        $.get("/SupportTicket/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                        // This return statement is necessary to remove progress bar after uploading.
+                        return file.previewElement.classList.add("dz-success");
+                    }
+                };
+
+
+            </script>
+        }
+    </div>
+
+</div>
+
+<input id="btnSub" type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit" onclick="validatesub()" />
+
+<script>
+    function typechange(ddemail, ddoption) {
+        document.getElementById('strTypeAction').value = ddemail
+        document.getElementById('strType').value = ddoption
+    }
+
+    function delblob(blobname) {
+        $.get("/SupportTicket/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+    }
+
+    function validatesub() {
+        var errors = 0
+
+        if (document.getElementById('ddDepartment').value == '0') {
+            document.getElementById('validateDepartment').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateDepartment').className = 'hidden'
+        }
+
+        if (document.getElementById('txtNotes').value == '') {
+            document.getElementById('validateNotes').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strNotes').value = document.getElementById('txtNotes').value
+            document.getElementById('validateNotes').className = 'hidden'
+        }
+
+        if (errors == 0) {
+            document.getElementById('subTicket').click()
+        }
+    }
+</script>

@@ -212,6 +212,7 @@
     .dropzone {
         border: 1px solid #aaa !important;
         border-radius: 5px !important;
+        width:280px;
     }
 
     .imgdiv {
@@ -346,34 +347,13 @@
     </div>
                     <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
 
-                <div id="imagelist">
-
-                </div>
+                <div id="imagelist"></div>
                 <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Expense" onclick="validatesub()" />
                 <div id="supinfo" style="color:gray; font-size:12px"></div>
                 <input type="text" id="changesupinfo" class="hidden" />
             </div>
         </div>
-        @section Scripts{
-            <script type="text/javascript">
-                Dropzone.options.dropzoneForm = {
-                    paramName: "file",
-                    maxFilesize: 20,
-                    maxFiles: 4,
-
-                    dictMaxFilesExceeded: "Custom max files msg",
-                    dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
-                    success: function (file, response) {
-                        this.removeFile(file);
-                        $.get("/Expense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
-                        // This return statement is necessary to remove progress bar after uploading.
-                        return file.previewElement.classList.add("dz-success");
-                    }
-                };
-
-
-            </script>
-        }
+        
 
     </div>
     <div id="ZDistance" class="hidden">
@@ -428,9 +408,50 @@
                     <input type="text" id="txtDCategory" name="txtDCategory" class="hidden" />
                     <input type="text" id="txtDFac" name="txtDFac" class="hidden" />
                     <input type="text" id="txtNewAmount" name="txtNewAmount" class="hidden" />
+                    <input name="dUID" id="dUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
                     <div id="txtDsupinfo" class="hidden"></div>
                     <div class="txtlabel"><input type="checkbox" id="cbDreimbursable" />&nbsp;&nbsp;Reimbursable</div>
 </form>
+
+            @using (Html.BeginForm("UploadFile", "Expense",
+                       FormMethod.Post,
+                       new
+                       {
+                           @class = "dropzone",
+                           id = "dropzone-form",
+                       }))
+                {
+            <div class="fallback">
+                <input name="file" type="file" multiple />
+
+            </div>
+            <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+
+            <div id="imagelist2"></div>
+
+            @section Scripts{
+                <script type="text/javascript">
+                    Dropzone.options.dropzoneForm = {
+                        paramName: "file",
+                        maxFilesize: 20,
+                        maxFiles: 4,
+
+                        dictMaxFilesExceeded: "Custom max files msg",
+                        dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                        success: function (file, response) {
+                            this.removeFile(file);
+                            $.get("/Expense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data; document.getElementById('imagelist2').innerHTML = data });
+                            // This return statement is necessary to remove progress bar after uploading.
+                            return file.previewElement.classList.add("dz-success");
+                        }
+                    };
+
+
+                </script>
+            }
+
+            
+
 
             <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Distance" onclick="validatedist()" />
             <div id="Dsupinfo" style="color:gray; font-size:12px"></div>
@@ -579,7 +600,7 @@
 <script>
     function validatesub() {
         var errors = 0
-
+    
         var amount = document.getElementById('txtTotal').value
         amount = amount.replace('$', '')
         amount = amount.replace(' ', '')
@@ -667,17 +688,23 @@
             document.getElementById('superror').className = '';
         } else {
             $.get("/Expense/savesup", { supinfo: document.getElementById("changesupinfo").value }, function (data) {
-                document.getElementById('supinfo').innerHTML = data;
-                document.getElementById('Dsupinfo').innerHTML = data;
-                document.getElementById('Msupinfo').innerHTML = data;
-                $('#showsup').dialog('close');
-                document.getElementById('superror').className = 'hidden';
-                document.getElementById('supsearch').value = ''
-                document.getElementById('changesupinfo').value = ''
-                document.getElementById('supresults').innerHTML = ''
+                completesupsave(data)
             });
         }
+        
+    }
 
+    function completesupsave(data) {
+        
+        document.getElementById('supinfo').innerHTML = data;
+        document.getElementById('Dsupinfo').innerHTML = data;
+        document.getElementById('Msupinfo').innerHTML = data;
+        $('#showsup').dialog('close');
+
+        document.getElementById('superror').className = 'hidden';
+        document.getElementById('supsearch').value = ''
+        document.getElementById('changesupinfo').value = ''
+        document.getElementById('supresults').innerHTML = ''
     }
 
     function delblob(blobname) {

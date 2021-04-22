@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+H+v77an0oKGqdpqcuAgyL2Wd70fDl3Kmb5hfkTzs95uP7f4yrXXqqQytOcL30gTO8SoD2hb+djOveFE/bxGTQ==",
+  "dgSpecHash": "aWIKFhYjxmACoi3J097UJFE2I+JtbrFuYHlMHuTT4anLEk9D2yN20I3QpOL4l5HG0uhWnMehDI4hM66c8mY/sQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
   "expectedPackageFiles": [
@@ -124,7 +124,7 @@
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.linq\\4.3.0\\system.linq.4.3.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.linq.expressions\\4.3.0\\system.linq.expressions.4.3.0.nupkg.sha512",
     "C:\\Users\\daniel.stump\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
-    "C:\\Users\\daniel.stump\\.nuget\\packages\\system.net.http\\4.3.3\\system.net.http.4.3.3.nupkg.sha512",
+    "C:\\Users\\daniel.stump\\.nuget\\packages\\system.net.http\\4.3.4\\system.net.http.4.3.4.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.net.nameresolution\\4.3.0\\system.net.nameresolution.4.3.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.net.primitives\\4.3.0\\system.net.primitives.4.3.0.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.net.sockets\\4.3.0\\system.net.sockets.4.3.0.nupkg.sha512",

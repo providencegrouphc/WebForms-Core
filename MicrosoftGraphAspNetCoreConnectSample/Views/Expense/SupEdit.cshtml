@@ -20,10 +20,11 @@
         border: 1px solid #aaa;
         border-radius: 5px;
         margin-top: 10px;
+        width:250px;
     }
 
         .imgdiv table {
-            width: 280px;
+            width: 250px;
             table-layout: fixed;
         }
 
@@ -34,7 +35,7 @@
     }
 </style>
 <h1>Supervisor View</h1>
-<a href="/Expense/Sup">Return to Supervisor Home</a>
+<a href="/Expense/@Html.Raw(ViewData["supredirect"])">Return to Supervisor Home</a>
 <br />
 <br />
 <form asp-controller="Expense" asp-action="PostSupSave" method="post">
@@ -43,11 +44,13 @@
     <input name="strNotes" id="strNotes" type="text" class="hidden" />
     <input name="strUser" id="strUser" type="text" class="hidden" />
     <input type="button" id="subsup" class="hidden" onclick="submit()" />
+    <input type="text" id="txtRedirect" class="hidden" name="txtRedirect" value="@Html.Raw(ViewData["supredirect"])" />
 </form>
 
 <form asp-controller="Expense" asp-action="PostDelExpense" method="post">
     <input name="strDUID" id="strDUID" type="text" class="hidden" />
     <input type="button" id="Dsubsup" class="hidden" onclick="submit()" />
+    <input type="text" id="txtRedirect" class="hidden" name="txtRedirect" value="@Html.Raw(ViewData["supredirect"])" />
 </form>
 
 

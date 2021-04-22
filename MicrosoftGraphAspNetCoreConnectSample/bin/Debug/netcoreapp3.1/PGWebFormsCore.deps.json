@@ -36,6 +36,7 @@
           "SixLabors.ImageSharp": "1.0.2",
           "System.Data.SqlClient": "4.8.2",
           "System.Drawing.Common": "5.0.0",
+          "System.Net.Http": "4.3.4",
           "System.Runtime.Serialization.Json": "4.3.0",
           "bootstrap": "4.5.3",
           "jQuery": "3.5.1",
@@ -794,7 +795,7 @@
           "NETStandard.Library": "1.6.1",
           "Newtonsoft.Json": "12.0.3",
           "System.Diagnostics.DiagnosticSource": "4.6.0",
-          "System.Net.Http": "4.3.3",
+          "System.Net.Http": "4.3.4",
           "System.ValueTuple": "4.3.0"
         },
         "runtime": {
@@ -1078,7 +1079,7 @@
           "System.IO.FileSystem.Primitives": "4.3.0",
           "System.Linq": "4.3.0",
           "System.Linq.Expressions": "4.3.0",
-          "System.Net.Http": "4.3.3",
+          "System.Net.Http": "4.3.4",
           "System.Net.Primitives": "4.3.0",
           "System.Net.Sockets": "4.3.0",
           "System.ObjectModel": "4.3.0",
@@ -1679,7 +1680,7 @@
         }
       },
       "System.Memory/4.5.3": {},
-      "System.Net.Http/4.3.3": {
+      "System.Net.Http/4.3.4": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.0",
           "System.Collections": "4.3.0",
@@ -4736,12 +4737,12 @@
       "path": "system.memory/4.5.3",
       "hashPath": "system.memory.4.5.3.nupkg.sha512"
     },
-    "System.Net.Http/4.3.3": {
+    "System.Net.Http/4.3.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7rCqIbkC/P2+A00NoDH5gnvFhADmX7Dc4INvsOajbU1MVhktE9vZNrjPtF82N6Uo7obK+yzlrPUv/M+snnN/9w==",
-      "path": "system.net.http/4.3.3",
-      "hashPath": "system.net.http.4.3.3.nupkg.sha512"
+      "sha512": "sha512-aOa2d51SEbmM+H+Csw7yJOuNZoHkrP2XnAurye5HWYgGVVU54YZDvsLUYRv6h18X3sPnjNCANmN7ZhIPiqMcjA==",
+      "path": "system.net.http/4.3.4",
+      "hashPath": "system.net.http.4.3.4.nupkg.sha512"
     },
     "System.Net.NameResolution/4.3.0": {
       "type": "package",

@@ -1,0 +1,170 @@
+﻿
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+
+<script src="~/datatables/datatables.min.js"></script>
+<script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="~/datatables/datatables.min.css" />
+
+
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100%;
+    }
+
+    .txtboxnoheight {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        width: 100%;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .float {
+        float: left;
+        width: 200px;
+        margin-top: 15px;
+    }
+
+    .subbutton {
+        background-color: #1b1464;
+        border-radius: 5px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: 100px;
+        color: white;
+        text-decoration: none;
+        border: none
+    }
+
+        .subbutton:hover {
+            background-color: #2b3791
+        }
+
+    .validation {
+        color: red;
+    }
+</style>
+
+<script>
+    $(window).load(function () {
+        facilitychange()
+    });
+</script>
+
+<h1>Triple Check</h1>
+<hr />
+
+<table>
+    <tr>
+        <td>
+            <div class="txtlabel">Facility</div>
+            <div>@Html.Raw(ViewData["facility"])</div>
+
+            
+            <div id="divMonth">
+            </div>
+        </td>
+        <td style="padding-left:20px; vertical-align:bottom;">
+            <input type="button" id="addpatient" class="hidden" style="margin-top:10px;" value="Add Patient" onclick="add()" />
+            
+        </td>
+    </tr>
+</table>
+<hr/>
+<a href="#" onclick="showtransfer" id="linkTransfer" class="hidden" style="font-weight:bold">Transfer patients to next month</a>
+<div style="height:10px"></div>
+<div id="resultstable"></div>
+
+<form asp-controller="TripleCheck" asp-action="GoToAdd" method="post" id="ticketform" class="hidden">
+    <input type="text" id="txtFacility" name="txtFacility" />
+    <input type="text" id="txtReportMonth" name="txtReportMonth" />
+    <input type="button" id="subTicket" class="hidden" onclick="submit()" />
+</form>
+
+<form asp-controller="TripleCheck" asp-action="PostGoToRecord" method="post" class="hidden">
+    <input type="text" id="txtID" name="txtID" />
+    <input type="button" id="subedit" onclick="submit()" />
+</form>
+
+
+<script>
+    function facilitychange() {
+        document.getElementById('addpatient').className = "hidden"
+        document.getElementById('resultstable').innerHTML = ""
+        document.getElementById('linkTransfer').className = 'hidden'
+
+        if (document.getElementById('ddFacility').value == '') {
+            document.getElementById('divMonth').innerHTML = ''
+        } else {
+            $.get("/TripleCheck/getmonths", { strfac: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divMonth').innerHTML = data });
+            
+        }
+
+
+    }
+
+    function monthchange() {
+        
+        if (document.getElementById('ddReportMonth').value == '') {
+            document.getElementById('addpatient').className = "hidden"
+            document.getElementById('resultstable').innerHTML = ""
+            document.getElementById('linkTransfer').className = 'hidden'
+        } else {
+            document.getElementById('addpatient').className = "btn btn-primary"
+            $.get("/TripleCheck/IndexTable", { stritem: document.getElementById('ddReportMonth').value, facid: document.getElementById('ddFacility').value }, function (data) {starttable(data) });            
+        }
+    }
+
+    function add() {
+        document.getElementById('txtFacility').value = document.getElementById('ddFacility').value
+        document.getElementById('txtReportMonth').value = document.getElementById('ddReportMonth').value
+        document.getElementById('subTicket').click()
+    }
+
+    function starttable(data) {
+        document.getElementById('resultstable').innerHTML = data
+        
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[1, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false }
+            ]
+        })
+
+        $('#example tbody').on('click', 'tr', function () {
+            var data = table.row(this).data();
+            document.getElementById('txtID').value = data[0]
+            document.getElementById('subedit').click()
+        });
+
+        if (table.rows().count() > 0) {
+            document.getElementById('linkTransfer').className = ''
+        } else {
+            document.getElementById('linkTransfer').className = 'hidden'
+        }
+        
+        table.draw()
+        
+    }
+</script>
+
+<script src="~/lib/jquery/jquery.js"></script>
+<script src="~/lib/select2/js/select2.js"></script>
+<script type="text/javascript">
+    $.noConflict();
+    jQuery(document).ready(function ($) {
+        $("#ddFacility").select2();
+        $("#ddReportMonth").select2();
+    });
+
+</script>

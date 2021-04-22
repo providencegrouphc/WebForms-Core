@@ -68,12 +68,15 @@
             $("#alert").hide("slow");
         }, 4000);
 
+        //alert(Intl.DateTimeFormat().resolvedOptions().timeZone)
+        alert(@Html.Raw(ViewData["facilityapi"]))
+        console.log(@Html.Raw(ViewData["facilityapi"]))
     });
 </script>
 
 <h1>Support Ticket</h1>
 <hr />
-
+<textarea>@Html.Raw(ViewData["facilityapi"])</textarea>
 <div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
     @Html.Raw(ViewData["Message"])
 </div>

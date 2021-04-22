@@ -1,0 +1,105 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+<h1>Details</h1>
+<a href="/HRSeparation/HRView">Return to HR View</a>
+<hr />
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+        width: 280px;
+        margin-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+
+    .yesno {
+        border: 1px solid #aaa;
+        background-color: white;
+        padding: 5px;
+        transition: 1s;
+        cursor: pointer;
+        width: 50px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+
+    textarea {
+        max-width: 600px !important;
+        height: 100px;
+    }
+
+    .formheader {
+        max-width: 600px;
+        background-color: #aaa;
+        padding: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    .cbtext {
+        cursor: default
+    }
+</style>
+
+<form asp-controller="HRSeparation" asp-action="PostSaveNotes" method="post" class="hidden">
+    <input type="text" id="txtID" name="txtID" value="@Html.Raw(ViewData["passid"])" />
+    <input type="text" id="strNotes" name="strNotes" />
+    <input type="text" id="strComplete" name="strComplete" />
+    <input type="button" id="subedit" onclick="submit()" />
+</form>
+
+<script>
+    function validatesub() {
+        document.getElementById('strNotes').value = document.getElementById('txtNotes').value
+
+        if (document.getElementById('cbComplete').checked) {
+            document.getElementById('strComplete').value = 'yes'
+        } else {
+            document.getElementById('strComplete').value = 'no'
+        }
+        document.getElementById('subedit').click();
+    }
+</script>
+
+@Html.Raw(ViewData["getdetails"])

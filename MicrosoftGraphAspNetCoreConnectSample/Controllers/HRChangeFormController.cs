@@ -695,7 +695,7 @@ namespace PGWebFormsCore.Controllers
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
                 string subject = "HR Change Request Submitted";
-                string body = "A change request was just submitted.<br/><br/>You can view the report <a href=\"https://pgwebforms-core.azurewebsites.net/HRChangeForm/HRView\">HERE</a>.";
+                string body = "A change request was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/HRChangeForm/HRView\">HERE</a>.";
 
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, "daniel.stump@pacshc.com", HttpContext, subject, body);

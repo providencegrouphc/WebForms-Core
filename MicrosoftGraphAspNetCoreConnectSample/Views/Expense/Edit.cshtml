@@ -26,7 +26,18 @@
         if (document.getElementById('fUID').value == 'stop') {
             document.getElementById('fupload').className = 'hidden'
         } else {
-            document.getElementById('fupload').className = 'col-md-4'
+            if (document.getElementById('txtExpType').value == 'EXPENSE') {
+                document.getElementById('fupload').className = 'col-md-4'
+            } else {
+                document.getElementById('fupload').className = 'hidden'
+                document.getElementById('dupload').className = ''
+            }
+            
+        }
+
+        if (document.getElementById('txtapstatus').value == 'Approved') {
+            document.getElementById('dstatus').className = 'hidden'
+            document.getElementById('astatus').className = 'hidden'
         }
     });
 
@@ -40,6 +51,7 @@
     .dropzone {
         border: 1px solid #aaa !important;
         border-radius: 5px !important;
+        width:280px;
     }
 
     .txtbox {
@@ -58,6 +70,7 @@
         border: 1px solid #aaa;
         border-radius: 5px;
         margin-top: 10px;
+        width:280px;
     }
 
         .imgdiv table {
@@ -66,7 +79,7 @@
         }
 
     .imgdivtd {
-        width: 170px;
+        width: 150px;
         word-wrap: break-word;
         padding-right: 10px
     }
@@ -100,11 +113,38 @@
     <div id="imagelist">
         @Html.Raw(ViewData["attachments"])
     </div>
-    <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesub()" />
-    <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
-
+    <div id="astatus">
+        <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesub()" />
+        <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
+    </div>
     <div id="supinfo" style="color:gray; font-size:12px"></div>
     <input type="text" id="changesupinfo" class="hidden" />
+</div>
+
+
+<div class="hidden" style="padding-top:35px; max-width:310px;" id="dupload">
+    @using (Html.BeginForm("UploadFile", "Expense",
+     FormMethod.Post,
+     new
+     {
+         @class = "dropzone",
+         id = "dropzone-form",
+     }))
+    {
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+
+        </div>
+        <input name="fUID" id="fUID" type="text" value="@Html.Raw(ViewData["attachmentid"])" class="hidden" />}
+
+    <div id="imagelist">
+        @Html.Raw(ViewData["attachments"])
+    </div>
+    <div id="dstatus">
+        <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesubdistance()" />
+        <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
+    </div>
+    
 </div>
 
 @section Scripts{
@@ -127,6 +167,9 @@
 
     </script>
 }
+<input type="text" class="hidden" id="txtExpType" name="txtExpType" value="@Html.Raw(ViewData["exptype"])" />
+<input type="text" class="hidden" id="txtapstatus" name="txtapstatus" value="@Html.Raw(ViewData["apstatus"])" />
+
 
 <form asp-controller="Expense" asp-action="PostExpenseEdit" method="post">
     <input type="text" class="hidden" id="strUID" name="strUID" />

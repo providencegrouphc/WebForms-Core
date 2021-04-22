@@ -1,0 +1,217 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+
+<script src="~/datatables/datatables.min.js"></script>
+<script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="~/datatables/datatables.min.css" />
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+
+        setTimeout(function () {
+            $("#alert").hide("slow");
+
+        }, 2000);
+
+        var table = $('#example').DataTable({
+            responsive: true,
+            "order": [[1, "asc"]],
+            "columnDefs": [
+                { "targets": [0], "visible": false, "searchable": false },
+                { "targets": [9], "visible": false, "searchable": true }
+            ]
+        })
+
+        //$('input.column_filter').on('keyup click', function () {
+        //    filterColumn($(this).parents('tr').attr('data-column'));
+        //});
+
+        $('#example tbody').on('click', 'tr', function () {
+            var data = table.row(this).data();
+            document.getElementById('txtID').value = data[0]
+            document.getElementById('subedit').click()
+        });
+
+        var status = ""
+        if (document.getElementById('cbStatus').checked == true) {
+            status = ""
+        } else {
+            status = "0"
+        }
+        $('#example').DataTable()
+            .column(7)
+            .search(
+                status
+            )
+            .draw();
+
+    });
+
+    function filterColumn(i) {
+        $('#example').DataTable()
+            .column(i)
+            .search(
+                $('#col' + i + '_filter').val()
+            )
+            .draw();
+    }
+
+    function filterStatus() {
+        var status = ""
+        if (document.getElementById('cbStatus').checked == true) {
+            status = ""
+        } else {
+            status = "0"
+        }
+        $('#example').DataTable()
+            .column(7)
+            .search(
+                status
+            )
+            .draw();
+    }
+
+
+</script>
+<style>
+    .dataTables_filter {
+        display: none;
+    }
+
+    .column_filter {
+        margin-bottom: 5px;
+        margin-left: 10px;
+    }
+
+    .collapsible {
+        background-color: #337ab7;
+        color: white;
+        cursor: pointer;
+        padding: 5px;
+        width: 320px;
+        border: 1px solid #2e6da4;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+    }
+
+        .active, .collapsible:hover {
+            background-color: #286090;
+            border: 1px solid #204d74;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+    .active:after {
+        content: "\2212";
+    }
+
+    .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: #f1f1f1;
+        width: 320px;
+        border: 1px solid #2e6da4;
+    }
+</style>
+
+
+<h1>Search Expenses</h1>
+<a href="/Expense/Sup">Return to Pending Expenses</a>
+<div style="height:10px;"></div>
+<table>
+    <tr>
+        <td id="colarea">
+
+            <button class="collapsible">Search</button>
+            <div class="content">
+                <div style="height:10px"></div>
+                <table style="text-align:left">
+                    <tr>
+                        <td></td>
+                        <td>
+                            @Html.Raw(ViewData["cbapprove"])
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Submitted By</td>
+                        <td><input type="text" class="column_filter" id="col1_filter" onkeyup="filterColumn('1')"></td>
+                    </tr>
+                    <tr>
+                        <td>Date</td>
+                        <td><input type="text" class="column_filter" id="col2_filter" onkeyup="filterColumn('2')"></td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td><input type="text" class="column_filter" id="col3_filter" onkeyup="filterColumn('3')"></td>
+                    </tr>
+                    <tr>
+                        <td>Category</td>
+                        <td><input type="text" class="column_filter" id="col4_filter" onkeyup="filterColumn('4')"></td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td><input type="text" class="column_filter" id="col5_filter" onkeyup="filterColumn('5')"></td>
+                    </tr>
+                    <tr>
+                        <td>Facility</td>
+                        <td><input type="text" class="column_filter" id="col6_filter" onkeyup="filterColumn('6')"></td>
+                    </tr>
+                    <tr>
+                        <td>Submitted</td>
+                        <td><input type="text" class="column_filter" id="col7_filter" onkeyup="filterColumn('7')"></td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td><input type="text" class="column_filter" id="col8_filter" onkeyup="filterColumn('8')"></td>
+                    </tr>
+                </table>
+                <div style="height:10px"></div>
+            </div>
+
+        </td>
+        <td style="padding-left:10px; vertical-align:top">
+            @Html.Raw(ViewData["newbtn"])
+        </td>
+    </tr>
+</table>
+
+
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    }
+</script>
+
+<br />
+
+
+
+@Html.Raw(ViewData["supexpense"])
+
+<form asp-controller="Expense" asp-action="PostSupEdit" method="post">
+    <input type="button" id="postsubmit" class="hidden" value="Submit" onclick="submit()" />
+    <input type="text" id="txtID" class="hidden" name="txtID" />
+    <input type="text" id="txtRedirect" class="hidden" name="txtRedirect" value="SupSearch" />
+</form>

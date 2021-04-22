@@ -1,0 +1,101 @@
+﻿
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+
+<script src="~/datatables/datatables.min.js"></script>
+<script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="~/datatables/datatables.min.css" />
+
+
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 280px;
+    }
+
+    .txtboxnoheight {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        width: 100%;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .float {
+        float: left;
+        width: 200px;
+        margin-top: 15px;
+    }
+
+    .subbutton {
+        background-color: #1b1464;
+        border-radius: 5px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: 100px;
+        color: white;
+        text-decoration: none;
+        border: none
+    }
+
+        .subbutton:hover {
+            background-color: #2b3791
+        }
+
+    .validation {
+        color: red;
+    }
+</style>
+
+<h1>Add Patient</h1>
+<a href="/TripleCheck" id="homeclick">Return to Home</a>
+<hr />
+
+<table style="width:280px">
+    <tr>
+        <td>
+            <div class="txtlabel">Medical Record #</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div><input type="text" class="txtbox" id="txtMedical"/></div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="button" class="btn btn-primary" style="margin-top:10px;" value="Search" onclick="search()" />
+        </td>
+    </tr>
+</table>
+
+<form asp-controller="TripleCheck" asp-action="AddPatient" method="post" id="ticketform" class="hidden">
+    <input type="text" id="txtFacility" name="txtFacility" />
+    <input type="text" id="txtMedicalID" name="txtMedicalID" />
+    <input type="text" id="txtReportMonth" name="txtReportMonth" value="@Html.Raw(ViewData["reportmonth"])"/>
+    <input type="button" id="subTicket" class="hidden" onclick="submit()" />
+</form>
+
+<hr />
+
+<div id="searchresult"></div>
+<input type="text" id="facilityid" class="hidden" value="@Html.Raw(ViewData["facilityid"])" />
+<script>
+    function search() {
+        $.get("/TripleCheck/SearchPatient", { stritem: document.getElementById('txtMedical').value, facid: document.getElementById('facilityid').value, reportmonth: document.getElementById('txtReportMonth').value }, function (data) { document.getElementById('searchresult').innerHTML = data });
+    }
+
+    function addpatient() {
+        document.getElementById('txtMedicalID').value = document.getElementById('txtMedical').value
+        document.getElementById('txtFacility').value = document.getElementById('facilityid').value
+
+        document.getElementById('subTicket').click()
+    }
+</script>

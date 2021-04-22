@@ -462,7 +462,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
                 }
             }
             con.Close();
-            return returntext + "</div><footer class=\"footer\"><i>Powered by:</i><br /><img src=\"https://pgwebforms-core.azurewebsites.net/PacsTechLogo-2.jpg\" /></footer></div>";
+            return returntext + "</div><footer class=\"footer\"><i>Powered by:</i><br /><img src=\"https://pacs-technology.com/PacsTechLogo-2.jpg\" /></footer></div>";
         }
 
 
@@ -552,5 +552,46 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
 
             await graphClient.Me.SendMail(email, true).Request().PostAsync();
         }
+
+        public static async Task SendCalendar(GraphServiceClient graphClient)
+        {
+            var @event = new Event
+            {
+                Subject = "IT Support Contact",
+                Body = new ItemBody
+                {
+                    ContentType = BodyType.Html,
+                    Content = "IT Support will be contacting you about your issue at this time."
+                },
+                Start = new DateTimeTimeZone
+                {
+                    DateTime = "2021-04-23T12:00:00",
+                    TimeZone = "Mountain Standard Time"
+                },
+                End = new DateTimeTimeZone
+                {
+                    DateTime = "2021-04-23T12:30:00",
+                    TimeZone = "Mountain Standard Time"
+                },
+                Attendees = new System.Collections.Generic.List<Attendee>()
+    {
+        new Attendee
+        {
+            EmailAddress = new EmailAddress
+            {
+                Address = "daniel.stump@pacshc.com"
+            },
+            Type = AttendeeType.Required
+        }
+    },
+                //TransactionId = "7E163156-7762-4BEB-A1C6-729EA81755A7"
+            };
+
+            await graphClient.Me.Events
+                .Request()
+                .AddAsync(@event);
+
+        }
+
     }
 }

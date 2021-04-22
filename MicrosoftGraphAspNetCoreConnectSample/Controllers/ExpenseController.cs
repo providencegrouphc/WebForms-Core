@@ -55,6 +55,14 @@ namespace PGWebFormsCore.Controllers
         public async Task<IActionResult> Sup()
         {
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
+            ViewData["supexpenseg"] = await getsupexpensegroup();
+            return View();
+        }
+
+        [Authorize]
+        public async Task<IActionResult> SupSearch()
+        {
+            ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["supexpense"] = getsupexpense();
             return View();
         }
@@ -63,15 +71,16 @@ namespace PGWebFormsCore.Controllers
         public async Task<IActionResult> Finance()
         {
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
-            ViewData["getfinance"] = getfinance();
+            ViewData["getfinance"] = await getfinexpensegroup();
             return View();
         }
 
         [Authorize]
-        public async Task<IActionResult> SupEdit(string supeditid)
+        public async Task<IActionResult> SupEdit(string supeditid, string supredirect)
         {
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["supeditdata"] = await getsupedit(supeditid);
+            ViewData["supredirect"] = supredirect;
             return View();
         }
 
@@ -124,7 +133,7 @@ namespace PGWebFormsCore.Controllers
         {
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
-            SqlCommand cmd = new SqlCommand("SELECT attachmentid from expense where id = '"+editid+"' and expensetype = 'expense'", con);
+            SqlCommand cmd = new SqlCommand("SELECT attachmentid, expensetype, approvalstatus from expense where id = '"+editid+"'", con);
             con.Open();
             SqlDataReader idr = cmd.ExecuteReader();
             string returnvalue = "stop";
@@ -133,8 +142,16 @@ namespace PGWebFormsCore.Controllers
             {
                 while (idr.Read())
                 {
+                    if (Convert.ToString(idr["expensetype"]) == "MULTIPLE")
+                    {
 
-                    returnvalue = Convert.ToString(idr["AttachmentID"]) ;
+                    } else
+                    {
+                        returnvalue = Convert.ToString(idr["AttachmentID"]);
+                        ViewData["exptype"] = Convert.ToString(idr["expensetype"]);
+                        ViewData["apstatus"] = Convert.ToString(idr["approvalstatus"]);
+                    }
+                    
                 }
             }
             con.Close();
@@ -292,14 +309,13 @@ namespace PGWebFormsCore.Controllers
                             returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" id=\"cbreimbursable\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
-
                         if (Convert.ToString(idr["ApprovalStatus"]) == "Approved")
                         { }
                         else
                         {
-                            returnvalue += "<input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px; margin-top:15px;\" value=\"Submit\" onclick=\"validatesubdistance()\" />";
-                            returnvalue += "<input type=\"button\" class=\"btn btn-danger\" style=\"margin-bottom:10px; margin-top:15px; margin-left:30px\" value=\"Delete\" onclick=\"showdelexpense()\" />";
-                            returnvalue += "</div></div>";
+                            //returnvalue += "<input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px; margin-top:15px;\" value=\"Submit\" onclick=\"validatesubdistance()\" />";
+                            //returnvalue += "<input type=\"button\" class=\"btn btn-danger\" style=\"margin-bottom:10px; margin-top:15px; margin-left:30px\" value=\"Delete\" onclick=\"showdelexpense()\" />";
+                            //returnvalue += "</div></div>";
                         }
 
                     }
@@ -424,6 +440,8 @@ namespace PGWebFormsCore.Controllers
                         }
 
                     }
+
+                    returnvalue += "<div id=\"imagelist\">" + await GetImages(Convert.ToString(idr["AttachmentID"])) + "</div>";
                     returnvalue += "<div class=\"txtlabel\">Status Change Notes</div>";
                     returnvalue += "<textarea class=\"txtbox\" style=\"height:100px\" id=\"txtNotes\">" + Convert.ToString(idr["ApproveNotes"]) + "</textarea>";
                     returnvalue += "<div class=\"txtlabel\">Status</div>";
@@ -557,6 +575,8 @@ namespace PGWebFormsCore.Controllers
                             returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
+                        returnvalue += "<div id=\"imagelist\">" + await GetImages(Convert.ToString(idr["AttachmentID"])) + "</div>";
+
                     }
                     returnvalue += "<div class=\"txtlabel\">Status Change Notes</div>";
                     returnvalue += "<textarea class=\"txtbox\" disabled=\"disabled\" style=\"height:100px\" id=\"txtNotes\">" + Convert.ToString(idr["ApproveNotes"]) + "</textarea>";
@@ -670,7 +690,7 @@ namespace PGWebFormsCore.Controllers
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select id, ExpenseDate, ExpenseTotal, Category, ExpenseDescription, Facility, SubmitDate, isnull(ApprovalStatus, 'Pending Approval') as 'approvalstatus', isnull(completed, 'no') as 'completed' from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "'";
+            var sqlcommandtext = "select id,submitby, ExpenseDate, ExpenseTotal, Category, ExpenseDescription, Facility, SubmitDate, isnull(ApprovalStatus, 'Pending Approval') as 'approvalstatus', isnull(completed, 'no') as 'completed' from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "'";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -680,6 +700,7 @@ namespace PGWebFormsCore.Controllers
             prepaidtable += "<thead>";
             prepaidtable += "<tr>";
             prepaidtable += "<th>ID</th>";
+            prepaidtable += "<th>Submitted By</th>";
             prepaidtable += "<th>Date</th>";
             prepaidtable += "<th>Total</th>";
             prepaidtable += "<th>Category</th>";
@@ -709,6 +730,7 @@ namespace PGWebFormsCore.Controllers
 
                     prepaidtable += "<tr>";
                     prepaidtable += "<td>" + Convert.ToString(idr["id"]) + "</td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["submitby"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["expensedate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -729,6 +751,401 @@ namespace PGWebFormsCore.Controllers
 
             return prepaidtable;
         }
+
+        public async Task<string> getsupexpensegroup()
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select distinct submitemail, submitby from Expense where ApprovalStatus = 'Pending Approval' and ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "' Order by SubmitBy";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "";
+
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+                    prepaidtable += "<button class=\"collapsible\">&nbsp;&nbsp;&nbsp;&nbsp;"+ Convert.ToString(idr["submitby"]) + "</button>";
+                    prepaidtable += "<div class=\"content\">";
+
+                    prepaidtable += await getsupexpensegroupexp(Convert.ToString(idr["submitemail"]));
+                    prepaidtable += await getsupexpensegroupdist(Convert.ToString(idr["submitemail"]));
+
+                    prepaidtable += "</div>";
+                }
+            }
+            con.Close();
+
+            
+
+            return prepaidtable;
+        }
+
+        public async Task<string> getsupexpensegroupexp(string passname)
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select * from Expense where ApprovalStatus = 'Pending Approval' and ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "' and SubmitEmail = '"+passname+"' and ExpenseType <> 'distance' order by SubmitDate";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "";
+
+            if (idr.HasRows)
+            {
+                prepaidtable += "<h4>Expenses</h4>";
+                prepaidtable += "<table>";
+                prepaidtable += "<thead>";
+                prepaidtable += "<tr>";
+                prepaidtable += "<th>Date</th>";
+                prepaidtable += "<th>Total</th>";
+                prepaidtable += "<th>Merchant</th>";
+                prepaidtable += "<th>Category</th>";
+                prepaidtable += "<th>Description</th>";
+                prepaidtable += "<th>Facility</th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "</tr>";
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+
+                while (idr.Read())
+                {
+                    prepaidtable += "<tr id=\""+ Convert.ToString(idr["ID"]) + "\">";
+                    DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
+                    prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
+                    decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+                    prepaidtable += "<td>" + expensetotal.ToString("C2") + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["merchant"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["category"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["expensedescription"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["facility"]), 20) + "</td>";
+                    prepaidtable += "<td>";
+
+                    if (Convert.ToString(idr["attachmentid"]) != "")
+                    {
+                        prepaidtable += await GetImagessmall(Convert.ToString(idr["attachmentid"]));
+                    }
+
+                    prepaidtable += "</td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Quick Approve\" class=\"btn btn-primary\" onclick=\"quickapprove('"+ Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Go To Expense\" class=\"btn btn-primary\" onclick=\"goto('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "</tr>";
+                }
+            }
+            con.Close();
+
+            if (prepaidtable != "")
+            {
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+                prepaidtable += "</table>";
+                prepaidtable += "<div style=\"height:25px\"></div>";
+            }
+
+
+            return prepaidtable;
+        }
+
+        public async Task<string> getsupexpensegroupdist(string passname)
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select * from Expense where ApprovalStatus = 'Pending Approval' and ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "' and SubmitEmail = '" + passname + "' and ExpenseType = 'distance' order by SubmitDate";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "";
+
+            if (idr.HasRows)
+            {
+                prepaidtable += "<h4>Mileage</h4>";
+                prepaidtable += "<table>";
+                prepaidtable += "<thead>";
+                prepaidtable += "<tr>";
+                prepaidtable += "<th>Date</th>";
+                prepaidtable += "<th>Total</th>";
+                prepaidtable += "<th>Distance</th>";
+                prepaidtable += "<th>Category</th>";
+                prepaidtable += "<th>Description</th>";
+                prepaidtable += "<th>Facility</th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "</tr>";
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+
+                while (idr.Read())
+                {
+                    prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
+                    prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
+                    decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+                    prepaidtable += "<td>" + expensetotal.ToString("C2") + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["distance"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["category"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["expensedescription"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["facility"]), 20) + "</td>";
+                    prepaidtable += "<td>";
+
+                    if (Convert.ToString(idr["attachmentid"]) != "")
+                    {
+                        prepaidtable += await GetImagessmall(Convert.ToString(idr["attachmentid"]));
+                    }
+
+                    prepaidtable += "</td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Quick Approve\" class=\"btn btn-primary\" onclick=\"quickapprove('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Go To Expense\" class=\"btn btn-primary\" onclick=\"goto('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "</tr>";
+                }
+            }
+            con.Close();
+
+            if (prepaidtable != "")
+            {
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+                prepaidtable += "</table>";
+                prepaidtable += "<div style=\"height:25px\"></div>";
+            }
+
+
+            return prepaidtable;
+        }
+
+        public string QuickApprove(string stritem)
+        {
+            var username = User.Identity.Name;
+            var email = User.FindFirst("preferred_username")?.Value;
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand();
+            cmd = new SqlCommand("sp_Expense_SupervisorEdit", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@ApprovedBy", SqlDbType.VarChar).Value = username;
+            cmd.Parameters.Add("@ApprovedEmail", SqlDbType.VarChar).Value = email;
+            cmd.Parameters.Add("@ApprovalStatus", SqlDbType.VarChar).Value = "Approved";
+            cmd.Parameters.Add("@ApproveNotes", SqlDbType.VarChar).Value = "";
+            cmd.Parameters.Add("@completed", SqlDbType.VarChar).Value = "yes";
+            cmd.Parameters.Add("@UID", SqlDbType.VarChar).Value = stritem;
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+            return "";
+        }
+
+
+
+        public async Task<string> getfinexpensegroup()
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select distinct submitemail, submitby from Expense where FinanceApproved = 0 Order by SubmitBy";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "";
+
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+                    prepaidtable += "<button class=\"collapsible\">&nbsp;&nbsp;&nbsp;&nbsp;" + Convert.ToString(idr["submitby"]) + "</button>";
+                    prepaidtable += "<div class=\"content\">";
+
+                    prepaidtable += await getfinexpensegroupexp(Convert.ToString(idr["submitemail"]));
+                    prepaidtable += await getfinexpensegroupdist(Convert.ToString(idr["submitemail"]));
+
+                    prepaidtable += "</div>";
+                }
+            }
+            con.Close();
+
+
+
+            return prepaidtable;
+        }
+
+        public async Task<string> getfinexpensegroupexp(string passname)
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select * from Expense where FinanceApproved = 0 and SubmitEmail = '" + passname + "' and ExpenseType <> 'distance' order by SubmitDate";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "";
+
+            if (idr.HasRows)
+            {
+                prepaidtable += "<h4>Expenses</h4>";
+                prepaidtable += "<table>";
+                prepaidtable += "<thead>";
+                prepaidtable += "<tr>";
+                prepaidtable += "<th>Date</th>";
+                prepaidtable += "<th>Total</th>";
+                prepaidtable += "<th>Merchant</th>";
+                prepaidtable += "<th>Category</th>";
+                prepaidtable += "<th>Description</th>";
+                prepaidtable += "<th>Facility</th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "</tr>";
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+
+                while (idr.Read())
+                {
+                    prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
+                    prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
+                    decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+                    prepaidtable += "<td>" + expensetotal.ToString("C2") + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["merchant"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["category"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["expensedescription"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["facility"]), 20) + "</td>";
+                    prepaidtable += "<td>";
+
+                    if (Convert.ToString(idr["attachmentid"]) != "")
+                    {
+                        prepaidtable += await GetImagessmall(Convert.ToString(idr["attachmentid"]));
+                    }
+
+                    prepaidtable += "</td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Quick Approve\" class=\"btn btn-primary\" onclick=\"quickapprove('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Go To Expense\" class=\"btn btn-primary\" onclick=\"goto('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "</tr>";
+                }
+            }
+            con.Close();
+
+            if (prepaidtable != "")
+            {
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+                prepaidtable += "</table>";
+                prepaidtable += "<div style=\"height:25px\"></div>";
+            }
+
+
+            return prepaidtable;
+        }
+
+        public async Task<string> getfinexpensegroupdist(string passname)
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select * from Expense where FinanceApproved = 0 and SubmitEmail = '" + passname + "' and ExpenseType = 'distance' order by SubmitDate";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "";
+
+            if (idr.HasRows)
+            {
+                prepaidtable += "<h4>Mileage</h4>";
+                prepaidtable += "<table>";
+                prepaidtable += "<thead>";
+                prepaidtable += "<tr>";
+                prepaidtable += "<th>Date</th>";
+                prepaidtable += "<th>Total</th>";
+                prepaidtable += "<th>Distance</th>";
+                prepaidtable += "<th>Category</th>";
+                prepaidtable += "<th>Description</th>";
+                prepaidtable += "<th>Facility</th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "<th></th>";
+                prepaidtable += "</tr>";
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+
+                while (idr.Read())
+                {
+                    prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
+                    prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
+                    decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+                    prepaidtable += "<td>" + expensetotal.ToString("C2") + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["distance"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["category"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["expensedescription"]), 20) + "</td>";
+                    prepaidtable += "<td>" + trimstrings(Convert.ToString(idr["facility"]), 20) + "</td>";
+                    prepaidtable += "<td>";
+
+                    if (Convert.ToString(idr["attachmentid"]) != "")
+                    {
+                        prepaidtable += await GetImagessmall(Convert.ToString(idr["attachmentid"]));
+                    }
+
+                    prepaidtable += "</td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Quick Approve\" class=\"btn btn-primary\" onclick=\"quickapprove('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "<td><input type=\"button\" value=\"Go To Expense\" class=\"btn btn-primary\" onclick=\"goto('" + Convert.ToString(idr["id"]) + "')\" /></td>";
+                    prepaidtable += "</tr>";
+                }
+            }
+            con.Close();
+
+            if (prepaidtable != "")
+            {
+                prepaidtable += "</thead>";
+                prepaidtable += "<tbody>";
+                prepaidtable += "</table>";
+                prepaidtable += "<div style=\"height:25px\"></div>";
+            }
+
+
+            return prepaidtable;
+        }
+
+        public string QuickApprovefin(string stritem)
+        {
+            var username = User.Identity.Name;
+            var email = User.FindFirst("preferred_username")?.Value;
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand();
+            cmd = new SqlCommand("sp_Expense_FinanceEditQuick", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@FinanceBy", SqlDbType.VarChar).Value = username;
+            cmd.Parameters.Add("@FinanceEmail", SqlDbType.VarChar).Value = email;
+            cmd.Parameters.Add("@FinanceApproved", SqlDbType.Bit).Value = "True";
+            cmd.Parameters.Add("@UID", SqlDbType.VarChar).Value = stritem;
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+            return "";
+        }
+
 
         public string getfinance()
         {
@@ -1078,6 +1495,40 @@ namespace PGWebFormsCore.Controllers
             return picturelist;
         }
 
+        public async Task<string> GetImagessmall(string stritem)
+        {
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=pgcorestorage;AccountKey=" + _configuration.GetConnectionString("blobkey") + ";EndpointSuffix=core.windows.net";
+            string picturelist = "";
+
+            try
+            {
+                BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+                // Get the container client object
+                BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(stritem);
+
+                // List all blobs in the container
+                await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+                {
+                    if (blobItem.Name.Contains("Thumb$$$$"))
+                    {
+                        string actualname = blobItem.Name.Replace("Thumb$$$$", "");
+                        actualname = actualname.Substring(0, actualname.Length - 4);
+                        picturelist += "<a href=\"https://pgcorestorage.blob.core.windows.net/" + stritem + "/" + actualname + "\"><img src=\"https://pgcorestorage.blob.core.windows.net/" + stritem + "/" + blobItem.Name + "\" style=\"border-radius:5px\" /></a>";
+                    }
+
+
+                }
+            }
+            catch
+            {
+                picturelist = "";
+            }
+
+
+            return picturelist;
+        }
+
         public async Task<string> DelBlob(string stritem, string strblob)
         {
             string connectionString = "DefaultEndpointsProtocol=https;AccountName=pgcorestorage;AccountKey=" + _configuration.GetConnectionString("blobkey") + ";EndpointSuffix=core.windows.net";
@@ -1211,7 +1662,7 @@ namespace PGWebFormsCore.Controllers
         {
             string[] sepsupinfo = supinfo.Split("$$$");
 
-            supinfo = "Report will be submitted to <b>" + sepsupinfo[0] + "</b>.<br />Click <a href=\"\" onclick=\"showsup();return false;\">HERE</a> to change supervisors.<input type=\"text\" class=\"hidden\" name=\"supemail\" value=\"" + sepsupinfo[1] + "\"/><input type=\"text\" id=\"supname\" class=\"hidden\" name=\"supname\"  value=\"" + sepsupinfo[0] + "\"/>";
+            supinfo = "Report will be submitted to <b>" + sepsupinfo[0] + "</b>.<br />Click <a href=\"\" onclick=\"showsup();return false;\">HERE</a> to change supervisors.<input type=\"text\" class=\"hidden\" id=\"supemail\" name=\"supemail\" value=\"" + sepsupinfo[1] + "\"/><input type=\"text\" id=\"supname\" class=\"hidden\" name=\"supname\"  value=\"" + sepsupinfo[0] + "\"/>";
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
@@ -1356,7 +1807,7 @@ namespace PGWebFormsCore.Controllers
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
                 string subject = "Expense Report Submitted";
-                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>.";
+                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/Expense\">HERE</a>.";
 
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, supemail, HttpContext, subject, body);
@@ -1420,7 +1871,7 @@ namespace PGWebFormsCore.Controllers
         public async Task<IActionResult> PostDistance(
             string txtDistance, string txtDDate, decimal txtRate, string txtDreimbursalbe, 
             string txtNewAmount, string txtDCategory, string txtDDescription, string txtDReport, 
-            string UID, string supemail, string supname, string txtDFac, string txtToAddress, 
+            string dUID, string supemail, string supname, string txtDFac, string txtToAddress, 
             string txtFromAddress)
         {
 
@@ -1456,6 +1907,7 @@ namespace PGWebFormsCore.Controllers
                 cmd.Parameters.Add("@Facility", SqlDbType.VarChar).Value = txtDFac;
                 cmd.Parameters.Add("@ToAddress", SqlDbType.VarChar).Value = txtToAddress;
                 cmd.Parameters.Add("@FromAddress", SqlDbType.VarChar).Value = txtFromAddress;
+                cmd.Parameters.Add("@AtachmentID", SqlDbType.VarChar).Value = dUID;
 
 
                 con.Open();
@@ -1465,7 +1917,7 @@ namespace PGWebFormsCore.Controllers
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
                 string subject = "Expense Report Submitted";
-                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>.";
+                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/Expense\">HERE</a>.";
 
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, supemail, HttpContext, subject, body);
@@ -1756,7 +2208,7 @@ namespace PGWebFormsCore.Controllers
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
                 string subject = "Expense Report Submitted";
-                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>.";
+                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/Expense\">HERE</a>.";
 
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, supemail, HttpContext, subject, body);
@@ -1813,10 +2265,10 @@ namespace PGWebFormsCore.Controllers
 
 
         [HttpPost]
-        public IActionResult PostSupEdit(string txtID)
+        public IActionResult PostSupEdit(string txtID, string txtRedirect)
         {
 
-            return RedirectToAction("SupEdit", new { supeditid = txtID });
+            return RedirectToAction("SupEdit", new { supeditid = txtID, supredirect = txtRedirect });
 
         }
 
@@ -1833,7 +2285,7 @@ namespace PGWebFormsCore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostSupSave(string strUID, string strStatus, string strNotes, string strUser)
+        public async Task<IActionResult> PostSupSave(string strUID, string strStatus, string strNotes, string strUser, string txtRedirect)
         {
             string completed = "no";
 
@@ -1873,18 +2325,19 @@ namespace PGWebFormsCore.Controllers
             if (strStatus == "Declined")
             {
                 subject = "Expense Report Declined";
-                body = "Your expense report was declined.<br/>You can see notes on why it was declined <a href\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>";
+                body = "Your expense report was declined.<br/>You can see notes on why it was declined <a href\"https://pacs-technology.com/Expense\">HERE</a>";
+                await GraphService.SendEmail(graphClient, _env, strUser, HttpContext, subject, body);
             } else
             {
-                subject = "Expense Report Approved";
-                body = "A expense report was Approved.<br/>Please verify the GL Code <a href\"https://pgwebforms-core.azurewebsites.net/Expense\">HERE</a>";
-                strUser = "finance@pacshc.com";
+                //subject = "Expense Report Approved";
+                //body = "A expense report was Approved.<br/>Please verify the GL Code <a href\"https://pacs-technology.com/Expense\">HERE</a>";
+                //strUser = "finance@pacshc.com";
             }
 
 
-            await GraphService.SendEmail(graphClient, _env, strUser, HttpContext, subject, body);
+            
 
-            return RedirectToAction("Sup");
+            return RedirectToAction(txtRedirect);
 
         }
 
@@ -1922,7 +2375,7 @@ namespace PGWebFormsCore.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostDelExpense(string strDUID)
+        public IActionResult PostDelExpense(string strDUID, string txtRedirect)
         {
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
@@ -1931,7 +2384,7 @@ namespace PGWebFormsCore.Controllers
             cmd.ExecuteNonQuery();
             con.Close();
 
-            return RedirectToAction("Sup");
+            return RedirectToAction(txtRedirect);
 
         }
 

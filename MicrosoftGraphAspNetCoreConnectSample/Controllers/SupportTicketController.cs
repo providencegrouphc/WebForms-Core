@@ -19,9 +19,13 @@ using Newtonsoft.Json;
 using Azure.Storage.Blobs.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using System.Net.Http;
+using Newtonsoft.Json.Linq;
+
 using System.Text.Json;
 using System.Text;
+
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace PGWebFormsCore.Controllers
 {
@@ -48,10 +52,26 @@ namespace PGWebFormsCore.Controllers
             ViewData["username"] = User.Identity.Name;
             ViewData["email"] = User.FindFirst("preferred_username")?.Value;
             ViewData["facility"] = await operationlist();
+            ViewData["facilityapi"] = await operationlistapi();
             return View();
         }
 
-        public string getGUID()
+        [Authorize]
+        public async Task<IActionResult> Calendar()
+        {
+            await docalendar();
+            return View();
+        }
+
+        public async Task<string> docalendar()
+        {
+            var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
+
+            await GraphService.SendCalendar(graphClient);
+            return "";
+        }
+
+            public string getGUID()
         {
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
@@ -138,6 +158,85 @@ namespace PGWebFormsCore.Controllers
             con.Close();
 
             operations += "</select>";
+            return operations;
+
+        }
+
+        public class Ops
+        {
+            public int operationId { get; set; }
+            public string operationName { get; set; }
+        }
+
+        public async Task<string> operationlistapi()
+        {
+            var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
+            var email = User.FindFirst("preferred_username")?.Value;
+
+            var responseg = await GraphService.GetUserGroups(graphClient, email, HttpContext);
+            string operations = "<select id=\"ddFacility\" style=\"width: 280px!important\" class=\"txtbox\">";
+
+            // Create a New HttpClient object.
+            HttpClient client = new HttpClient();
+
+            // Call asynchronous network methods in a try/catch block to handle exceptions
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync("https://pacs-api.azurewebsites.net/operations");
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                //JArray json = JArray.Parse(responseBody);
+                // Above three lines can be replaced with new helper method below
+                // string responseBody = await client.GetStringAsync(uri);
+
+                Ops[] operationsarray = JsonConvert.DeserializeObject<Ops[]>(responseBody);
+
+                foreach (Ops item in operationsarray)
+                {
+                    Console.WriteLine(item.operationName);
+                }
+
+                operations = responseBody;
+                //Console.WriteLine(responseBody);
+            }
+            catch (HttpRequestException e)
+            {
+
+            }
+
+            // Need to call dispose on the HttpClient object
+            // when done using it, so the app doesn't leak resources
+            client.Dispose();
+
+            //var connection = _configuration.GetConnectionString("pgWebForm");
+            //SqlConnection con = new SqlConnection(connection);
+            //SqlCommand cmd = new SqlCommand("select operationname from operations union select 'Headquarters' order by operationname", con);
+            //con.Open();
+            //SqlDataReader idr = cmd.ExecuteReader();
+
+            //string strSelect = "";
+
+            //if (idr.HasRows)
+            //{
+            //    operations += "<option></option>";
+            //    while (idr.Read())
+            //    {
+            //        if (response.Contains(Convert.ToString(idr["operationname"])) && strSelect == "")
+            //        {
+            //            operations += "<option selected=\"selected\">" + Convert.ToString(idr["operationname"]) + "</option>";
+            //            strSelect = "select";
+            //        }
+            //        else
+            //        {
+            //            operations += "<option>" + Convert.ToString(idr["operationname"]) + "</option>";
+            //        }
+
+
+            //    }
+            //}
+            //con.Close();
+
+            //operations += "</select>";
             return operations;
 
         }

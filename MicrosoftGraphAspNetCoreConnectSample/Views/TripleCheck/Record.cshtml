@@ -1,0 +1,3219 @@
+﻿<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+
+<script type="text/javascript">
+    $(window).resize(function () {
+        $("#shownotes").dialog("option", "position", { my: "center", at: "center", of: window });
+    });
+
+    jQuery(document).ready(function ($) {
+        var passdata = '@Html.Raw(ViewData["saveddata"])'
+
+        if (passdata != '') {
+            var rowdata = '@Html.Raw(ViewData["saveddata"])'.split('*^^*')
+
+            var arrayLength = rowdata.length;
+            for (var i = 0; i < arrayLength; i++) {
+                var indvdata = rowdata[i].split('$||$')
+
+                if (indvdata[2] == 'checkbox') {
+                    document.getElementById('cb' + indvdata[0]).checked = true
+                }
+
+                if (indvdata[2] == 'textbox') {
+                    document.getElementById('txt' + indvdata[0]).value = indvdata[1]
+                }
+
+                if (indvdata[2] == 'dropdown') {
+                    var desiredValue = indvdata[1]
+                    var el = document.getElementById("dd" + indvdata[0]);
+                    try {
+                        for (var e = 0; e < el.options.length; e++) {
+                            if (el.options[e].text == desiredValue) {
+                                el.selectedIndex = e;
+                            }
+                        }
+                    } catch {}
+                }
+
+                    var datetime = "<b>Confirmed:</b> " + indvdata[3] + "<br/>"
+                    var user = "<b>Confirmed By:</b> " + indvdata[4]
+
+                    document.getElementById('td' + indvdata[0] + 'Confirm').innerHTML = datetime + user;
+
+                    document.getElementById('tr' + indvdata[0]).classList.remove('trerror')
+                    document.getElementById('td' + indvdata[0]).classList.remove('tderror')
+
+
+
+            }
+        }
+        
+        var recertdata = '@Html.Raw(ViewData["getrecert"])'
+        if (recertdata != '') {
+            var rowdata = '@Html.Raw(ViewData["getrecert"])'.split('*^^*')
+
+            var arrayLength = rowdata.length;
+            for (var i = 0; i < arrayLength; i++) {
+                
+                var indvdata = rowdata[i].split('$||$')
+
+                if (indvdata[2] == 'active' || indvdata[2] == 'reason') {
+                    if (indvdata[0] == 'MR1Reason') {
+                        document.getElementById('txtMR1Reason').value = indvdata[1]
+                    } else {
+                        var rowc = table.insertRow(indvdata[3])
+                        var certnum = indvdata[0].replace('MR', '')
+                        certnum = certnum.replace('Reason', '')
+                        
+
+                        rowc.setAttribute("id", "tr" + indvdata[0]);
+                        rowc.className = 'mroverride trerror'
+                        var cell1 = rowc.insertCell(0)
+                        cell1.setAttribute("id", "td" + indvdata[0]);
+                        cell1.className = "tderror"
+                        var cell2 = rowc.insertCell(1)
+                        cell1.innerHTML = '<input type="text" class="txtbox" id="txt' + indvdata[0] + '" onchange="MRReCertReason(' + (certnum).toString() + ', ' + indvdata[3] + ')" onkeyup="MRReCertReason(' + (certnum).toString() + ', ' + indvdata[3] + ')" />';
+                        cell2.innerHTML = 'Reason Re-Cert is past due';
+                        var cell3 = rowc.insertCell(2)
+                        cell3.setAttribute("id", "td" + indvdata[0] + "Confirm");
+                        cell3.className = "confirmed"
+                    }
+
+                    if (indvdata[2] == 'reason') {
+                        document.getElementById('tr' + indvdata[0]).classList.add('mroverride')
+                    } else {
+                        document.getElementById('tr' + indvdata[0]).classList.remove('mroverride')
+                    }
+                } else {
+                    if (indvdata[0] == 'MR1ReCert') {
+                        document.getElementById('txtMR1ReCert').value = indvdata[1]
+                    } else {
+                        var table = document.getElementById("tblMR");
+                        var certnum = indvdata[0].replace('MR', '')
+                        certnum = certnum.replace('ReCert', '')
+                        var row = table.insertRow(indvdata[3])
+
+                        row.setAttribute("id", "tr" + indvdata[0]);
+                        row.className = 'trerror'
+                        var cell1 = row.insertCell(0)
+                        cell1.setAttribute("id", "td" + indvdata[0]);
+                        cell1.className = "tderror"
+                        var cell2 = row.insertCell(1)
+                        cell1.innerHTML = '<input type="text" class="txtbox txtdate" value="' + indvdata[1] + '" id="txt' + indvdata[0] + '" onchange="MRReCert(' + (certnum).toString() + ', ' + indvdata[3] + ')" onkeyup="MRReCert(' + (certnum).toString() + ', ' + indvdata[3] + ')" />';
+                        cell2.innerHTML = (certnum).toString() + ' Re-Cert - Completed (<b>Due <span id=\"txtMRDue' + (certnum).toString() + '\">' + indvdata[2] + '</span></b>)';
+                        var cell3 = row.insertCell(2)
+                        cell3.setAttribute("id", "td" + indvdata[0] + "Confirm");
+                        cell3.className = "confirmed"
+                    }
+                }
+
+                if (indvdata[4] != '') {
+                    var datetime = "<b>Confirmed:</b> " + indvdata[4] + "<br/>"
+                    var user = "<b>Confirmed By:</b> " + indvdata[5]
+
+                    document.getElementById('td' + indvdata[0] + 'Confirm').innerHTML = datetime + user;
+
+                    document.getElementById('tr' + indvdata[0]).classList.remove('trerror')
+                    document.getElementById('td' + indvdata[0]).classList.remove('tderror')
+                }
+
+            }
+        }
+
+
+        addassessment(document.getElementById('ddAddAssessment'))
+        paymenttype(document.getElementById('ddPaymentType'))
+        dischargeloc(document.getElementById('ddDischargeLoc'), 'no')
+        dcyesno(document.getElementById('ddDrivenDischarge'), 'no')
+        patientleave(document.getElementById('ddBOPatient'), 'no')
+        mdsadddays('no')
+        DCNOMNC('no')
+        MRConsentReason('no')
+        checkcert('MRInitial', 'Initial Cert')
+        checkcert('MR1ReCert', '1st Re-Cert')
+        checkcert('MR2ReCert', '2nd Re-Cert')
+        checkcert('MR3ReCert', '3rd Re-Cert')
+        checkcert('MR4ReCert', '4th Re-Cert')
+        checkcert('MR5ReCert', '5th Re-Cert')
+        checkcert('MR6ReCert', '6th Re-Cert')
+        
+        mrnextcheck(1)
+        mrnextcheck(2)
+        mrnextcheck(3)
+        mrnextcheck(4)
+        mrnextcheck(5)
+        
+        therapycheck30('PTEval', 'PT Evaluation')
+        therapycheck30('PTClar', 'PT Clarification')
+        
+        //ptchecksame('PT')
+        //Evalchange('PT')
+        //Evalsigned('PT')
+        //ClarDateDecs('PT')
+        //Dischargeed('PT')
+        //ClarSignDecs('PT')
+       
+        //lastdaycalc()
+        
+
+        
+        
+        checkcomplete()
+
+        $('.TableClick tr').click(function (event) {
+            if (event.target.type !== 'checkbox') {
+                $(':checkbox', this).trigger('click');
+            }
+        });
+    });
+
+
+</script>
+
+<script>
+    $(window).load(function () {
+        $(".txtdate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+
+        $("#txtMDSUnbillDays").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+        });
+
+    });
+
+
+    function hasClass(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+    }
+
+    $(function () {
+        $(".txtdate").datepicker();
+    });
+</script>
+
+<style>
+    .ui-dialog-titlebar-close {
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+        width: 280px;
+        margin-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+
+    .yesno {
+        border: 1px solid #aaa;
+        background-color: white;
+        padding: 5px;
+        transition: 1s;
+        cursor: pointer;
+        width: 50px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+
+    textarea {
+        max-width: 600px !important;
+        height: 100px;
+    }
+
+    .formheader {
+        max-width: 600px;
+        background-color: #aaa;
+        padding: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    .cbtext {
+        cursor: default
+    }
+
+    .content table {
+        border-collapse: collapse;
+        width: 100%;
+        border: 0px;
+    }
+
+    .content th, .content td {
+        text-align: left;
+        padding: 9px;
+        height: 50px;
+    }
+
+
+
+        .content td:first-child {
+            width: 280px;
+        }
+
+
+    .content tr {
+        border-bottom: 1px solid #f2f2f2;
+    }
+
+    .collapsible {
+        background-color: #337ab7;
+        color: black;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 10px;
+        width: 100%;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+        border: 0px;
+    }
+
+
+
+    .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        width: 100%;
+        border: 1px solid black;
+    }
+
+    .addaddition {
+        display: none;
+        visibility: hidden;
+    }
+
+    .paytype {
+        display: none;
+        visibility: hidden;
+    }
+
+    .dischargetype {
+        display: none;
+        visibility: hidden;
+    }
+
+    .dcyesnotype {
+        display: none;
+        visibility: hidden;
+    }
+
+    .dcoverride {
+        display: none;
+        visibility: hidden;
+    }
+
+    .mroverride {
+        display: none;
+        visibility: hidden;
+    }
+
+    .therapyvisable {
+        display: none;
+        visibility: hidden;
+    }
+
+    .tooltipcss {
+        position: relative;
+        display: inline-block;
+        padding: 1px;
+    }
+
+        .tooltipcss .tooltipcsstext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            /* Position the tooltip */
+            position: absolute;
+            z-index: 1;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -60px;
+        }
+
+        .tooltipcss:hover .tooltipcsstext {
+            visibility: visible;
+        }
+
+    .tooltipcssbtm {
+        position: relative;
+        display: inline-block;
+        padding: 1px;
+    }
+
+        .tooltipcssbtm .tooltipcsstextbtm {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            /* Position the tooltip */
+            position: absolute;
+            z-index: 1;
+            top: 100%;
+            left: 50%;
+            margin-left: -60px;
+        }
+
+        .tooltipcssbtm:hover .tooltipcsstextbtm {
+            visibility: visible;
+        }
+
+    .tderror {
+        background-color: red;
+    }
+
+
+    .completed {
+        color: green;
+    }
+
+    .notcompleted {
+        color: red;
+    }
+
+    .confirmed {
+        font-size: 10px;
+    }
+</style>
+<a href="/TripleCheck" id="homeclick">Return to Home</a>
+<div style="height:10px;"></div>
+<div style="font-size:30px"><b>@Html.Raw(ViewData["patientname"])</b></div>
+<div style="font-size:25px"><b>@Html.Raw(ViewData["patientmonth"])</b></div>
+<div style="height:10px;"></div>
+<div><input type="button" class="btn btn-primary" value="Delete Record" onclick="showdel()" /></div>
+<hr />
+
+<form asp-controller="TripleCheck" asp-action="DeleteReport" method="post">
+    <input type="text" id="txtRecID" name="txtRecID" class="hidden" />
+    <input type="button" id="delreport" class="hidden" onclick="submit()" />
+</form>
+
+<input type="text" id="txtUserName" class="hidden" value="@Html.Raw(ViewData["username"])" />
+<input type="text" id="txtID" class="hidden" value="@Html.Raw(ViewData["passid"])" />
+<input type="text" id="txtINTMonth" class="hidden" value="@Html.Raw(ViewData["intmonth"])" />
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="txtlabel">Start date of skilled stay</div>
+        <div><input type="text" id="txtStartDate" class="txtbox" name="txtStartDate" disabled="disabled" value="@Html.Raw(ViewData["staydate"])" onkeyup="startdate()" onchange="startdate()" /></div>
+        <div id="ValidationStartDate" class="hidden">Please enter a valid date.</div>
+
+        <div class="txtlabel">Additional assessment for the same stay?</div>
+        <div>
+            @Html.Raw(ViewData["AdditionalAssessment"])
+        </div>
+
+        <div class="txtlabel">Payment Type</div>
+        <div>
+            @Html.Raw(ViewData["PaymentType"])
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="txtlabel" style="border-bottom: 1px solid #aaa; font-weight:bold">Notes</div>
+        <div style="overflow-y:auto; height:100px; margin-bottom:10px;" id="divNotes">
+            @Html.Raw(ViewData["patientnotes"])
+        </div>
+        <div><input type="button" class="btn btn-primary" value="Edit Notes" onclick="shownotes()" /></div>
+    </div>
+    <div class="col-md-3">
+        <div class="txtlabel" style="border-bottom: 1px solid #aaa; font-weight:bold">IDT Team Members Present</div>
+        <div style="overflow-y:auto; height:100px; margin-bottom:10px;" id="divTeam">
+            @Html.Raw(ViewData["teamdata"])
+        </div>
+        <div><input type="button" class="btn btn-primary" value="Edit Team" onclick="showteam()" /></div>
+    </div>
+</div>
+
+<br />
+<br />
+
+
+<button class="collapsible" style="background-color:lightblue" id="btnBusinessOffice">
+    <table style="width:100%">
+        <tr>
+            <td>Business Office</td>
+            <td style="text-align:right; padding-right:50px;" id="BOComplete"></td>
+        </tr>
+    </table>
+</button>
+<div class="content" style="border: 1px solid black" id="frmBO">
+    <div style="height:20px"></div>
+    <table class="TableClick content">
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBOTypeOfBill">
+            <td id="tdBOTypeOfBill" class="tderror">
+                <select class="txtbox" id="ddBOTypeOfBill" onchange="ddcheck('BOTypeOfBill')">
+                    <option></option>
+                    <option>210</option>
+                    <option>211</option>
+                    <option>212</option>
+                    <option>213</option>
+                    <option>214</option>
+                    <option>21Q</option>
+                    <option>217</option>
+                </select>
+            </td>
+            <td>Type of bill</td>
+            <td id="tdBOTypeOfBillConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBODOB">
+            <td id="tdBODOB" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BODOB')" id="cbBODOB" />
+            </td>
+            <td>DOB <b>@Html.Raw(ViewData["patientdob"])</b></td>
+            <td id="tdBODOBConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBOSex">
+            <td id="tdBOSex" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOSex')" id="cbBOSex" />
+            </td>
+            <td>Sex <b>@Html.Raw(ViewData["patientgender"])</b></td>
+            <td id="tdBOSexConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBOHIC">
+            <td id="tdBOHIC" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOHIC')" id="cbBOHIC" />
+            </td>
+            <td>HIC Number</td>
+            <td id="tdBOHICConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBOMD">
+            <td id="tdBOMD" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOMD')" id="cbBOMD" />
+            </td>
+            <td>MD</td>
+            <td id="tdBOMDConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBOServiceDates">
+            <td id="tdBOServiceDates" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtBOServiceDates" onchange="datecheck('BOServiceDates')" onkeyup="datecheck('BOServiceDates')" />
+            </td>
+            <td>Service Dates From</td>
+            <td id="tdBOServiceDatesConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trBOServiceDatesTo">
+            <td id="tdBOServiceDatesTo" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtBOServiceDatesTo" onchange="datecheck('BOServiceDatesTo')" onkeyup="datecheck('BOServiceDatesTo')" />
+            </td>
+            <td>Service Dates To</td>
+            <td id="tdBOServiceDatesToConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm trerror" id="trBOStayFrom">
+            <td id="tdBOStayFrom" class="tderror"><input type="text" class="txtbox txtdate" id="txtBOStayFrom" onchange="checkqualifying()" onkeyup="checkqualifying()" /></td>
+            <td>
+                Qualifying Stay Dates From
+                <div class="tooltipcss">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstext">3 night stay required.</span>
+                </div>
+            </td>
+            <td id="tdBOStayFromConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm trerror" id="trBOStayTo">
+            <td id="tdBOStayTo" class="tderror"><input type="text" class="txtbox txtdate" id="txtBOStayTo" onchange="checkqualifying()" onkeyup="checkqualifying()" /></td>
+            <td>Qualifying Stay Dates To</td>
+            <td id="tdBOStayToConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa trerror" id="trBOBenefit">
+            <td id="tdBOBenefit" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOBenefit')" id="cbBOBenefit" />
+            </td>
+            <td>Benefit Days Available Verified</td>
+            <td id="tdBOBenefitConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa trerror" id="trBOCoinsurance">
+            <td id="tdBOCoinsurance" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOCoinsurance')" id="cbBOCoinsurance" />
+            </td>
+            <td>Coinsurance Days</td>
+            <td id="tdBOCoinsuranceConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay pdpm hmoa trerror" id="trBOMedicare">
+            <td id="tdBOMedicare" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOMedicare')" id="cbBOMedicare" />
+            </td>
+            <td>Verify Medicare Secondary Payor Status</td>
+            <td id="tdBOMedicareConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay mcb trerror" id="trBOOnset">
+            <td id="tdBOOnset" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOOnset')" id="cbBOOnset" />
+            </td>
+            <td>
+                Therapy Onset Date
+                <div class="tooltipcss">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstext">Verify Occurrence 11 is onset of 1st condition requiring thearpy</span>
+                </div>
+            </td>
+            <td id="tdBOOnsetConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay mcb trerror" id="trBOStart">
+            <td id="tdBOStart" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOStart')" id="cbBOStart" />
+            </td>
+            <td>
+                Therapy Start of Care
+                <div class="tooltipcss">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstext">Verify Occurrence codes are present and have correct SOC dates 35(PT) 44(OT) 45(ST)</span>
+                </div>
+            </td>
+            <td id="tdBOStartConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay mcb trerror" id="trBOVerify">
+            <td id="tdBOVerify" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOVerify')" id="cbBOVerify" />
+            </td>
+            <td>Verify Therapy HCPC code, modifier (GP, GO, GN) and date of service</td>
+            <td id="tdBOVerifyConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="yes pay mcb trerror" id="trBOModifiers">
+            <td id="tdBOModifiers" class="tderror">
+                <input type="checkbox" onchange="cbcheck('BOModifiers')" id="cbBOModifiers" />
+            </td>
+            <td>Therapy modifiers are present as needed (KX, 59, CO, CQ)</td>
+            <td id="tdBOModifiersConfirm" class="confirmed"></td>
+        </tr>
+        <tr class="pay pdpm hmoa trerror" style="border:none" id="trBOPatient">
+            <td id="tdBOPatient" class="tderror">
+                <select class="txtbox" id="ddBOPatient" onchange="patientleave(this, 'save'); mdsadddays('save')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Did the patient have a leave during the billing period?</td>
+            <td id="tdBOPatientConfirm" class="confirmed"></td>
+        </tr>
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+
+
+
+
+<button class="collapsible yes" style="background-color:lightblue" id="btnDCInfo">
+    <table style="width:100%">
+        <tr>
+            <td>DC Information</td>
+            <td style="text-align:right; padding-right:50px;" id="DCComplete"></td>
+        </tr>
+    </table>
+</button>
+<div class="content yes" id="DCContent" style="border: 1px solid black">
+    <div style="height:20px"></div>
+    <table class="TableClick">
+
+
+        <tr class="yes pay pdpm hmoa discharge home hospital trerror" id="trDCDischarge">
+            <td id="tdDCDischarge" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtDCDischarge" onchange="datecheck('DCDischarge')" onkeyup="datecheck('DCDischarge')" />
+            </td>
+            <td>Discharge Date</td>
+            <td id="tdDCDischargeConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa levels trerror" id="trDischargeLoc">
+            <td id="tdDischargeLoc" class="tderror">
+                <select class="txtbox" onchange="dischargeloc(this, 'save')" id="ddDischargeLoc">
+                    <option></option>
+                    <option>01 - Home</option>
+                    <option>06 - Home w/HH</option>
+                    <option>02 - Hospital</option>
+                    <option>04 - LTC</option>
+                    <option>07 - AMA</option>
+                    <option>20 - Expired</option>
+                    <option>Other</option>
+                    <option>N/A - Continued Stay</option>
+                </select>
+            </td>
+            <td>Discharge Location</td>
+            <td id="tdDischargeLocConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa discharge home trerror" id="trDrivenDischarge">
+            <td id="tdDrivenDischarge" class="tderror">
+                <select class="txtbox" onchange="dcyesno(this, 'save')" id="ddDrivenDischarge">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Patient Driven Discharge, NO LCD</td>
+            <td id="tdDrivenDischargeConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa levels mcb discharge home ltc dcyes trerror" id="trDCLastDay">
+            <td id="tdDCLastDay" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtDCLastDay" onchange="DCNOMNC('save');" onkeyup="DCNOMNC('save');" />
+            </td>
+            <td>Last Covered Day (LCD)</td>
+            <td id="tdDCLastDayConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa mcb discharge home ltc dcyes trerror" id="trDCNOMNC">
+            <td id="tdDCNOMNC" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtDCNOMNC" onchange="DCNOMNC('save')" onkeyup="DCNOMNC('save')" />
+            </td>
+            <td>
+                NOMNC Issued on
+                <div class="tooltipcss">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstext">3 day notice required.</span>
+                </div>
+            </td>
+            <td id="tdDCNOMNCConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="dcoverride trerror" id="trDOOR">
+            <td id="tdDOOR" class="tderror">
+                <input id="txtDOOR" type="text" class="txtbox" maxlength="500" onkeyup="DCOverride()"  />
+            </td>
+            <td>Reason not completed timely</td>
+            <td id="tdDOORConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa discharge ltc trerror" style="border:none" id="trDCABN">
+            <td class="tderror" id="tdDCABN">
+                <input type="text" class="txtbox txtdate" id="txtDCABN" onchange="datecheck('DCABN')" onkeyup="datecheck('DCABN')" />
+            </td>
+            <td>ABN Issued On</td>
+            <td id="tdDCABNConfirm" class="confirmed"></td>
+        </tr>
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+
+<button class="collapsible" style="background-color:lightblue" id="btnMDS">
+    <table style="width:100%">
+        <tr>
+            <td>MDS</td>
+            <td style="text-align:right; padding-right:50px;" id="MDSComplete"></td>
+        </tr>
+    </table>
+</button>
+<div class="content" style="border: 1px solid black" id="MDSContent">
+    <div style="height:20px"></div>
+    <table class="TableClick content">
+        <tr class="pay pdpm hmoa levels mcb trerror" id="trMDSPayment">
+            <td id="tdMDSPayment" class="tderror">
+                <select class="txtbox" id="ddMDSPayment" onchange="ddcheck('MDSPayment')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>
+                Payment Information on this line Affects Billing Next Month
+                <div class="tooltipcssbtm">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstextbtm" style="width:500px">
+                        Select Yes, if the assessment on this line or this particular payment method (such as levels)
+                        will impact billing next month. If the resident has multiple assessments only select yes to the assessment
+                        that will impact billing the next month. If multiple Yes responses for the same resident occur, the next month will
+                        not generate correctly.<br /><br />Select No if the assessment or patient will not impact billing the following month.
+                    </span>
+                </div>
+            </td>
+            <td id="tdMDSPaymentConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSARD">
+            <td id="tdMDSARD" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARD" onchange="datecheck('MDSARD')" onkeyup="datecheck('MDSARD')" />
+            </td>
+            <td>ARD</td>
+            <td id="tdMDSARDConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSAssessmentType">
+            <td id="tdMDSAssessmentType" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentType" onchange="ddcheck('MDSAssessmentType')">
+                    <option></option>
+                    <option>5 day</option>
+                    <option>IPA</option>
+                    <option>14 day</option>
+                    <option>30 day</option>
+                    <option>60 day</option>
+                    <option>90 day</option>
+                    <option>COT</option>
+                    <option>EOT</option>
+                    <option>SOT</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentTypeConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSHIPPS">
+            <td id="tdMDSHIPPS" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSHIPPS" onkeyup="textcheck('MDSHIPPS')" />
+            </td>
+            <td>HIPPS Code</td>
+            <td id="tdMDSHIPPSConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSUnbillDays">
+            <td id="tdMDSUnbillDays" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSUnbillDays" disabled="disabled" value="0" onkeyup="numdaysinter(); mdsadddays('save')" />
+            </td>
+            <td>Number of Unbillable Days due to Interrupted Stay/Skip days</td>
+            <td id="tdMDSUnbillDaysConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSARDStart">
+            <td id="tdMDSARDStart" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDStart" onchange="datecheck('MDSARDStart'); mdsadddays('save')" onkeyup="datecheck('MDSARDStart'); mdsadddays('save')" />
+            </td>
+            <td>ARD Assessment Coverage Start Date</td>
+            <td id="tdMDSARDStartConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSARDEnd">
+            <td id="tdMDSARDEnd" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd" onchange="datecheck('MDSARDEnd'); mdsadddays('save')" onkeyup="datecheck('MDSARDEnd'); mdsadddays('save')" />
+            </td>
+            <td>ARD Assessment Coverage End Date</td>
+            <td id="tdMDSARDEndConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSNumDays">
+            <td id="tdMDSNumDays" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSNumDays" disabled="disabled" />
+            </td>
+            <td>ARD Number of Days Billed</td>
+            <td id="tdMDSNumDaysConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSTransmitted">
+            <td id="tdMDSTransmitted" class="tderror">
+                <input type="checkbox" id="cbMDSTransmitted" onchange="cbcheck('MDSTransmitted')" />
+            </td>
+            <td>MDS Transmitted and Accepted</td>
+            <td id="tdMDSTransmittedConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSCarePlan">
+            <td id="tdMDSCarePlan" class="tderror">
+                <input type="checkbox" id="cbMDSCarePlan" onchange="cbcheck('MDSCarePlan')" />
+            </td>
+            <td>Care Plan Supports MDS, Skilled Service</td>
+            <td id="tdMDSCarePlanConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSPTOT">
+            <td id="tdMDSPTOT" class="tderror">
+                <input type="checkbox" id="cbMDSPTOT" onchange="cbcheck('MDSPTOT')" />
+            </td>
+            <td>ARD look-back documentation supports PT/OT CMG </td>
+            <td id="tdMDSPTOTConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSSLP">
+            <td id="tdMDSSLP" class="tderror">
+                <input type="checkbox" id="cbMDSSLP" onchange="cbcheck('MDSSLP')" />
+            </td>
+            <td>ARD look-back documentation supports SLP CMG </td>
+            <td id="tdMDSSLPConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" id="trMDSNTA">
+            <td id="tdMDSNTA" class="tderror">
+                <input type="checkbox" id="cbMDSNTA" onchange="cbcheck('MDSNTA')" />
+            </td>
+            <td>ARD look-back documentation supports NTA CMG </td>
+            <td id="tdMDSNTAConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror" style="border:none" id="trMDSNursing">
+            <td id="tdMDSNursing" class="tderror">
+                <input type="checkbox" id="cbMDSNursing" onchange="cbcheck('MDSNursing')" />
+            </td>
+            <td>ARD Look-back documentation supports Nursing CMG </td>
+            <td id="tdMDSNursingConfirm" class="confirmed"></td>
+        </tr>
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+<button class="collapsible yes" style="background-color:lightblue" id="btnMDSTherapy">
+    <table style="width:100%">
+        <tr>
+            <td>MDS/Therapy</td>
+            <td style="text-align:right; padding-right:50px;" id="MDSTherapyComplete"></td>
+        </tr>
+    </table>
+</button>
+
+<div class="content yes" style="border: 1px solid black" id="MDSTherapyContent">
+    <div style="height:20px"></div>
+    <table class="TableClick content">
+
+
+        <tr class="yes pay pdpm hmoa trerror" id="trMDST5Day">
+            <td id="tdMDST5Day" class="tderror">
+                <input type="checkbox" id="cbMDST5Day" onchange="cbcheck('MDST5Day')" />
+            </td>
+            <td>5-Day PPS - Total Days, Minutes, and Distinct Days verified  </td>
+            <td id="tdMDST5DayConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa trerror" id="trMDSTDischarge">
+            <td id="tdMDSTDischarge" class="tderror">
+                <input type="checkbox" id="cbMDSTDischarge" onchange="cbcheck('MDSTDischarge')" />
+            </td>
+            <td>Discharge PPS MDS - Total Days, Minutes, and Distinct Days verified  </td>
+            <td id="tdMDSTDischargeConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror" id="trMDSTST">
+            <td id="tdMDSTST" class="tderror">
+                <select class="txtbox" id="ddMDSTST" onchange="ddcheck('MDSTST')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>ST Percent (%) of individual Minutes during stay > 75%</td>
+            <td id="tdMDSTSTConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror" id="trMDSTOT">
+            <td id="tdMDSTOT" class="tderror">
+                <select class="txtbox" id="ddMDSTOT" onchange="ddcheck('MDSTOT')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>OT Percent (%) of individual Minutes during stay > 75%</td>
+            <td id="tdMDSTOTConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror" style="border:none" id="trMDSTPT">
+            <td id="tdMDSTPT" class="tderror">
+                <select class="txtbox" id="ddMDSTPT" onchange="ddcheck('MDSTPT')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>PT Percent (%) of individual Minutes during stay > 75%</td>
+            <td id="tdMDSTPTConfirm" class="confirmed"></td>
+        </tr>
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+
+<button class="collapsible yes" style="background-color:lightblue" id="btnMedicalRecords">
+    <table style="width:100%">
+        <tr>
+            <td>Medical Records</td>
+            <td style="text-align:right; padding-right:50px;" id="MedicalRecordsComplete"></td>
+        </tr>
+    </table>
+</button>
+<div class="content yes" style="border: 1px solid black" id="MedicalRecordsContent">
+    <div style="height:20px"></div>
+    <table class="TableClick content" id="tblMR">
+
+        <tr class="yes pay pdpm hmoa levels trerror" id="trMRConsent">
+            <td id="tdMRConsent" class="tderror">
+                <select class="txtbox" id="ddMRConsent" onchange="ddcheck('MRConsent'); MRConsentReason('save')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Consent to Treat</td>
+            <td id="tdMRConsentConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMRConsentReason">
+            <td id="tdMRConsentReason" class="tderror">
+                <input type="text" id="txtMRConsentReason" class="txtbox" onkeyup="textcheck('MRConsentReason')" />
+            </td>
+            <td>Remedy for no consent to treat</td>
+            <td id="tdMRConsentReasonConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror" id="trMRInitialQues">
+            <td id="tdMRInitialQues" class="tderror">
+                <select class="txtbox" id="ddMRInitialQues" onchange="ddcheck('MRInitialQues'); checkcert('MRInitial', 'Initial Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there an Initial Cert?</td>
+            <td id="tdMRInitialQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMRInitialDue">
+            <td id="tdMRInitialDue" class="tderror">
+                <input id="txtMRInitialDueCert" value="@Html.Raw(ViewData["InitialCert"])" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMRInitialDue" onchange="datecheck('MRInitialDue'); mrinitialcheck('MRInitial')" onkeyup="datecheck('MRInitialDue'); mrinitialcheck('MRInitial')" />
+            </td>
+            <td>Initial Cert - Date Completed (<b>Due no later than @Html.Raw(ViewData["InitialCert"])</b>)</td>
+            <td id="tdMRInitialDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMRInitialReason">
+            <td id="tdMRInitialReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMRInitialReason" onchange="textcheck('MRInitialReason')" onkeyup="textcheck('MRInitialReason')" />
+            </td>
+            <td id="tdMRInitialReasonText"></td>
+            <td id="tdMRInitialReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa trerror" id="trMR1ReCertQues">
+            <td id="tdMR1ReCertQues" class="tderror">
+                <select class="txtbox" id="ddMR1ReCertQues" onchange="ddcheck('MR1ReCertQues'); checkcert('MR1ReCert', '1st Re-Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a 1st Re-Cert?</td>
+            <td id="tdMR1ReCertQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR1ReCertDue">
+            <td id="tdMR1ReCertDue" class="tderror">
+                <input id="txtMR1ReCertDueCert" value="@Html.Raw(ViewData["ReCert"])" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMR1ReCertDue" onchange="datecheck('MR1ReCertDue'); mrinitialcheck('MR1ReCert'); mrnextcheck(1)" onkeyup="datecheck('MR1ReCertDue'); mrinitialcheck('MR1ReCert'); mrnextcheck(1)" />
+            </td>
+            <td>1st Re-Cert - Date Completed (<b>Due no later than @Html.Raw(ViewData["ReCert"])</b>)</td>
+            <td id="tdMR1ReCertDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMR1ReCertReason">
+            <td id="tdMR1ReCertReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMR1ReCertReason" onchange="textcheck('MR1ReCertReason')" onkeyup="textcheck('MR1ReCertReason')" />
+            </td>
+            <td id="tdMR1ReCertReasonText"></td>
+            <td id="tdMR1ReCertReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR2ReCertQues">
+            <td id="tdMR2ReCertQues" class="tderror">
+                <select class="txtbox" id="ddMR2ReCertQues" onchange="ddcheck('MR2ReCertQues'); checkcert('MR2ReCert', '2nd Re-Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a 2nd Re-Cert?</td>
+            <td id="tdMR2ReCertQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR2ReCertDue">
+            <td id="tdMR2ReCertDue" class="tderror">
+                <input id="txtMR2ReCertDueCert" value="" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMR2ReCertDue" onchange="datecheck('MR2ReCertDue'); mrinitialcheck('MR2ReCert'); mrnextcheck(2)" onkeyup="datecheck('MR2ReCertDue'); mrinitialcheck('MR2ReCert'); mrnextcheck(2)" />
+            </td>
+            <td>2nd Re-Cert - Date Completed (<b>Due no later than <span id="txtMR2ReCertDueCertText"></span></b>)</td>
+            <td id="tdMR2ReCertDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMR2ReCertReason">
+            <td id="tdMR2ReCertReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMR2ReCertReason" onchange="textcheck('MR2ReCertReason')" onkeyup="textcheck('MR2ReCertReason')" />
+            </td>
+            <td id="tdMR2ReCertReasonText"></td>
+            <td id="tdMR2ReCertReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR3ReCertQues">
+            <td id="tdMR3ReCertQues" class="tderror">
+                <select class="txtbox" id="ddMR3ReCertQues" onchange="ddcheck('MR3ReCertQues'); checkcert('MR3ReCert', '3rd Re-Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a 3rd Re-Cert?</td>
+            <td id="tdMR3ReCertQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR3ReCertDue">
+            <td id="tdMR3ReCertDue" class="tderror">
+                <input id="txtMR3ReCertDueCert" value="" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMR3ReCertDue" onchange="datecheck('MR3ReCertDue'); mrinitialcheck('MR3ReCert'); mrnextcheck(3)" onkeyup="datecheck('MR3ReCertDue'); mrinitialcheck('MR3ReCert'); mrnextcheck(3)" />
+            </td>
+            <td>3rd Re-Cert - Date Completed (<b>Due no later than <span id="txtMR3ReCertDueCertText"></span></b>)</td>
+            <td id="tdMR3ReCertDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMR3ReCertReason">
+            <td id="tdMR3ReCertReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMR3ReCertReason" onchange="textcheck('MR3ReCertReason')" onkeyup="textcheck('MR3ReCertReason')" />
+            </td>
+            <td id="tdMR3ReCertReasonText"></td>
+            <td id="tdMR3ReCertReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR4ReCertQues">
+            <td id="tdMR4ReCertQues" class="tderror">
+                <select class="txtbox" id="ddMR4ReCertQues" onchange="ddcheck('MR4ReCertQues'); checkcert('MR4ReCert', '4th Re-Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a 4th Re-Cert?</td>
+            <td id="tdMR4ReCertQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR4ReCertDue">
+            <td id="tdMR4ReCertDue" class="tderror">
+                <input id="txtMR4ReCertDueCert" value="" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMR4ReCertDue" onchange="datecheck('MR4ReCertDue'); mrinitialcheck('MR4ReCert'); mrnextcheck(4)" onkeyup="datecheck('MR4ReCertDue'); mrinitialcheck('MR4ReCert'); mrnextcheck(4)" />
+            </td>
+            <td>4th Re-Cert - Date Completed (<b>Due no later than <span id="txtMR4ReCertDueCertText"></span></b>)</td>
+            <td id="tdMR4ReCertDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMR4ReCertReason">
+            <td id="tdMR4ReCertReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMR4ReCertReason" onchange="textcheck('MR4ReCertReason')" onkeyup="textcheck('MR4ReCertReason')" />
+            </td>
+            <td id="tdMR4ReCertReasonText"></td>
+            <td id="tdMR4ReCertReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR5ReCertQues">
+            <td id="tdMR5ReCertQues" class="tderror">
+                <select class="txtbox" id="ddMR5ReCertQues" onchange="ddcheck('MR5ReCertQues'); checkcert('MR5ReCert', '5th Re-Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a 5th Re-Cert?</td>
+            <td id="tdMR5ReCertQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR5ReCertDue">
+            <td id="tdMR5ReCertDue" class="tderror">
+                <input id="txtMR5ReCertDueCert" value="" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMR5ReCertDue" onchange="datecheck('MR5ReCertDue'); mrinitialcheck('MR5ReCert'); mrnextcheck(5)" onkeyup="datecheck('MR5ReCertDue'); mrinitialcheck('MR5ReCert'); mrnextcheck(5)" />
+            </td>
+            <td>5th Re-Cert - Date Completed (<b>Due no later than <span id="txtMR5ReCertDueCertText"></span></b>)</td>
+            <td id="tdMR5ReCertDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMR5ReCertReason">
+            <td id="tdMR5ReCertReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMR5ReCertReason" onchange="textcheck('MR5ReCertReason')" onkeyup="textcheck('MR5ReCertReason')" />
+            </td>
+            <td id="tdMR5ReCertReasonText"></td>
+            <td id="tdMR5ReCertReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR6ReCertQues">
+            <td id="tdMR6ReCertQues" class="tderror">
+                <select class="txtbox" id="ddMR6ReCertQues" onchange="ddcheck('MR6ReCertQues'); checkcert('MR6ReCert', '6th Re-Cert')">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a 6th Re-Cert?</td>
+            <td id="tdMR6ReCertQuesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa trerror mroverride" id="trMR6ReCertDue">
+            <td id="tdMR6ReCertDue" class="tderror">
+                <input id="txtMR6ReCertDueCert" value="" class="hidden" />
+                <input type="text" class="txtbox txtdate" id="txtMR6ReCertDue" onchange="datecheck('MR6ReCertDue'); mrinitialcheck('MR6ReCert')" onkeyup="datecheck('MR6ReCertDue'); mrinitialcheck('MR6ReCert')" />
+            </td>
+            <td>6th Re-Cert - Date Completed (<b>Due no later than <span id="txtMR6ReCertDueCertText"></span></b>)</td>
+            <td id="tdMR6ReCertDueConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="mroverride trerror" id="trMR6ReCertReason">
+            <td id="tdMR6ReCertReason" class="tderror">
+                <input type="text" class="txtbox" id="txtMR6ReCertReason" onchange="textcheck('MR6ReCertReason')" onkeyup="textcheck('MR6ReCertReason')" />
+            </td>
+            <td id="tdMR6ReCertReasonText"></td>
+            <td id="tdMR6ReCertReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+
+
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trMRPrimary">
+            <td id="tdMRPrimary" class="tderror">
+                <input type="checkbox" id="cbMRPrimary" onchange="cbcheck('MRPrimary')" />
+            </td>
+            <td>Primary Dx in I0020B matches Primary Dx on UB04</td>
+            <td id="tdMRPrimaryConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa levels mcb trerror" id="trMROther">
+            <td id="tdMROther" class="tderror">
+                <input type="checkbox" id="cbMROther" onchange="cbcheck('MROther')" />
+            </td>
+            <td>Other ICD-10s sequenced to support skilled services on UB04</td>
+            <td id="tdMROtherConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes pay pdpm hmoa levels mcb trerror" style="border:none" id="trMRTherapy">
+            <td id="tdMRTherapy" class="tderror">
+                <input type="checkbox" id="cbMRTherapy" onchange="cbcheck('MRTherapy')" />
+            </td>
+            <td>Therapy Treatment Diagnosis is present to support claim</td>
+            <td id="tdMRTherapyConfirm" class="confirmed"></td>
+        </tr>
+
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+<button class="collapsible yes" style="background-color:lightblue" id="btnTherapy">
+    <table style="width:100%">
+        <tr>
+            <td>Therapy/Medical Records</td>
+            <td style="text-align:right; padding-right:50px;" id="TherapyComplete"></td>
+        </tr>
+    </table>
+</button>
+<div class="content yes" style="border: 1px solid black" id="TherapyContent">
+    <div style="height:20px"></div>
+    <table class="TableClick content">
+
+        <tr class="yes  trerror" id="trPTEvalDateDecs">
+            <td id="tdPTEvalDateDecs" class="tderror">
+                <select id="ddPTEvalDateDecs" class="txtbox" onchange="ddcheck('PTEvalDateDecs'); Evalchange('PT');">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a PT Evaluation Date?</td>
+            <td id="tdPTEvalDateDecsConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTEvalDateDecsReason">
+            <td id="tdPTEvalDateDecsReason" class="tderror">
+                <input type="text" class="txtbox" id="txtPTEvalDateDecsReason" onkeyup="textcheck('PTEvalDateDecsReason')" />
+            </td>
+            <td>Reason for no PT Evaluation Date</td>
+            <td id="tdPTEvalDateDecsReasonConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTEvalDate">
+            <td id="tdPTEvalDate" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtPTEvalDate" onchange="datecheck('PTEvalDate'); therapycheck30('PTEval', 'PT Evaluation'); ptchecksame('PT')" onkeyup="datecheck('PTEvalDate'); therapycheck30('PTEval', 'PT Evaluation'); ptchecksame('PT')" />
+            </td>
+            <td>PT Evaluation Date</td>
+            <td id="tdPTEvalDateConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" id="trPTEvalSignDecs">
+            <td id="tdPTEvalSignDecs" class="tderror">
+                <select id="ddPTEvalSignDecs" class="txtbox" onchange="ddcheck('PTEvalSignDecs'); Evalsigned('PT');">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a PT Evaluation Order Signed?</td>
+            <td id="tdPTEvalSignDecsConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTEvalSign">
+            <td id="tdPTEvalSign" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtPTEvalSign" onchange="datecheck('PTEvalSign'); therapycheck30('PTEval', 'PT Evaluation')" onkeyup="datecheck('PTEvalSign'); therapycheck30('PTEval', 'PT Evaluation')" />
+            </td>
+            <td>
+                PT Evaluation - Date Order Signed
+                <div class="tooltipcssbtm">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstextbtm">
+                        Order signed should be within 30 days of evaluation date.
+                    </span>
+                </div>
+            </td>
+            <td id="tdPTEvalSignConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTEvalReason">
+            <td id="tdPTEvalReason" class="tderror">
+                <input type="text" class="txtbox" id="txtPTEvalReason" onkeyup="textcheck('PTEvalReason')" />
+            </td>
+            <td id="tdPTEvalReasonText"></td>
+            <td id="tdPTEvalReasonConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTClarDateDecs">
+            <td id="tdPTClarDateDecs" class="tderror">
+                <select id="ddPTClarDateDecs" class="txtbox" onchange="ddcheck('PTClarDateDecs'); ClarDateDecs('PT');">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a PT Clarification Date?</td>
+            <td id="tdPTClarDateDecsConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTClarDate">
+            <td id="tdPTClarDate" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtPTClarDate" onchange="datecheck('PTClarDate'); ptchecksame('PT'); therapycheck30('PTClar', 'PT Clarification'); checkreclar('PT', '')" onkeyup="datecheck('PTClarDate'); ptchecksame('PT'); therapycheck30('PTClar', 'PT Clarification'); checkreclar('PT', '')" />
+            </td>
+            <td>
+                PT Clarification Date
+                <div class="tooltipcssbtm">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstextbtm">
+                        Clarification Date should be the same as Evaluation Date
+                    </span>
+                </div>
+            </td>
+            <td id="tdPTClarDateConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes trerror therapyvisable" id="trPTClarDateReason">
+            <td id="tdPTClarDateReason" class="tderror">
+                <input type="text" class="txtbox" id="txtPTClarDateReason" onkeyup="textcheck('PTClarDateReason')" />
+            </td>
+            <td>Reason Why dates are not the same</td>
+            <td id="tdPTClarDateReasonConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTClarSignDecs">
+            <td id="tdPTClarSignDecs" class="tderror">
+                <select id="ddPTClarSignDecs" class="txtbox" onchange="ddcheck('PTClarSignDecs'); ClarSignDecs('PT');">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a PT Clarification Sign?</td>
+            <td id="tdPTClarSignDecsConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes trerror therapyvisable" id="trPTClarSign">
+            <td id="tdPTClarSign" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtPTClarSign" onchange="datecheck('PTClarSign'); therapycheck30('PTClar', 'PT Clarification')" onkeyup="datecheck('PTClarSign'); therapycheck30('PTClar', 'PT Clarification')" />
+            </td>
+            <td>
+                PT Clarification - Date Order Signed
+                <div class="tooltipcssbtm">
+                    <img src="~/images/questionmark.png" style="height:15px" />
+                    <span class="tooltipcsstextbtm">
+                        Order signed should be within 30 days of clarification date.
+                    </span>
+                </div>
+            </td>
+            <td id="tdPTClarSignConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTClarReason">
+            <td id="tdPTClarReason" class="tderror">
+                <input type="text" class="txtbox" id="txtPTClarReason" onkeyup="textcheck('PTClarReason')" />
+            </td>
+            <td id="tdPTClarReasonText"></td>
+            <td id="tdPTClarReasonConfirm" class="confirmed"></td>
+        </tr>
+
+
+
+        <tr class="yes  trerror therapyvisable" id="trPTDischargeDecs">
+            <td id="tdPTDischargeDecs" class="tderror">
+                <select id="ddPTDischargeDecs" class="txtbox" onchange="Dischargeed('PT'); ddcheck('PTDischargeDecs');">
+                    <option></option>
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </td>
+            <td>Is there a PT Discharge Date?</td>
+            <td id="tdPTDischargeDecsConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTDischargeDate">
+            <td id="tdPTDischargeDate" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtPTDischargeDate" onkeyup="datecheck('PTDischargeDate')" onchange="datecheck('PTDischargeDate')" />
+            </td>
+            <td>PT Discharge Date</td>
+            <td id="tdPTDischargeDateConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror therapyvisable" id="trPTDischargeReason">
+            <td id="tdPTDischargeReason" class="tderror">
+                <input type="text" class="txtbox" id="txtPTDischargeReason" onkeyup="textcheck('PTDischargeReason')" />
+            </td>
+            <td>Reason for no discharge date</td>
+            <td id="tdPTDischargeReasonConfirm" class="confirmed"></td>
+        </tr>
+    </table>
+
+
+    <hr style="border-top: 2px solid black" />
+    <table class="TableClick content">
+
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTEvalDate" /></td>
+            <td>OT Evaluation Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTEvalSign" /></td>
+            <td>OT Evaluation - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTClarDate" /></td>
+            <td>OT Clarification Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTClarSign" /></td>
+            <td>OT Clarification - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTReclar1Date" /></td>
+            <td>OT Reclarification #1 Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTReclar1Sign" /></td>
+            <td>OT Reclarification #1 - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTReclar2Date" /></td>
+            <td>OT Reclarification #2 Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTReclar2Sign" /></td>
+            <td>OT Reclarification #2 - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTReclar3Date" /></td>
+            <td>OT Reclarification #3 Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtOTReclar3Sign" /></td>
+            <td>OT Reclarification #3 - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none">
+            <td><input type="text" class="txtbox" id="txtOTDischargeDate" /></td>
+            <td>OT Discharge Date</td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 2px solid black" />
+    <table class="TableClick content">
+
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPEvalDate" /></td>
+            <td>SLP Evaluation Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPEvalSign" /></td>
+            <td>SLP Evaluation - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPClarDate" /></td>
+            <td>SLP Clarification Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPClarSign" /></td>
+            <td>SLP Clarification - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPReclar1Date" /></td>
+            <td>SLP Reclarification #1 Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPReclar1Sign" /></td>
+            <td>SLP Reclarification #1 - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPReclar2Date" /></td>
+            <td>SLP Reclarification #2 Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPReclar2Sign" /></td>
+            <td>SLP Reclarification #2 - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPReclar3Date" /></td>
+            <td>SLP Reclarification #3 Date</td>
+        </tr>
+
+        <tr class="yes  trerror">
+            <td><input type="text" class="txtbox" id="txtSLPReclar3Sign" /></td>
+            <td>SLP Reclarification #3 - Date Order Signed</td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none">
+            <td><input type="text" class="txtbox" id="txtSLPDischargeDate" /></td>
+            <td>SLP Discharge Date</td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 2px solid black" />
+    <table class="TableClick content">
+        <tr class="yes  trerror" style="border:none">
+            <td><input type="checkbox" /></td>
+            <td>Therapy Units/Visits verified for each discipline with UB04</td>
+        </tr>
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+<button class="collapsible yes" style="background-color:lightblue" id="btnNursing">
+    <table style="width:100%">
+        <tr>
+            <td>Nursing</td>
+            <td style="text-align:right; padding-right:50px;" id="NursingComplete"></td>
+        </tr>
+    </table>
+</button>
+<div class="content yes" style="border: 1px solid black" id="NursingContent">
+    <div style="height:20px"></div>
+    <table class="TableClick content">
+        <tr class="yes  trerror" style="border:none" id="trNDailySkill">
+            <td id="tdNDailySkill" class="tderror">
+                <select class="txtbox" id="ddNDailySkill" onchange="ddcheck('NDailySkill')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Daily Skilled Doc present during dates of service</td>
+            <td id="tdNDailySkillConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNIVCharges">
+            <td id="tdNIVCharges" class="tderror">
+                <select class="txtbox" id="ddNIVCharges" onchange="ddcheck('NIVCharges')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>IV Charges on UB04 have MD order</td>
+            <td id="tdNIVChargesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNSupplies">
+            <td id="tdNSupplies" class="tderror">
+                <select class="txtbox" id="ddNSupplies" onchange="ddcheck('NSupplies')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>Supplies on UB04 have MD order</td>
+            <td id="tdNSuppliesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNPharmacy">
+            <td id="tdNPharmacy" class="tderror">
+                <select class="txtbox" id="ddNPharmacy" onchange="ddcheck('NPharmacy')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>Pharmacy Charges on UB-04 have MD order</td>
+            <td id="tdNPharmacyConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNO2Charges">
+            <td id="tdNO2Charges" class="tderror">
+                <select class="txtbox" id="ddNO2Charges" onchange="ddcheck('NO2Charges')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>O2 Charges on UB04 have MD order</td>
+            <td id="tdNO2ChargesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNLabCharges">
+            <td id="tdNLabCharges" class="tderror">
+                <select class="txtbox" id="ddNLabCharges" onchange="ddcheck('NLabCharges')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>Lab Charges on UB04 have MD order</td>
+            <td id="tdNLabChargesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNRayCharges">
+            <td id="tdNRayCharges" class="tderror">
+                <select class="txtbox" id="ddNRayCharges" onchange="ddcheck('NRayCharges')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>X-Ray charges on UB04 have MD order</td>
+            <td id="tdNRayChargesConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="yes  trerror" style="border:none" id="trNEquipCharges">
+            <td id="tdNEquipCharges" class="tderror">
+                <select class="txtbox" id="ddNEquipCharges" onchange="ddcheck('NEquipCharges')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                    <option>N/A</option>
+                </select>
+            </td>
+            <td>Equipment charges on UB04 have MD order</td>
+            <td id="tdNEquipChargesConfirm" class="confirmed"></td>
+        </tr>
+
+    </table>
+    <div style="height:20px"></div>
+</div>
+
+<script>
+    function showdel() {
+        $("#showdel").dialog({
+            resizable: false,
+            height: "auto",
+            width: "350px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showdel" title="Delete Record?">
+        <div>Are you sure you want to delete this record?</div>
+        <br />
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="delrecord()">Delete</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showdel').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function shownotes() {
+        document.getElementById('txtEditNotes').value = document.getElementById('divNotes').innerHTML
+        $("#shownotes").dialog({
+            resizable: false,
+            height: "auto",
+            width: "500px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="shownotes" title="Edit Notes">
+        <textarea class="txtbox" style="height:200px;" id="txtEditNotes">
+
+            </textarea>
+        <br />
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="savenotes()">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#shownotes').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showteam() {
+
+        $("#showteam").dialog({
+            resizable: false,
+            height: "auto",
+            width: "500px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showteam" title="Edit Team">
+        <div style="overflow-y:auto; max-height:200px;" id="divTeamEdit">
+            @Html.Raw(ViewData["teameditdata"])
+        </div>
+        <div style="height:10px"></div>
+        <button type="submit" class="btn btn-primary" onclick="removeteam()">Remove Selected</button>
+        <hr />
+        <table>
+            <tr>
+                <td>Name</td>
+                <td>
+                    <input class="txtbox" maxlength="99" id="txtTeamName" />
+                    <div id="validateTeamName" class="hidden">Name Required</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding-right:15px; padding-top:10px">Credentials</td>
+                <td style="padding-top:10px;">
+                    <input class="txtbox" maxlength="99" id="txtTeamCred" />
+                    <div id="validateTeamCred" class="hidden">Credential Required</div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="height:10px"></div>
+        <button type="submit" class="btn btn-primary" onclick="saveteam()">Add Member</button>
+        <div style="height:10px"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="getteam()">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    }
+
+    function delrecord() {
+        document.getElementById('txtRecID').value = document.getElementById('txtID').value
+        document.getElementById('delreport').click()
+    }
+
+    function getteam() {
+        $.get("/TripleCheck/getteam", { passid: document.getElementById('txtID').value }, function (data) { document.getElementById('divTeam').innerHTML = data });
+        $('#showteam').dialog('close');
+    }
+
+    function removeteam() {
+        var markedCheckbox = document.getElementsByName('checkremove');
+        for (var checkbox of markedCheckbox) {
+            if (checkbox.checked)
+                $.get("/TripleCheck/removeteam", { strid: document.getElementById('txtID').value, strTeamID: checkbox.value }, function (data) { document.getElementById('divTeamEdit').innerHTML = data });
+        }
+    }
+
+    function saveteam() {
+        var errors = '0'
+
+        if (document.getElementById('txtTeamName').value == '') {
+            document.getElementById('validateTeamName').className = 'validation'
+            errors = '1'
+        } else {
+            document.getElementById('validateTeamName').className = 'hidden'
+        }
+
+        if (document.getElementById('txtTeamCred').value == '') {
+            document.getElementById('validateTeamCred').className = 'validation'
+            errors = '1'
+        } else {
+            document.getElementById('validateTeamCred').className = 'hidden'
+        }
+
+        if (errors == '0') {
+            $.get("/TripleCheck/saveteam", { strid: document.getElementById('txtID').value, strName: document.getElementById('txtTeamName').value, strCred: document.getElementById('txtTeamCred').value }, function (data) { document.getElementById('divTeamEdit').innerHTML = data });
+            document.getElementById('txtTeamCred').value = ''
+            document.getElementById('txtTeamName').value = ''
+        }
+    }
+
+    function savenotes() {
+        $.get("/TripleCheck/savenotes", { strid: document.getElementById('txtID').value, stritem: document.getElementById('txtEditNotes').value }, function (data) { });
+        document.getElementById('divNotes').innerHTML = document.getElementById('txtEditNotes').value
+        $('#shownotes').dialog('close')
+    }
+
+    function startdate() {
+        if (moment(document.getElementById('txtStartDate').value).isValid()) {
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: document.getElementById('txtStartDate').value, strdetail: 'startstay' }, function (data) { });
+            document.getElementById('ValidationStartDate').className = 'hidden'
+        } else {
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'null', strdetail: 'startstay' }, function (data) { });
+            document.getElementById('ValidationStartDate').className = 'validation'
+        }
+    }
+
+
+    function addassessment(dd) {
+        $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: dd.value, strdetail: 'additionalassessment' }, function (data) { });
+
+        var y = document.getElementsByClassName("yes");
+        var i;
+        if (dd.value == "No") {
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("addaddition");
+            }
+        } else {
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.add("addaddition");
+            }
+        }
+
+        if (document.getElementById('ddPaymentType').value == "Levels" && document.getElementById('ddAddAssessment').value == 'Yes') {
+            document.getElementById('btnBusinessOffice').classList.add('hidden')
+        } else {
+            document.getElementById('btnBusinessOffice').classList.remove('hidden')
+        }
+
+        if (document.getElementById('btnBusinessOffice').classList.contains('active')) {
+            document.getElementById('btnBusinessOffice').click()
+        }
+
+        if (document.getElementById('btnDCInfo').classList.contains('active')) {
+            document.getElementById('btnDCInfo').click()
+        }
+
+        if (document.getElementById('btnMDS').classList.contains('active')) {
+            document.getElementById('btnMDS').click()
+        }
+
+        if (document.getElementById('btnMDSTherapy').classList.contains('active')) {
+            document.getElementById('btnMDSTherapy').click()
+        }
+
+        if (document.getElementById('btnMedicalRecords').classList.contains('active')) {
+            document.getElementById('btnMedicalRecords').click()
+        }
+
+        if (document.getElementById('btnTherapy').classList.contains('active')) {
+            document.getElementById('btnTherapy').click()
+        }
+
+        if (document.getElementById('btnNursing').classList.contains('active')) {
+            document.getElementById('btnNursing').click()
+        }
+
+        checkcomplete()
+    }
+
+    function paymenttype(dd) {
+        $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: dd.value, strdetail: 'paymenttype' }, function (data) { });
+        var x = document.getElementsByClassName("pay");
+        var b;
+        for (b = 0; b < x.length; b++) {
+            x[b].classList.add("paytype");
+        }
+        if (dd.value == "PDPM") {
+            var y = document.getElementsByClassName("pdpm");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("paytype");
+            }
+        }
+        if (dd.value == "HMO A") {
+            var y = document.getElementsByClassName("hmoa");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("paytype");
+            }
+        }
+        if (dd.value == "Levels") {
+            var y = document.getElementsByClassName("levels");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("paytype");
+            }
+        }
+        if (dd.value == "MCB") {
+            var y = document.getElementsByClassName("mcb");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("paytype");
+            }
+        }
+
+        if (document.getElementById('ddPaymentType').value == "Levels" && document.getElementById('ddAddAssessment').value == 'Yes') {
+            document.getElementById('btnBusinessOffice').classList.add('hidden')
+        } else {
+            document.getElementById('btnBusinessOffice').classList.remove('hidden')
+        }
+
+        if (document.getElementById('btnBusinessOffice').classList.contains('active')) {
+            document.getElementById('btnBusinessOffice').click()
+        }
+
+        if (document.getElementById('btnDCInfo').classList.contains('active')) {
+            document.getElementById('btnDCInfo').click()
+        }
+
+        if (document.getElementById('btnMDS').classList.contains('active')) {
+            document.getElementById('btnMDS').click()
+        }
+
+        if (document.getElementById('btnMDSTherapy').classList.contains('active')) {
+            document.getElementById('btnMDSTherapy').click()
+        }
+
+        if (document.getElementById('btnMedicalRecords').classList.contains('active')) {
+            document.getElementById('btnMedicalRecords').click()
+        }
+
+        if (document.getElementById('btnTherapy').classList.contains('active')) {
+            document.getElementById('btnTherapy').click()
+        }
+
+        if (document.getElementById('btnNursing').classList.contains('active')) {
+            document.getElementById('btnNursing').click()
+        }
+
+        checkcomplete()
+    }
+
+    function checkqualifying() {
+        if (moment(document.getElementById('txtBOStayFrom').value).isValid() && moment(document.getElementById('txtBOStayTo').value).isValid()) {
+            var dchange = datediff(parseDate(document.getElementById('txtBOStayFrom').value), parseDate(document.getElementById('txtBOStayTo').value))
+            if (dchange < 3) {
+                document.getElementById('tdBOStayFrom').className = "tderror"
+                document.getElementById('tdBOStayTo').className = "tderror"
+                document.getElementById('trBOStayFrom').classList.add("trerror")
+                document.getElementById('trBOStayTo').classList.add("trerror")
+                removechanges('BOStayTo')
+                removechanges('BOStayFrom')
+            } else {
+                document.getElementById('tdBOStayFrom').className = ""
+                document.getElementById('tdBOStayTo').className = ""
+                document.getElementById('trBOStayFrom').classList.remove("trerror")
+                document.getElementById('trBOStayTo').classList.remove("trerror")
+                savechanges('BOStayTo', document.getElementById('txtBOStayTo').value, 'textbox')
+                savechanges('BOStayFrom', document.getElementById('txtBOStayFrom').value, 'textbox')
+            }
+        } else {
+            document.getElementById('tdBOStayFrom').className = "tderror"
+            document.getElementById('tdBOStayTo').className = "tderror"
+            document.getElementById('trBOStayFrom').classList.add("trerror")
+            document.getElementById('trBOStayTo').classList.add("trerror")
+            removechanges('BOStayTo')
+            removechanges('BOStayFrom')
+        }
+        checkcomplete()
+    }
+
+    function patientleave(dd, type) {
+        if (dd.value == 'Yes') {
+            document.getElementById('tdMDSUnbillDays').className = "tderror"
+            document.getElementById('trMDSUnbillDays').classList.add("trerror")
+            document.getElementById("txtMDSUnbillDays").disabled = false;
+            document.getElementById("txtMDSUnbillDays").value = ''
+            document.getElementById('tdBOPatient').className = ''
+            document.getElementById('trBOPatient').classList.remove("trerror")
+            if (type == 'save') {
+                savechanges('BOPatient', 'Yes', 'dropdown')
+            }            
+            removechanges('MDSUnbillDays')
+        } else if (dd.value == 'No') {
+            document.getElementById('tdMDSUnbillDays').className = ""
+            document.getElementById('trMDSUnbillDays').classList.remove("trerror")
+            document.getElementById("txtMDSUnbillDays").disabled = true;
+            document.getElementById("txtMDSUnbillDays").value = '0'
+            document.getElementById('tdBOPatient').className = ''
+            document.getElementById('trBOPatient').classList.remove("trerror")
+            if (type == 'save') {
+                savechanges('BOPatient', 'No', 'dropdown')
+                savechanges('MDSUnbillDays', '0', 'textbox')
+            }
+        } else {
+            document.getElementById('tdMDSUnbillDays').className = "tderror"
+            document.getElementById('trMDSUnbillDays').classList.add("trerror")
+            document.getElementById("txtMDSUnbillDays").disabled = true;
+            document.getElementById("txtMDSUnbillDays").value = ''
+            document.getElementById('tdBOPatient').className = 'tderror'
+            document.getElementById('trBOPatient').classList.add("trerror")
+            removechanges('BOPatient')
+            removechanges('MDSUnbillDays')
+        }
+        checkcomplete()
+    }
+
+    function numdaysinter() {
+        if (document.getElementById("txtMDSUnbillDays").value == "") {
+            document.getElementById('tdMDSUnbillDays').className = "tderror"
+            document.getElementById('trMDSUnbillDays').classList.add("trerror")
+            removechanges('MDSUnbillDays')
+        } else {
+            document.getElementById('tdMDSUnbillDays').className = ""
+            document.getElementById('trMDSUnbillDays').classList.remove("trerror")
+            savechanges('MDSUnbillDays', document.getElementById("txtMDSUnbillDays").value, 'textbox')
+        }
+        checkcomplete()
+    }
+
+    function MRConsentReason(type) {
+        if (type == 'save') {
+            document.getElementById('txtMRConsentReason').value = ''
+            removechanges('MRConsentReason')
+            document.getElementById('trMRConsentReason').classList = 'trerror'
+            document.getElementById('tdMRConsentReason').classList = 'tderror'
+            document.getElementById('tdMRConsentReasonConfirm').innerHTML = ''
+        }
+
+        if (document.getElementById('ddMRConsent').value == 'No') {
+            document.getElementById('trMRConsentReason').classList.remove('mroverride')
+        } else {
+            document.getElementById('trMRConsentReason').classList.add('mroverride')
+        }
+
+        mrresize();
+    }
+
+    function MRReCert(certnum, posnum) {
+        var certnump = certnum
+        
+        try {
+            do {
+
+                certnump = certnump + 1
+                
+                var totry = document.getElementById('txtMR' + certnump.toString() + 'ReCert').parentNode.parentNode.rowIndex;
+                document.getElementById("tblMR").deleteRow(totry);
+
+                var totry2 = document.getElementById('txtMR' + certnump.toString() + 'Reason').parentNode.parentNode.rowIndex;
+                document.getElementById("tblMR").deleteRow(totry2);
+                
+                removechangescert('MR' + certnump.toString() + 'ReCert')
+                removechangescert('MR' + certnump.toString() + 'Reason')
+                
+            } while (certnump > 0)
+        } catch { }
+
+        if (moment(document.getElementById('txtMR' + certnum.toString() + 'ReCert').value).isValid()) {
+            document.getElementById('tdMR' + certnum.toString() + 'ReCert').classList.remove('tderror')
+            document.getElementById('trMR' + certnum.toString() + 'ReCert').classList.remove('trerror')            
+
+            var ds = Date.parse(document.getElementById('txtMR' + certnum.toString() + 'ReCert').value)
+            var d = new Date(ds)
+            d.setDate(d.getDate() + 30)
+
+            savechangescert('MR' + certnum.toString() + 'ReCert', document.getElementById('txtMR' + certnum.toString() + 'ReCert').value, document.getElementById('txtMRDue' + certnum.toString()).innerHTML, posnum)
+
+            var duedate = Date.parse(document.getElementById('txtMRDue' + certnum.toString()).innerHTML)
+            
+            if (ds > duedate) {
+                document.getElementById("trMR" + (certnum).toString() + "Reason").classList.remove('mroverride')
+                savechangescert('MR' + (certnum).toString() + 'Reason', '', 'active', posnum +1)
+            } else {
+                document.getElementById("trMR" + (certnum).toString() + "Reason").classList.add('mroverride')
+                savechangescert('MR' + (certnum).toString() + 'Reason', '', 'reason', posnum +1)
+            }
+
+            var maxmonth = Date.parse(document.getElementById('txtINTMonth').value)
+
+            if (d < maxmonth) {
+                var table = document.getElementById("tblMR");
+
+                var row = table.insertRow(posnum + 2)
+
+                row.setAttribute("id", "trMR" + (certnum + 1).toString() + "ReCert");
+                row.className = 'trerror'
+                var cell1 = row.insertCell(0)
+                cell1.setAttribute("id", "tdMR" + (certnum + 1).toString() + "ReCert");
+                cell1.className = "tderror"
+                var cell2 = row.insertCell(1)
+                cell1.innerHTML = '<input type="text" class="txtbox txtdate" id="txtMR' + (certnum + 1).toString() + 'ReCert" onchange="MRReCert(' + (certnum + 1).toString() + ', ' + (posnum + 2).toString() + ')" onkeyup="MRReCert(' + (certnum + 1).toString() + ', ' + (posnum + 2).toString() + ')" />';
+                cell2.innerHTML = (certnum + 1).toString() + ' Re-Cert - Completed (<b>Due <span id=\"txtMRDue' + (certnum + 1).toString() + '\">' + (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear() + '</span></b>)';
+                var cell3 = row.insertCell(2)
+                cell3.setAttribute("id", "tdMR" + (certnum + 1).toString() + "ReCertConfirm");
+                cell3.className = "confirmed"
+
+                savechangescert('MR' + (certnum + 1).toString() + 'ReCert', '', (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear(), posnum + 2)
+
+                var rowc = table.insertRow(posnum + 3)
+
+                rowc.setAttribute("id", "trMR" + (certnum + 1).toString() + "Reason");
+                rowc.className = 'mroverride trerror'
+                var cell1 = rowc.insertCell(0)
+                cell1.setAttribute("id", "tdMR" + (certnum + 1).toString() + "Reason");
+                cell1.className = "tderror"
+                var cell2 = rowc.insertCell(1)
+                cell1.innerHTML = '<input type="text" class="txtbox" id="txtMR' + (certnum + 1).toString() + 'Reason" onchange="MRReCertReason(' + (certnum + 1).toString() + ', ' + (posnum + 3).toString() + ')" onkeyup="MRReCertReason(' + (certnum + 1).toString() + ', ' + (posnum + 3).toString() + ')" />';
+                cell2.innerHTML = 'Reason Re-Cert is past due';
+                var cell3 = rowc.insertCell(2)
+                cell3.setAttribute("id", "tdMR" + (certnum + 1).toString() + "ReasonConfirm");
+                cell3.className = "confirmed"
+
+                savechangescert('MR' + (certnum + 1).toString() + 'Reason', '', 'reason', posnum + 3)
+            }
+
+
+        } else {
+            document.getElementById('tdMR' + certnum.toString() + 'ReCert').classList.add('tderror')
+            document.getElementById('trMR' + certnum.toString() + 'ReCert').classList.add('trerror')
+            savechangescert('MR' + (certnum).toString() + 'ReCert', '', document.getElementById('txtMRDue' + (certnum).toString()).innerHTML, posnum)
+            document.getElementById('tdMR' + certnum.toString() + 'ReCertConfirm').innerHTML = "";
+        }
+        checkcomplete()
+        mrresize()
+        $(".txtdate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $(".txtdate").datepicker();
+    }
+
+    function MRReCertReason(certnum, posnum) {
+        if (document.getElementById('txtMR' + (certnum).toString() + 'Reason').value == '') {
+            document.getElementById('tdMR' + certnum.toString() + 'Reason').classList.add('tderror')
+            document.getElementById('trMR' + certnum.toString() + 'Reason').classList.add('trerror')
+        } else {
+            document.getElementById('tdMR' + certnum.toString() + 'Reason').classList.remove('tderror')
+            document.getElementById('trMR' + certnum.toString() + 'Reason').classList.remove('trerror')
+        }
+        savechangescert('MR' + certnum.toString() + 'Reason', document.getElementById('txtMR' + certnum.toString() + 'Reason').value, 'active', posnum)
+    }
+
+    function DCNOMNC(type) {
+        if (type == 'save') {
+            document.getElementById('trDOOR').classList.add('trerror')
+            document.getElementById('tdDOOR').classList.add('tderror')
+            document.getElementById('txtDOOR').value = ''
+            document.getElementById('tdDOORConfirm').innerHTML = ''
+            removechanges('DOOR')
+        }
+        
+        if (moment(document.getElementById('txtDCNOMNC').value).isValid() && moment(document.getElementById('txtDCLastDay').value).isValid()) {
+            var dchange = datediff(parseDate(document.getElementById('txtDCNOMNC').value), parseDate(document.getElementById('txtDCLastDay').value))
+            if (dchange < 3) {
+                document.getElementById('tdDCLastDay').className = ""
+                document.getElementById('tdDCNOMNC').className = ""
+                document.getElementById('trDCLastDay').classList.remove("trerror")
+                document.getElementById('trDCNOMNC').classList.remove("trerror")
+                if (type == 'save') {
+                    savechanges('DCNOMNC', document.getElementById('txtDCNOMNC').value, 'textbox')
+                    savechanges('DCLastDay', document.getElementById('txtDCLastDay').value, 'textbox')
+                }
+
+                document.getElementById('trDOOR').classList.add('dcoverride')
+
+                document.getElementById('trDOOR').classList.remove('dcoverride')
+                
+
+
+            } else {
+                document.getElementById('tdDCLastDay').className = ""
+                document.getElementById('tdDCNOMNC').className = ""
+                document.getElementById('trDCLastDay').classList.remove("trerror")
+                document.getElementById('trDCNOMNC').classList.remove("trerror")
+                if (type == 'save') {
+                    savechanges('DCNOMNC', document.getElementById('txtDCNOMNC').value, 'textbox')
+                    savechanges('DCLastDay', document.getElementById('txtDCLastDay').value, 'textbox')
+                }
+                document.getElementById('trDOOR').classList.add('dcoverride')
+                
+            }
+            
+        } else {
+            document.getElementById('tdDCLastDay').className = "tderror"
+            document.getElementById('tdDCNOMNC').className = "tderror"
+            document.getElementById('trDCLastDay').classList.add("trerror")
+            document.getElementById('trDCNOMNC').classList.add("trerror")
+            document.getElementById('trDOOR').classList.add('dcoverride')
+            removechanges('DCNOMNC')
+            removechanges('DCLastDay')
+            
+        }
+
+        
+        
+
+        if (document.getElementById('btnDCInfo').classList.contains('active')) {
+            document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
+        }
+
+        checkcomplete()
+    }
+
+    function mrinitialcheck(type) {
+        if (moment(document.getElementById('txt'+type+'Due').value).isValid()) {
+            var sd = parseDate(document.getElementById('txt'+type+'Due').value)
+            var ed = parseDate(document.getElementById('txt'+type+'DueCert').value)
+            
+            if (sd > ed) {
+                
+                document.getElementById('tr' + type +'Reason').classList.remove('mroverride')
+
+                if (document.getElementById('txt' + type +'Reason').value == '') {
+                    document.getElementById('tr' + type +'Reason').classList.add('trerror')
+                    document.getElementById('td' + type +'Reason').classList.add('tderror')
+                    document.getElementById('txt' + type +'Reason').value = '';
+                    document.getElementById('td' + type +'ReasonConfirm').innerHTML = ''
+                    removechanges(type + 'Reason')
+                } else {
+
+                    document.getElementById('tr'+type+'Reason').classList.remove('trerror')
+                    document.getElementById('td'+type+'Reason').classList.remove('tderror')
+
+                }
+
+            } else {
+                
+                document.getElementById('tr' + type +'Reason').classList.add('mroverride')
+                document.getElementById('tr' +  type + 'Reason').classList.add('trerror')
+                document.getElementById('td' + type + 'Reason').classList.add('tderror')
+                document.getElementById('txt' + type + 'Reason').value = '';
+                document.getElementById('td' + type + 'ReasonConfirm').innerHTML = ''
+                removechanges(type + 'Reason')
+            }
+
+        } else {
+            document.getElementById('tr' + type + 'Reason').classList.add('mroverride')
+            document.getElementById('tr' + type + 'Reason').classList.add('trerror')
+            document.getElementById('td' + type + 'Reason').classList.add('tderror')
+            document.getElementById('txt' + type + 'Reason').value = '';
+            document.getElementById('td' + type + 'ReasonConfirm').innerHTML = ''
+            removechanges(type + 'Reason')
+        }
+    }
+
+    function mrnextcheck(passnum) {
+        if (moment(document.getElementById('txtMR' + passnum.toString() + 'ReCertDue').value).isValid()) {
+            var ds = Date.parse(document.getElementById('txtMR' + passnum.toString() + 'ReCertDue').value)
+            var d = new Date(ds)
+            d.setDate(d.getDate() + 30)
+
+            passnum = passnum + 1
+            document.getElementById('trMR' + passnum.toString() + 'ReCertQues').classList.remove('mroverride')
+            document.getElementById('txtMR' + passnum.toString() + 'ReCertDueCert').value = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear()
+            document.getElementById('txtMR' + passnum.toString() + 'ReCertDueCertText').innerHTML = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear()
+        } else {
+            do {
+                passnum++
+                if (passnum <= 6) {
+                    document.getElementById('trMR' + passnum.toString() + 'ReCertQues').classList.add('mroverride')
+                    document.getElementById('trMR' + passnum.toString() + 'ReCertQues').classList.add('trerror')
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertQues').classList.add('tderror')
+                    document.getElementById('ddMR' + passnum.toString() + 'ReCertQues').selectedIndex = '0'
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertQuesConfirm').innerHTML = ''
+                    removechanges('MR' + passnum.toString() + 'ReCertQues')
+
+                    document.getElementById('trMR' + passnum.toString() + 'ReCertDue').classList.add('mroverride')
+                    document.getElementById('trMR' + passnum.toString() + 'ReCertDue').classList.add('trerror')
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertDue').classList.add('tderror')
+                    document.getElementById('txtMR' + passnum.toString() + 'ReCertDue').value = ''
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertDueConfirm').innerHTML = ''
+                    removechanges('MR' + passnum.toString() + 'ReCertDue')
+
+                    document.getElementById('trMR' + passnum.toString() + 'ReCertReason').classList.add('mroverride')
+                    document.getElementById('trMR' + passnum.toString() + 'ReCertReason').classList.add('trerror')
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertReason').classList.add('tderror')
+                    document.getElementById('txtMR' + passnum.toString() + 'ReCertReason').value = ''
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertReasonConfirm').innerHTML = ''
+                    document.getElementById('tdMR' + passnum.toString() + 'ReCertReasonText').innerHTML = ''
+                    removechanges('MR' + passnum.toString() + 'ReCertReason')
+                }
+            }
+            while (passnum <= 6)
+
+        }
+        mrresize()
+    }
+
+    function ClarSignDecs(type) {
+        if (document.getElementById('dd' + type + 'ClarSignDecs').value == '') {
+
+            document.getElementById('tr' + type + 'ClarSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSign').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSign').value = '';
+            removechanges(type + 'ClarSign')
+
+            document.getElementById('tr' + type + 'ClarReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarReason').value = '';
+            removechanges(type + 'ClarReason')
+        }
+
+        if (document.getElementById('dd' + type + 'ClarSignDecs').value == 'No') {
+            document.getElementById('tr' + type + 'ClarSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSign').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSign').value = '';
+            removechanges(type + 'ClarSign')
+
+            document.getElementById('tr' + type + 'ClarReason').classList.remove('therapyvisable')
+            document.getElementById('td' + type + 'ClarReasonText').innerHTML = 'Reason for no Clarification Sign'
+        }
+
+        if (document.getElementById('dd' + type + 'ClarSignDecs').value == 'Yes') {
+
+            document.getElementById('tr' + type + 'ClarReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarReason').value = '';
+            removechanges(type + 'ClarReason')
+
+            document.getElementById('tr' + type + 'ClarSign').classList.remove('therapyvisable')
+        }
+    }
+
+    function checkreclar(type, renum) {
+        var checks = 1
+
+        if (moment(document.getElementById('txt' + type + renum.toString() + 'ClarDate').value).isValid()) {
+            var ed = parseDate(document.getElementById('txt' + type + renum.toString() + 'ClarDate').value)
+
+            if (moment(document.getElementById('txt' + type + 'DischargeDate').value).isValid()) {
+                var sd = parseDate(document.getElementById('txt' + type + 'DischargeDate').value)
+                if (datediff(ed, sd) < 28) {
+                    checks = 0
+                }
+            }
+
+            if (moment(document.getElementById('txtDCLastDay').value).isValid()) {
+                var sd = parseDate(document.getElementById('txtDCLastDay').value)
+                if (datediff(ed, sd) < 28) {
+                    checks = 0
+                }
+            }
+
+            if (moment(document.getElementById('txtINTMonth').value).isValid()) {
+                var sd = parseDate(document.getElementById('txtINTMonth').value)
+                if (datediff(ed, sd) < 28) {
+                    checks = 0
+                }
+            }
+        } else {
+            //remove other reclar
+        }
+
+        
+
+        if (checks == 1) {
+
+        }
+    }
+
+    function checkcert(type, text) {
+        
+        if (document.getElementById('dd' + type + 'Ques').value == '') {
+            document.getElementById('tr' + type + 'Due').classList.add('mroverride')
+            document.getElementById('tr' + type + 'Due').classList.add('trerror')
+            document.getElementById('td' + type + 'Due').classList.add('tderror')
+            document.getElementById('txt' + type + 'Due').value = ''
+            removechanges(type + 'Due')
+            
+            document.getElementById('tr' + type + 'Reason').classList.add('mroverride')
+            document.getElementById('tr' + type + 'Reason').classList.add('trerror')
+            document.getElementById('td' + type + 'Reason').classList.add('tderror')
+            document.getElementById('txt' + type + 'Reason').value = ''
+            removechanges(type + 'Reason')
+        }
+
+        if (document.getElementById('dd' + type + 'Ques').value == 'No') {
+            document.getElementById('tr' + type + 'Due').classList.add('mroverride')
+            document.getElementById('tr' + type + 'Due').classList.add('trerror')
+            document.getElementById('td' + type + 'Due').classList.add('tderror')
+            document.getElementById('txt' + type + 'Due').value = ''
+            removechanges(type + 'Due')
+
+            document.getElementById('tr' + type + 'Reason').classList.remove('mroverride')
+            document.getElementById('td' + type + 'ReasonText').innerHTML = 'Reason for no ' + text
+        }
+
+        if (document.getElementById('dd' + type + 'Ques').value == 'Yes') {
+            document.getElementById('tr' + type + 'Due').classList.remove('mroverride')
+            document.getElementById('td' + type + 'ReasonText').innerHTML = 'Reason why '+text+' is past due date'
+            mrinitialcheck(type)
+        }
+        
+    }
+
+
+    function Dischargeed(type) {
+        
+        if (document.getElementById('dd' + type + 'DischargeDecs').value == '') {
+            
+            document.getElementById('tr' + type + 'DischargeDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeDate').classList.add('trerror')
+            document.getElementById('td' + type + 'DischargeDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'DischargeDate').value = '';
+            removechanges(type + 'DischargeDate')
+
+            document.getElementById('tr' + type + 'DischargeReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeReason').classList.add('trerror')
+            document.getElementById('td' + type + 'DischargeReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'DischargeReason').value = '';
+            removechanges(type + 'DischargeReason')
+        }
+
+        if (document.getElementById('dd' + type + 'DischargeDecs').value == 'No') {
+            document.getElementById('tr' + type + 'DischargeDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeDate').classList.add('trerror')
+            document.getElementById('td' + type + 'DischargeDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'DischargeDate').value = '';
+            removechanges(type + 'DischargeDate')
+
+            document.getElementById('tr' + type + 'DischargeReason').classList.remove('therapyvisable')
+        }
+
+        if (document.getElementById('dd' + type + 'DischargeDecs').value == 'Yes') {
+            
+            document.getElementById('tr' + type + 'DischargeReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeReason').classList.add('trerror')
+            document.getElementById('td' + type + 'DischargeReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'DischargeReason').value = '';
+            removechanges(type + 'DischargeReason')
+
+            document.getElementById('tr' + type + 'DischargeDate').classList.remove('therapyvisable')
+        }
+    }
+
+    function Evalchange(type) {
+        
+        if (document.getElementById('dd' + type + 'EvalDateDecs').value == '' || document.getElementById('dd' + type + 'EvalDateDecs').value == 'No') {
+            
+            document.getElementById('tr' + type + 'EvalDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalDate').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalDate').value = '';
+            removechanges(type + 'EvalDate')
+            
+            document.getElementById('tr' + type + 'EvalSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalSign').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalSign').value = '';
+            removechanges(type + 'EvalSign')
+
+            document.getElementById('tr' + type + 'EvalReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalReason').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalReason').value = '';
+            removechanges(type + 'EvalReason')
+
+            document.getElementById('tr' + type + 'ClarDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDate').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDate').value = '';
+            removechanges(type + 'ClarDate')
+
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDateReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDateReason').value = '';
+            removechanges(type + 'ClarDateReason')
+
+            document.getElementById('tr' + type + 'ClarSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSign').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSign').value = '';
+            removechanges(type + 'ClarSign')
+
+            document.getElementById('tr' + type + 'ClarReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarReason').value = '';
+            removechanges(type + 'ClarReason')
+
+            document.getElementById('tr' + type + 'DischargeDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeDate').classList.add('trerror')
+            document.getElementById('td' + type + 'DischargeDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'DischargeDate').value = '';
+            removechanges(type + 'DischargeDate')
+
+            document.getElementById('tr' + type + 'EvalSignDecs').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalSignDecs').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalSignDecs').classList.add('tderror')
+            setdropdowns('dd' + type + 'EvalSignDecs', '')
+            removechanges(type + 'EvalSignDecs')
+
+            document.getElementById('tr' + type + 'ClarDateDecs').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDateDecs').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDateDecs').classList.add('tderror')
+            setdropdowns('dd' + type + 'ClarDateDecs', '')
+            removechanges(type + 'ClarDateDecs')
+
+            document.getElementById('tr' + type + 'DischargeDecs').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeDecs').classList.add('trerror')
+            document.getElementById('td' + type + 'DischargeDecs').classList.add('tderror')
+            setdropdowns('dd' + type + 'DischargeDecs', '')
+            removechanges(type + 'DischargeDecs')
+        }
+
+        if (document.getElementById('dd' + type + 'EvalDateDecs').value == '') {
+            document.getElementById('tr' + type + 'EvalDateDecsReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalDateDecsReason').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalDateDecsReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalDateDecsReason').value = '';
+            removechanges(type + 'EvalDateDecsReason')
+        }
+
+        if (document.getElementById('dd' + type + 'EvalDateDecs').value == 'No') {
+            document.getElementById('tr' + type + 'EvalDateDecsReason').classList.remove('therapyvisable')
+        }
+
+        if (document.getElementById('dd' + type + 'EvalDateDecs').value == 'Yes') {
+            document.getElementById('tr' + type + 'EvalDateDecsReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalDateDecsReason').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalDateDecsReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalDateDecsReason').value = '';
+            removechanges(type + 'EvalDateDecsReason')
+
+            document.getElementById('tr' + type + 'EvalDate').classList.remove('therapyvisable')
+            document.getElementById('tr' + type + 'EvalSignDecs').classList.remove('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDateDecs').classList.remove('therapyvisable')
+            document.getElementById('tr' + type + 'DischargeDecs').classList.remove('therapyvisable')
+        }
+    }
+
+    function Evalsigned(type) {
+        if (document.getElementById('dd' + type + 'EvalSignDecs').value == '') {
+            document.getElementById('tr' + type + 'EvalSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalSign').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalSign').value = '';
+            removechanges(type + 'EvalSign')
+
+            document.getElementById('tr' + type + 'EvalReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalReason').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalReason').value = '';
+            removechanges(type + 'EvalReason')
+        }
+
+        if (document.getElementById('dd' + type + 'EvalSignDecs').value == 'No') {
+            document.getElementById('tr' + type + 'EvalSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalSign').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalSign').value = '';
+            removechanges(type + 'EvalSign')
+
+            document.getElementById('tr' + type + 'EvalReason').classList.remove('therapyvisable')
+            document.getElementById('td' + type + 'EvalReasonText').innerHTML = 'Reason for no signed PT Evaluation'
+        }
+
+        if (document.getElementById('dd' + type + 'EvalSignDecs').value == 'Yes') {
+            document.getElementById('tr' + type + 'EvalReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalReason').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'EvalReason').value = '';
+            removechanges(type + 'EvalReason')
+
+            document.getElementById('tr' + type + 'EvalSign').classList.remove('therapyvisable')
+        }
+    }
+
+    function ClarDateDecs(type) {
+        if (document.getElementById('dd' + type + 'ClarDateDecs').value == '') {
+            document.getElementById('tr' + type + 'ClarDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDate').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDate').value = '';
+            removechanges(type + 'ClarDate')
+
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDateReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDateReason').value = '';
+            removechanges(type + 'ClarDateReason')
+
+            document.getElementById('tr' + type + 'ClarSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSign').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSign').value = '';
+            removechanges(type + 'ClarSign')
+
+            document.getElementById('tr' + type + 'ClarReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarReason').value = '';
+            removechanges(type + 'ClarReason')
+
+            document.getElementById('tr' + type + 'ClarSignDecs').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSignDecs').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSignDecs').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSignDecs').value = '';
+            removechanges(type + 'ClarSignDecs')
+        }
+
+        if (document.getElementById('dd' + type + 'ClarDateDecs').value == 'No') {
+            document.getElementById('tr' + type + 'ClarDate').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDate').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDate').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDate').value = '';
+            removechanges(type + 'ClarDate')
+
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDateReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDateReason').value = '';
+            removechanges(type + 'ClarDateReason')
+
+            document.getElementById('tr' + type + 'ClarSign').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSign').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSign').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSign').value = '';
+            removechanges(type + 'ClarSign')
+
+            document.getElementById('tr' + type + 'ClarSignDecs').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSignDecs').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarSignDecs').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarSignDecs').value = '';
+            removechanges(type + 'ClarSignDecs')
+
+            document.getElementById('tr' + type + 'ClarReason').classList.remove('therapyvisable')
+            document.getElementById('td' + type + 'ClarReasonText').innerHTML = 'Reason for no Clarification Date'
+        }
+
+        if (document.getElementById('dd' + type + 'ClarDateDecs').value == 'Yes') {
+            document.getElementById('tr' + type + 'ClarReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDate').classList.remove('therapyvisable')
+            document.getElementById('tr' + type + 'ClarSignDecs').classList.remove('therapyvisable')
+        }
+    }
+
+    function setdropdowns(dd, option) {
+        var desiredValue = option
+        var el = document.getElementById(dd);
+        for (var i = 0; i < el.options.length; i++) {
+            if (el.options[i].text == desiredValue) {
+                el.selectedIndex = i;
+            }
+        }
+    }
+
+    function ptchecksame(type) {
+        if (moment(document.getElementById('txt' + type + 'EvalDate').value).isValid() && moment(document.getElementById('txt' + type +'ClarDate').value).isValid()) {
+            var sd = parseDate(document.getElementById('txt' + type +'EvalDate').value)
+            var ed = parseDate(document.getElementById('txt' + type +'ClarDate').value)
+    
+            if (document.getElementById('txt' + type +'EvalDate').value !== document.getElementById('txt' + type +'ClarDate').value) {
+                document.getElementById('tr' + type+ 'ClarDateReason').classList.remove('therapyvisable')
+                
+                if (document.getElementById('txt' + type + 'ClarDateReason').value == '') {
+                    document.getElementById('tr' + type + 'ClarDateReason').classList.add('trerror')
+                    document.getElementById('td' + type + 'ClarDateReason').classList.add('tderror')
+                    document.getElementById('txt' + type + 'ClarDateReason').value = '';
+                    document.getElementById('td' + type + 'ClarDateReasonConfirm').innerHTML = ''
+                    removechanges(type + 'ClarDateReason')
+                } else {
+                    
+                    document.getElementById('tr' + type +'ClarDateReason').classList.remove('trerror')
+                    document.getElementById('td' + type +'ClarDateReason').classList.remove('tderror')
+                    
+                }
+
+            } else {
+                document.getElementById('tr' + type + 'ClarDateReason').classList.add('therapyvisable')
+                document.getElementById('tr' + type + 'ClarDateReason').classList.add('trerror')
+                document.getElementById('td' + type + 'ClarDateReason').classList.add('tderror')
+                document.getElementById('txt' + type + 'ClarDateReason').value = '';
+                document.getElementById('td' + type + 'ClarDateReasonConfirm').innerHTML = ''
+                removechanges(type + 'ClarDateReason')
+            }
+
+        } else {
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'ClarDateReason').classList.add('trerror')
+            document.getElementById('td' + type + 'ClarDateReason').classList.add('tderror')
+            document.getElementById('txt' + type + 'ClarDateReason').value = '';
+            document.getElementById('td' + type + 'ClarDateReasonConfirm').innerHTML = ''
+            removechanges(type + 'ClarDateReason')
+        }
+        
+    }
+
+    function therapycheck30(type, shorttype) {
+        
+        if (moment(document.getElementById('txt' + type + 'Date').value).isValid() && moment(document.getElementById('txt' + type + 'Sign').value).isValid()) {
+            var sd = parseDate(document.getElementById('txt' + type + 'Date').value)
+            var ed = parseDate(document.getElementById('txt' + type + 'Sign').value)
+            
+            if (datediff(sd, ed) > 30) {
+                document.getElementById('tr' + type + 'Reason').classList.remove('therapyvisable')
+                document.getElementById('td' + type + 'ReasonText').innerHTML = 'Reason '+shorttype+' is greater than 30 days'
+
+                if (document.getElementById('txt' + type + 'Reason').value == '') {
+                    document.getElementById('tr' + type + 'Reason').classList.add('trerror')
+                    document.getElementById('td' + type + 'Reason').classList.add('tderror')
+                    document.getElementById('txt' + type + 'Reason').value = '';
+                    document.getElementById('td' + type + 'ReasonConfirm').innerHTML = ''
+                    removechanges(type + 'Reason')
+                } else {
+                    
+                    document.getElementById('tr' + type + 'Reason').classList.remove('trerror')
+                    
+                    document.getElementById('td' + type + 'Reason').classList.remove('tderror')
+                    
+                }
+
+
+            } else {
+                document.getElementById('tr' + type + 'Reason').classList.add('therapyvisable')
+                document.getElementById('tr' + type + 'Reason').classList.add('trerror')
+                document.getElementById('td' + type + 'Reason').classList.add('tderror')
+                document.getElementById('txt' + type + 'Reason').value = '';
+                document.getElementById('td' + type + 'ReasonConfirm').innerHTML = ''
+                removechanges(type + 'Reason')
+            }
+
+        } else {
+            document.getElementById('tr' + type + 'Reason').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'Reason').classList.add('trerror')
+            document.getElementById('td' + type + 'Reason').classList.add('tderror')
+            document.getElementById('txt' + type + 'Reason').value = '';
+            document.getElementById('td' + type + 'ReasonConfirm').innerHTML = ''
+            removechanges(type + 'Reason')
+        }
+    }
+
+    //function lastdaychange() {
+    //    if (moment(document.getElementById('txtDCLastDay').value).isValid()) {
+    //        document.getElementById('txtMR1ReCert').disabled = false
+    //        lastdaycalc()
+    //    } else {
+    //        document.getElementById('txtMR1ReCert').disabled = true
+    //    }
+
+        
+
+    //    document.getElementById('txtMR1ReCert').value = ''
+    //    document.getElementById('trMR1ReCert').classList.add('trerror')
+    //    document.getElementById('tdMR1ReCert').classList.add('tderror')
+    //    document.getElementById('tdMR1ReCertConfirm').innerHTML = ''
+    //    removechanges('MR1ReCert')
+
+    //    document.getElementById('txtMR1Reason').value = ''
+    //    document.getElementById('trMR1Reason').classList.add('trerror')
+    //    document.getElementById('trMR1Reason').classList.add('mroverride')
+    //    document.getElementById('tdMR1Reason').classList.add('tderror')
+    //    document.getElementById('tdMR1ReasonConfirm').innerHTML = ''
+    //    removechanges('MR1Reason')
+
+
+    //    var certnump = 3
+
+    //    try {
+    //        do {
+
+    //            certnump = certnump + 1
+
+    //            var totry = document.getElementById('txtMR' + certnump.toString() + 'ReCert').parentNode.parentNode.rowIndex;
+    //            document.getElementById("tblMR").deleteRow(totry);
+
+    //            var totry2 = document.getElementById('txtMR' + certnump.toString() + 'Reason').parentNode.parentNode.rowIndex;
+    //            document.getElementById("tblMR").deleteRow(totry2);
+
+    //            removechangescert('MR' + certnump.toString() + 'ReCert')
+    //            removechangescert('MR' + certnump.toString() + 'Reason')
+
+    //        } while (certnump > 0)
+    //    } catch { }
+    //}
+
+    //function lastdaycalc() {
+    //    if (moment(document.getElementById('txtDCLastDay').value).isValid()) {
+    //        var sd = Date.parse(document.getElementById('txtStartDate').value)
+    //        var ld = Date.parse(document.getElementById('txtDCLastDay').value)
+
+            
+    //        if (datediff(sd, ld) > 13) {
+    //            document.getElementById('trMR1ReCert').classList.remove('mroverride')
+    //        } else {
+    //            document.getElementById('trMR1ReCert').classList.add('mroverride')
+    //        }
+    //        document.getElementById('txtMR1ReCert').disabled = false
+    //    }
+
+    //}
+
+    function DCOverride() {
+        
+        if (document.getElementById('txtDOOR').value != '') {
+            document.getElementById('tdDOOR').className = ""
+            document.getElementById('trDOOR').classList.remove("trerror")
+            savechanges('DOOR', document.getElementById('txtDOOR').value, 'textbox')
+        } else {
+            document.getElementById('tdDOOR').className = "tderror"
+            document.getElementById('trDOOR').classList.add("trerror")
+            removechanges('DOOR')
+        }
+        checkcomplete()
+    }
+
+    function dischargeloc(dd, type) {
+        var x = document.getElementsByClassName("discharge");
+        var b;
+        for (b = 0; b < x.length; b++) {
+            x[b].classList.add("dischargetype");
+        }
+
+        if (dd.value == '01 - Home' || dd.value == '06 - Home w/HH' || dd.value == '07 - AMA' || dd.value == 'Other') {
+            var y = document.getElementsByClassName("home");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("dischargetype");
+            }
+        }
+
+        if (dd.value == '02 - Hospital' || dd.value == '20 - Expired' || dd.value == 'N/A - Continued Stay' || dd.value == '') {
+            var y = document.getElementsByClassName("hospital");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("dischargetype");
+            }
+        }
+
+        if (dd.value == '04 - LTC') {
+            var y = document.getElementsByClassName("ltc");
+            var i;
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("dischargetype");
+            }
+        }
+
+        if (dd.value == '') {
+            removechanges('DischargeLoc')
+            document.getElementById('tdDischargeLoc').className = 'tderror'
+            document.getElementById('trDischargeLoc').classList.add("trerror")
+        } else {
+            if (type == 'save'){
+                savechanges('DischargeLoc', dd.value, 'dropdown')
+            }
+            
+            document.getElementById('tdDischargeLoc').className = ''
+            document.getElementById('trDischargeLoc').classList.remove("trerror")
+        }
+        if (document.getElementById('btnDCInfo').classList.contains('active')) {
+            document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
+        }
+
+        checkcomplete()
+    }
+
+    function mrresize() {
+        if (document.getElementById('btnMedicalRecords').classList.contains('active')) {
+            document.getElementById('MedicalRecordsContent').style.maxHeight = document.getElementById('MedicalRecordsContent').scrollHeight + "px";
+        }
+    }
+
+    function dcyesno(dd, type) {
+        var y = document.getElementsByClassName("dcyes");
+        var i;
+        if (dd.value == "No") {
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.remove("dcyesnotype");
+            }
+            document.getElementById('tdDrivenDischarge').className = ''
+            document.getElementById('trDrivenDischarge').classList.remove("trerror")
+            if (type == 'save') {
+                savechanges('DrivenDischarge', dd.value, 'dropdown')
+            }
+        } else if (dd.value == "Yes") {
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.add("dcyesnotype");
+            }
+            document.getElementById('tdDrivenDischarge').className = ''
+            document.getElementById('trDrivenDischarge').classList.remove("trerror")
+            if (type == 'save') {
+                savechanges('DrivenDischarge', dd.value, 'dropdown')
+            }
+        } else {
+            for (i = 0; i < y.length; i++) {
+                y[i].classList.add("dcyesnotype");
+            }
+            document.getElementById('tdDrivenDischarge').className = 'tderror'
+            document.getElementById('trDrivenDischarge').classList.add("trerror")
+            removechanges('DrivenDischarge')
+        }
+
+        if (document.getElementById('btnDCInfo').classList.contains('active')) {
+            document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
+        }
+        checkcomplete()
+    }
+
+    function ddcheck(dd) {
+        if (document.getElementById('dd' + dd).value == '') {
+            document.getElementById('td' + dd).className = 'tderror'
+            document.getElementById('tr' + dd).classList.add("trerror")
+            removechanges(dd)
+        } else {
+            document.getElementById('td' + dd).className = ''
+            document.getElementById('tr' + dd).classList.remove("trerror")
+            savechanges(dd, document.getElementById('dd' + dd).value, 'dropdown')
+        }
+        checkcomplete()
+
+    }
+
+    function textcheck(dd) {
+        if (document.getElementById('txt' + dd).value == '') {
+            document.getElementById('td' + dd).className = 'tderror'
+            document.getElementById('tr' + dd).classList.add("trerror")
+            removechanges(dd)
+        } else {
+            document.getElementById('td' + dd).className = ''
+            document.getElementById('tr' + dd).classList.remove("trerror")
+            savechanges(dd, document.getElementById('txt' + dd).value, 'textbox')
+        }
+        checkcomplete()
+
+    }
+
+    function cbcheck(dd) {
+        if (document.getElementById('cb' + dd).checked == false) {
+            document.getElementById('td' + dd).className = 'tderror'
+            document.getElementById('tr' + dd).classList.add("trerror")
+            removechanges(dd)
+        } else {
+            document.getElementById('td' + dd).className = ''
+            document.getElementById('tr' + dd).classList.remove("trerror")
+            savechanges(dd, 'Checked', 'checkbox')
+        }
+        checkcomplete()
+
+    }
+
+    function datecheck(txt) {
+        
+        if (moment(document.getElementById('txt' + txt).value).isValid()) {
+            document.getElementById('td' + txt).className = ''
+            document.getElementById('tr' + txt).classList.remove("trerror")
+            savechanges(txt, document.getElementById('txt' + txt).value, 'textbox')
+        } else {
+            document.getElementById('td' + txt).className = 'tderror'
+            document.getElementById('tr' + txt).classList.add("trerror")
+            removechanges(txt)
+        }
+        
+        checkcomplete()
+
+    }
+
+    function mdsadddays(type) {
+        var numdays = document.getElementById('txtMDSUnbillDays').value
+        var startd = document.getElementById('txtMDSARDStart').value
+        var endd = document.getElementById('txtMDSARDEnd').value
+
+        if (numdays != '' && moment(startd).isValid() && moment(endd).isValid()) {
+            var dchange = datediff(parseDate(startd), parseDate(endd))
+            var ddiff = dchange - numdays + 1
+            if (ddiff < 0) {
+                removechanges('MDSNumDays')
+                document.getElementById('tdMDSNumDays').className = 'tderror'
+                document.getElementById('trMDSNumDays').classList.add("trerror")
+                document.getElementById('txtMDSNumDays').value = ddiff
+            } else {
+                document.getElementById('tdMDSNumDays').className = ''
+                document.getElementById('trMDSNumDays').classList.remove("trerror")
+                document.getElementById('txtMDSNumDays').value = ddiff
+                if (type == 'save') {
+                    savechanges('MDSNumDays', ddiff, 'textbox')
+                }
+                
+            }
+        } else {
+            removechanges('MDSNumDays')
+            document.getElementById('tdMDSNumDays').className = 'tderror'
+            document.getElementById('trMDSNumDays').classList.add("trerror")
+            document.getElementById('txtMDSNumDays').value = ''
+        }
+        checkcomplete()
+    }
+
+    function savechanges(txt, pv, ptype) {
+        var datetime = "<b>Confirmed:</b> " + new Date().toLocaleString() + "<br/>"
+        var user = "<b>Confirmed By:</b> " + document.getElementById('txtUserName').value
+
+        document.getElementById('td' + txt + 'Confirm').innerHTML = datetime + user;
+        $.get("/TripleCheck/saverecords", { strid: document.getElementById('txtID').value, strparent: txt, strvalue: pv, strtype: ptype, strdate: new Date().toLocaleString(), strUser: document.getElementById('txtUserName').value }, function (data) { });
+    }
+
+    function savechangescert(txt, pv, ptype, position) {
+        if (pv != '') {
+            var datetime = "<b>Confirmed:</b> " + new Date().toLocaleString() + "<br/>"
+            var user = "<b>Confirmed By:</b> " + document.getElementById('txtUserName').value
+
+            document.getElementById('td' + txt + 'Confirm').innerHTML = datetime + user;
+        }
+       
+        
+        $.get("/TripleCheck/saverecordscert", { strid: document.getElementById('txtID').value, strparent: txt, strvalue: pv, strtype: ptype, strposition: position, strdate: new Date().toLocaleString(), strUser: document.getElementById('txtUserName').value }, function (data) { });
+        
+    }
+
+    function removechanges(txt) {
+        
+        $.get("/TripleCheck/removerecords", { strid: document.getElementById('txtID').value, strparent: txt }, function (data) { });
+        document.getElementById('td' + txt + 'Confirm').innerHTML = "";
+    }
+
+    function removechangescert(txt) {
+        $.get("/TripleCheck/removerecordscert", { strid: document.getElementById('txtID').value, strparent: txt }, function (data) { });
+
+        
+    }
+
+    function checkcomplete() {
+        checkBO()
+        checkDC()
+        checkMDS()
+        checkMDSTherapy()
+        checkMedicalRecords()
+        checkTherapy()
+        checkNursing()
+    }
+
+    function checkBO() {
+        var y = document.getElementById("frmBO").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('BOComplete').innerHTML = 'Not Completed'
+            document.getElementById('BOComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'False', strdetail: 'BusinessOffice' }, function (data) { });
+        } else {
+            document.getElementById('BOComplete').innerHTML = 'Completed'
+            document.getElementById('BOComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'BusinessOffice' }, function (data) { });
+        }
+    }
+
+    function checkDC() {
+        var y = document.getElementById("DCContent").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype') || hasClass(y[i], 'dcoverride')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('DCComplete').innerHTML = 'Not Completed'
+            document.getElementById('DCComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'false', strdetail: 'DCInformation' }, function (data) { });
+        } else {
+            document.getElementById('DCComplete').innerHTML = 'Completed'
+            document.getElementById('DCComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'DCInformation' }, function (data) { });
+        }
+    }
+
+    function checkMDS() {
+        var y = document.getElementById("MDSContent").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('MDSComplete').innerHTML = 'Not Completed'
+            document.getElementById('MDSComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'False', strdetail: 'MDS' }, function (data) { });
+        } else {
+            document.getElementById('MDSComplete').innerHTML = 'Completed'
+            document.getElementById('MDSComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'MDS' }, function (data) { });
+        }
+    }
+
+    function checkMDSTherapy() {
+        var y = document.getElementById("MDSTherapyContent").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('MDSTherapyComplete').innerHTML = 'Not Completed'
+            document.getElementById('MDSTherapyComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'False', strdetail: 'MDSTherapy' }, function (data) { });
+        } else {
+            document.getElementById('MDSTherapyComplete').innerHTML = 'Completed'
+            document.getElementById('MDSTherapyComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'MDSTherapy' }, function (data) { });
+        }
+    }
+
+    function checkMedicalRecords() {
+        var y = document.getElementById("MedicalRecordsContent").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype') || hasClass(y[i], 'mroverride')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('MedicalRecordsComplete').innerHTML = 'Not Completed'
+            document.getElementById('MedicalRecordsComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'False', strdetail: 'MedicalRecords' }, function (data) { });
+        } else {
+            document.getElementById('MedicalRecordsComplete').innerHTML = 'Completed'
+            document.getElementById('MedicalRecordsComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'MedicalRecords' }, function (data) { });
+        }
+    }
+
+    function checkTherapy() {
+        var y = document.getElementById("TherapyContent").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype') || hasClass(y[i], 'therapyvisable')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('TherapyComplete').innerHTML = 'Not Completed'
+            document.getElementById('TherapyComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'False', strdetail: 'Therapy' }, function (data) { });
+        } else {
+            document.getElementById('TherapyComplete').innerHTML = 'Completed'
+            document.getElementById('TherapyComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'Therapy' }, function (data) { });
+        }
+    }
+
+    function checkNursing() {
+        var y = document.getElementById("NursingContent").getElementsByClassName("trerror")
+        var errorcounter = '0'
+        var i
+        for (i = 0; i < y.length; i++) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype')) {
+
+            } else {
+                errorcounter = '1'
+            }
+        }
+        if (errorcounter == '1') {
+            document.getElementById('NursingComplete').innerHTML = 'Not Completed'
+            document.getElementById('NursingComplete').className = 'notcompleted'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'False', strdetail: 'Nursing' }, function (data) { });
+        } else {
+            document.getElementById('NursingComplete').innerHTML = 'Completed'
+            document.getElementById('NursingComplete').className = 'completed'
+            $.get("/TripleCheck/savedetails", { strid: document.getElementById('txtID').value, stritem: 'True', strdetail: 'Nursing' }, function (data) { });
+        }
+    }
+
+    function parseDate(str) {
+        var mdy = str.split('/');
+        return new Date(mdy[2], mdy[0] - 1, mdy[1]);
+    }
+
+    function datediff(first, second) {
+        return Math.round((second - first) / (1000 * 60 * 60 * 24));
+    }
+</script>

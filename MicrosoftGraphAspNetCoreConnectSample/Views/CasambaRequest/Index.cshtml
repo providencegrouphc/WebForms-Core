@@ -1,0 +1,307 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/dropzone/dropzone.js"></script>
+<link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+<script src="~/js/jquery.inputmask.js"></script>
+<script src="~/js/moment.js"></script>
+<script src="~/js/bootstrap-maxlength.js"></script>
+
+<style>
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .dropzone {
+        border: 1px solid #aaa !important;
+        border-radius: 5px !important;
+        width: 280px;
+        margin-top: 15px;
+    }
+
+    .imgdiv {
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+        .imgdiv table {
+            width: 280px;
+            table-layout: fixed;
+        }
+
+    .imgdivtd {
+        width: 170px;
+        word-wrap: break-word;
+        padding-right: 10px
+    }
+
+    .yesno {
+        border: 1px solid #aaa;
+        background-color: white;
+        padding: 5px;
+        transition: 1s;
+        cursor: pointer;
+        width: 50px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+
+    textarea {
+        max-width: 600px !important;
+        height: 100px;
+    }
+</style>
+
+<script>
+    $(window).load(function () {
+        setTimeout(function () {
+            $("#alert").hide("slow");
+        }, 4000);
+        $("#txtRequestDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtHireDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+    });
+
+    $(function () {
+        $("#txtRequestDate").datepicker();
+        $("#txtHireDate").datepicker();
+    });
+</script>
+
+<h1>Casamba Request</h1>
+<hr />
+
+<div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
+    @Html.Raw(ViewData["Message"])
+</div>
+
+<div><b>Casamba Support Office Hours:</b> 7:00 AM - 7:00 PM PST / 10:00 AM - 10:00 PM EST</div>
+<div>Please call <a href="tel:19093673835">1-909-367-3835</a> for any URGENT cases.</div>
+<form asp-controller="CasambaRequest" asp-action="PostRequest" method="post">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Date of Request</div>
+            <div><input type="text" id="txtRequestDate" class="txtbox" name="txtRequestDate" value="@Html.Raw(ViewData["currentdate"])" /></div>
+            <div id="validateRequestDate" class="hidden">Please enter a valid date.</div>
+
+            <div class="txtlabel">Official Hire Date</div>
+            <div><input type="text" id="txtHireDate" class="txtbox" name="txtHireDate" /></div>
+            <div id="validateHireDate" class="hidden">Please enter a valid date.</div>
+
+            <div class="txtlabel">Facility</div>
+            <div>@Html.Raw(ViewData["facility"])</div>
+            <div id="validateFacility" class="hidden">Please select a facility.</div>
+        </div>
+    </div>
+    <hr />
+    <b>Employee Information</b>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">First Name</div>
+            <div><input type="text" id="txtFirstName" class="txtbox" name="txtFirstName" /></div>
+            <div id="validateFirstName" class="hidden">Please enter a first name.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Middle Name</div>
+            <div><input type="text" id="txtMiddleName" class="txtbox" name="txtMiddleName" /></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Last Name</div>
+            <div><input type="text" id="txtLastName" class="txtbox" name="txtLastName" /></div>
+            <div id="validateLastName" class="hidden">Please enter a last name.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Phone Number</div>
+            <div><input type="text" id="txtPhone" class="txtbox" name="txtPhone" /></div>
+            <div id="validatePhone" class="hidden">Please enter a phone number.</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Email</div>
+            <div><input type="text" id="txtEmployeeEmail" class="txtbox" name="txtEmployeeEmail" /></div>
+            <div id="validateEmployeeEmail" class="hidden">Please enter a email address.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Job Title</div>
+            <div><input type="text" id="txtEmployeeTitle" class="txtbox" name="txtEmployeeTitle" /></div>
+            <div id="validateEmployeeTitle" class="hidden">Please enter a title.</div>
+        </div>
+    </div>
+
+    <div class="txtlabel">Additional Information</div>
+    <div><textarea class="txtbox" style="height: 100px" id="txtNotes" name="txtNotes"></textarea></div>
+
+    <div style="margin-top:15px"><b>Who should we send credentials to? (Work Email Address Only)</b></div>
+    <div style="max-width: 600px">Let us know who we should send the Casamba username and password to. We will only send this to a work email address.</div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Name</div>
+            <div><input type="text" id="txtToName" class="txtbox" name="txtToName" /></div>
+            <div id="validateToName" class="hidden">Please enter a name.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Email Address</div>
+            <div><input type="text" id="txtToEmail" class="txtbox" name="txtToEmail" /></div>
+            <div id="validateToEmail" class="hidden">Please enter a email address.</div>
+        </div>
+    </div>
+
+    <hr />
+    <div><b>Requestor Information</b></div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Requestor Name</div>
+            <div><input type="text" id="txtRequestName" class="txtbox" name="txtRequestName" value="@Html.Raw(ViewData["username"])" /></div>
+            <div id="validateRequestName" class="hidden">Please enter a name.</div>
+        </div>
+        <div class="col-md-4">
+            <div class="txtlabel">Requestor Title</div>
+            <div><input type="text" id="txtRequestTitle" class="txtbox" name="txtRequestTitle" /></div>
+            <div id="validateRequestTitle" class="hidden">Please enter a title.</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="txtlabel">Requestor Email</div>
+            <div><input type="text" id="txtRequestEmail" class="txtbox" name="txtRequestEmail" value="@Html.Raw(ViewData["email"])" /></div>
+            <div id="validateRequestEmail" class="hidden">Please enter a email.</div>
+        </div>
+    </div>
+
+    <input type="text" class="hidden" id="strFacility" name="strFacility" />
+    <input type="text" class="hidden" id="strNotes" name="strNotes" />
+    <input type="button" id="subform" class="hidden" onclick="submit()" />
+</form>
+    <input id="btnSub" type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit" onclick="validatesub()" />
+
+<script>
+    function validatesub() {
+        var errors = 0
+
+        if (moment(document.getElementById('txtRequestDate').value).isValid()) {
+            document.getElementById('validateRequestDate').className = 'hidden'
+        } else {
+            document.getElementById('validateRequestDate').className = 'validation'
+            errors = 1
+        }
+
+        if (moment(document.getElementById('txtHireDate').value).isValid()) {
+            document.getElementById('validateHireDate').className = 'hidden'
+        } else {
+            document.getElementById('validateHireDate').className = 'validation'
+            errors = 1
+        }
+
+        if (document.getElementById('ddFacility').value == '') {
+            document.getElementById('validateFacility').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('strFacility').value = document.getElementById('ddFacility').value
+            document.getElementById('validateFacility').className = 'hidden'
+        }
+
+        if (document.getElementById('txtFirstName').value == '') {
+            document.getElementById('validateFirstName').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateFirstName').className = 'hidden'
+        }
+
+        if (document.getElementById('txtLastName').value == '') {
+            document.getElementById('validateLastName').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateLastName').className = 'hidden'
+        }
+
+        if (document.getElementById('txtPhone').value == '') {
+            document.getElementById('validatePhone').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validatePhone').className = 'hidden'
+        }
+
+        if (document.getElementById('txtEmployeeEmail').value == '') {
+            document.getElementById('validateEmployeeEmail').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateEmployeeEmail').className = 'hidden'
+        }
+
+        if (document.getElementById('txtEmployeeTitle').value == '') {
+            document.getElementById('validateEmployeeTitle').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateEmployeeTitle').className = 'hidden'
+        }
+
+        if (document.getElementById('txtToName').value == '') {
+            document.getElementById('validateToName').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateToName').className = 'hidden'
+        }
+
+        if (document.getElementById('txtToEmail').value == '') {
+            document.getElementById('validateToEmail').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateToEmail').className = 'hidden'
+        }
+
+        if (document.getElementById('txtRequestName').value == '') {
+            document.getElementById('validateRequestName').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateRequestName').className = 'hidden'
+        }
+
+        if (document.getElementById('txtRequestTitle').value == '') {
+            document.getElementById('validateRequestTitle').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateRequestTitle').className = 'hidden'
+        }
+
+        if (document.getElementById('txtRequestEmail').value == '') {
+            document.getElementById('validateRequestEmail').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateRequestEmail').className = 'hidden'
+        }
+
+        document.getElementById('strNotes').value = document.getElementById('txtNotes').value
+
+        if (errors == 0) {
+            document.getElementById('subform').click()
+        }
+
+    }
+</script>
+
+    <script src="~/lib/jquery/jquery.js"></script>
+    <script src="~/lib/select2/js/select2.js"></script>
+    <script type="text/javascript">
+        $.noConflict();
+        jQuery(document).ready(function ($) {
+            $("#ddFacility").select2();
+        });
+    </script>

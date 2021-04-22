@@ -13,76 +13,108 @@
             $("#alert").hide("slow");
 
         }, 2000);
-
-        var table = $('#example').DataTable({
-            responsive: true,
-            "order": [[6, "asc"]],
-            "columnDefs": [
-                { "targets": [0], "visible": false, "searchable": false },
-                { "targets": [8], "visible": false, "searchable": true }
-            ]
-        })
-
-        table
-            .columns(8)
-            .search('no')
-            .draw();
-
-
-        $('#example tbody').on('click', 'tr', function () {
-            var data = table.row(this).data();
-            document.getElementById('txtID').value = data[0]
-            document.getElementById('postsubmit').click()
-        });
     });
-
-    function checkchange(value) {
-        var table = $('#example').DataTable();
-        table.destroy();
-
-        var table = $('#example').DataTable({
-            responsive: true,
-            "order": [[6, "asc"]],
-            "columnDefs": [
-                { "targets": [0], "visible": false, "searchable": false },
-                { "targets": [8], "visible": false, "searchable": true }
-            ]
-        })
-
-        if (value.checked == true) {
-            table
-                .columns(8)
-                .search()
-                .draw();
-        } else {
-            table
-                .columns(8)
-                .search('no')
-                .draw();
-        }
-
-
-    }
 
 </script>
 
+<style>
+    .collapsible {
+        background-color: white;
+        color: black;
+        cursor: pointer;
+        padding: 5px 5px 5px 5px;
+        width: 100%;
+        border: 0px;
+        border-bottom: 1px solid black;
+        text-align: left;
+        outline: none;
+        font-size: 18px;
+        font-weight: 500;
+    }
 
-<h1>Supervisor View</h1>
+        .collapsible:hover {
+            background-color: #aaa;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: black;
+            font-weight: 500;
+            float: left;
+            margin-left: 5px;
+        }
+
+    .active:after {
+        content: "\2212";
+    }
+
+    .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: #f1f1f1;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    th {
+        border-bottom: 1px solid black
+    }
+
+    td {
+        padding: 5px;
+    }
+
+    tr {
+        border-bottom: 1px solid black
+    }
+</style>
+
+
+<h1>Pending Expenses</h1>
 <a href="/Expense">Return to Expense Home</a>
 
-<table style="width:100%">
-    <tr>
-        <td></td>
-        <td style="text-align:right; vertical-align:bottom"><label>Show Completed</label>&nbsp;&nbsp;<input type="checkbox" onclick="checkchange(this)" /></td>
+<div style="height:20px"></div>
+<a href="/Expense/SupSearch"><input type="button" class="btn btn-primary" value="Search Expenses" /></a>
+<div style="height:20px"></div>
 
-    </tr>
-</table>
 
-<br />
+@Html.Raw(ViewData["supexpenseg"])
 
-@Html.Raw(ViewData["supexpense"])
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    }
+
+
+    function quickapprove(ID) {
+        $.get("/Expense/QuickApprove", { stritem: ID }, function (data) {  });
+        document.getElementById(ID).className = 'hidden'
+    }
+
+    function goto(ID) {
+        document.getElementById('txtID').value = ID
+        document.getElementById('postsubmit').click()
+    }
+</script>
+
 
 <form asp-controller="Expense" asp-action="PostSupEdit" method="post">
     <input type="button" id="postsubmit" class="hidden" value="Submit" onclick="submit()" />
     <input type="text" id="txtID" class="hidden" name="txtID" />
+    <input type="text" id="txtRedirect" class="hidden" name="txtRedirect" value="Sup" />
 </form>
