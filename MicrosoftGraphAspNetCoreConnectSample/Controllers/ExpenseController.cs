@@ -41,6 +41,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Index(string strSave)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["Message"] = strSave;
             string accountcheck = await checkAccounting();
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
@@ -54,6 +55,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Sup()
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["supexpenseg"] = await getsupexpensegroup();
             return View();
@@ -62,6 +64,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> SupSearch()
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["supexpense"] = getsupexpense();
             return View();
@@ -70,6 +73,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Finance()
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["getfinance"] = await getfinexpensegroup();
             return View();
@@ -78,6 +82,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> SupEdit(string supeditid, string supredirect)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["supeditdata"] = await getsupedit(supeditid);
             ViewData["supredirect"] = supredirect;
@@ -87,6 +92,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> FinanceEdit(string editid)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["financeeditdata"] = await getfinanceedit(editid);
             return View();
@@ -95,6 +101,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(string editid)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["editdata"] =  getedit(editid);
 
@@ -107,6 +114,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> New()
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["userlist"] = await getusers("a");
             ViewData["curuser"] = User.Identity.Name;
@@ -236,11 +244,11 @@ namespace PGWebFormsCore.Controllers
 
                         if (Convert.ToString(idr["reimbursable"]) == "False")
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input id=\"cbreimbursable\" type=\"checkbox\" />&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input id=\"cbreimbursable\" type=\"checkbox\" />&nbsp;&nbsp;Reimbursable</div>";
                         }
                         else
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input id=\"cbreimbursable\" type=\"checkbox\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input id=\"cbreimbursable\" type=\"checkbox\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
                         returnvalue += "<div class=\"txtlabel\">* Category</div><div>" + getCatsEdit(Convert.ToString(idr["Category"])) + "</div>";
@@ -248,7 +256,7 @@ namespace PGWebFormsCore.Controllers
                         returnvalue += "<div class=\"txtlabel\">* Attendees</div><div><input type=\"text\" id=\"txtAttendees\" class=\"txtbox\" value=\"" + Convert.ToString(idr["Attendees"]) + "\"/></div>";
                         returnvalue += "<div id=\"validateAttendees\" class=\"hidden\">Please enter an attendee.</div>";
                         returnvalue += "<div class=\"txtlabel\">Description</div><div><input type=\"text\" id=\"txtDescription\" class=\"txtbox\" value=\"" + Convert.ToString(idr["ExpenseDescription"]) + "\"/></div>";
-                        returnvalue += "<div class=\"txtlabel\">* Report</div><div><select id=\"ddReport\" class=\"txtbox\" style=\"width: 280px!important\"><option>" + Convert.ToString(idr["Report"]) + "</option></select></div></div>";
+                        returnvalue += "<div class=\"hidden\">* Report</div><div class=\"hidden\"><select id=\"ddReport\" class=\"txtbox\" style=\"width: 280px!important\"><option>" + Convert.ToString(idr["Report"]) + "</option></select></div></div>";
                         returnvalue += "<div id=\"validateReport\" class=\"hidden\">Please select a report.</div>";
 
                     }
@@ -298,15 +306,15 @@ namespace PGWebFormsCore.Controllers
                         returnvalue += "<div class=\"txtlabel\">* Category</div><div>" + getCatsEdit(Convert.ToString(idr["Category"])) + "</div>";
                         returnvalue += "<div id=\"validateCategory\" class=\"hidden\">Please select a category.</div>";
                         returnvalue += "<div class=\"txtlabel\">Description</div><div><input type=\"text\" id=\"txtDescription\" class=\"txtbox\" value=\"" + Convert.ToString(idr["ExpenseDescription"]) + "\"/></div>";
-                        returnvalue += "<div class=\"txtlabel\">* Report</div><div><select id=\"ddReport\" class=\"txtbox\" style=\"width: 280px!important\"><option>" + Convert.ToString(idr["Report"]) + "</option></select></div>";
+                        returnvalue += "<div class=\"hidden\">* Report</div><div class=\"hidden\"><select id=\"ddReport\" class=\"txtbox\" style=\"width: 280px!important\"><option>" + Convert.ToString(idr["Report"]) + "</option></select></div>";
                         returnvalue += "<div id=\"validateReport\" class=\"hidden\">Please enter a valid date.</div>";
                         if (Convert.ToString(idr["reimbursable"]) == "False")
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" id=\"cbreimbursable\" />&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" id=\"cbreimbursable\" />&nbsp;&nbsp;Reimbursable</div>";
                         }
                         else
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" id=\"cbreimbursable\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" id=\"cbreimbursable\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
                         if (Convert.ToString(idr["ApprovalStatus"]) == "Approved")
@@ -384,16 +392,16 @@ namespace PGWebFormsCore.Controllers
 
                         if (Convert.ToString(idr["reimbursable"]) == "False")
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
                         } else
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
                         returnvalue += "<div class=\"txtlabel\">Category</div><div class=\"txtbox\" style=\"min-height:28px\">" + Convert.ToString(idr["Category"]) + "</div>";
                         returnvalue += "<div class=\"txtlabel\">Attendees</div><div class=\"txtbox\">" + Convert.ToString(idr["Attendees"]) + "</div>";
                         returnvalue += "<div class=\"txtlabel\">Description</div><div class=\"txtbox\" style=\"min-height:28px\">" + Convert.ToString(idr["ExpenseDescription"]) + "</div>";
-                        returnvalue += "<div class=\"txtlabel\">Report</div><div class=\"txtbox\">" + Convert.ToString(idr["Report"]) + "</div>";
+                        returnvalue += "<div class=\"hidden\">Report</div><div class=\"hidden\">" + Convert.ToString(idr["Report"]) + "</div>";
 
                         returnvalue += "</div><div class=\"col-md-4\">";
                         returnvalue += "<div id=\"imagelist\">" + await GetImages(Convert.ToString(idr["AttachmentID"])) + "</div>";
@@ -429,14 +437,14 @@ namespace PGWebFormsCore.Controllers
                         returnvalue += "</div><div class=\"col-md-4\">";
                         returnvalue += "<div class=\"txtlabel\">Category</div><div class=\"txtbox\" style=\"min-height:28px\">" + Convert.ToString(idr["Category"]) + "</div>";
                         returnvalue += "<div class=\"txtlabel\">Description</div><div class=\"txtbox\" style=\"min-height:28px\">" + Convert.ToString(idr["ExpenseDescription"]) + "</div>";
-                        returnvalue += "<div class=\"txtlabel\">Report</div><div class=\"txtbox\">" + Convert.ToString(idr["Report"]) + "</div>";
+                        returnvalue += "<div class=\"hidden\">Report</div><div class=\"hidden\">" + Convert.ToString(idr["Report"]) + "</div>";
                         if (Convert.ToString(idr["reimbursable"]) == "False")
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
                         }
                         else
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
                     }
@@ -446,17 +454,17 @@ namespace PGWebFormsCore.Controllers
                     returnvalue += "<textarea class=\"txtbox\" style=\"height:100px\" id=\"txtNotes\">" + Convert.ToString(idr["ApproveNotes"]) + "</textarea>";
                     returnvalue += "<div class=\"txtlabel\">Status</div>";
 
-                    if (Convert.ToString(idr["ApprovalStatus"]) == "Approved")
-                    {
-                        returnvalue += "<div class=\"txtbox\">Approved</div>";
-                        returnvalue += "<input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px; margin-top:15px;\" value=\"Submit\" onclick=\"validatesub()\" />";
-                    }
-                    else
-                    {
+                    //if (Convert.ToString(idr["ApprovalStatus"]) == "Approved")
+                    //{
+                    //    returnvalue += "<div class=\"txtbox\">Approved</div>";
+                    //    returnvalue += "<input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px; margin-top:15px;\" value=\"Submit\" onclick=\"validatesub()\" />";
+                    //}
+                    //else
+                    //{
                         returnvalue += "<select class=\"txtbox\" id=\"ddStatus\"><option>Approved</option><option>Declined</option></select>";
                         returnvalue += "<div><input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px; margin-top:15px;\" value=\"Submit\" onclick=\"validatesub()\" />";
                         returnvalue += "<input type=\"button\" class=\"btn btn-danger\" style=\"margin-bottom:10px; margin-top:15px; margin-left:30px\" value=\"Delete\" onclick=\"showdelexpense()\" /></div>";
-                    }
+                    //}
 
                     returnvalue += "</div></div>";
                 }
@@ -519,17 +527,17 @@ namespace PGWebFormsCore.Controllers
 
                         if (Convert.ToString(idr["reimbursable"]) == "False")
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
                         }
                         else
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
                         returnvalue += "<div class=\"txtlabel\">Category</div><div>" + getCatsEdit(Convert.ToString(idr["Category"])) + "</div>";
                         returnvalue += "<div class=\"txtlabel\">Attendees</div><div class=\"txtbox\">" + Convert.ToString(idr["Attendees"]) + "</div>";
                         returnvalue += "<div class=\"txtlabel\">Description</div><div class=\"txtbox\" style=\"min-height:28px\">" + Convert.ToString(idr["ExpenseDescription"]) + "</div>";
-                        returnvalue += "<div class=\"txtlabel\">Report</div><div class=\"txtbox\">" + Convert.ToString(idr["Report"]) + "</div>";
+                        returnvalue += "<div class=\"hidden\">Report</div><div class=\"hidden\">" + Convert.ToString(idr["Report"]) + "</div>";
                          
                         returnvalue += "</div><div class=\"col-md-4\">";
                         returnvalue += "<div id=\"imagelist\">" + await GetImages(Convert.ToString(idr["AttachmentID"])) + "</div>";
@@ -565,14 +573,14 @@ namespace PGWebFormsCore.Controllers
                         returnvalue += "</div><div class=\"col-md-4\">";
                         returnvalue += "<div class=\"txtlabel\">Category</div><div>" + getCatsEdit(Convert.ToString(idr["Category"])) + "</div>";
                         returnvalue += "<div class=\"txtlabel\">Description</div><div class=\"txtbox\" style=\"min-height:28px\">" + Convert.ToString(idr["ExpenseDescription"]) + "</div>";
-                        returnvalue += "<div class=\"txtlabel\">Report</div><div class=\"txtbox\">" + Convert.ToString(idr["Report"]) + "</div>";
+                        returnvalue += "<div class=\"hidden\">Report</div><div class=\"hidden\">" + Convert.ToString(idr["Report"]) + "</div>";
                         if (Convert.ToString(idr["reimbursable"]) == "False")
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" />&nbsp;&nbsp;Reimbursable</div>";
                         }
                         else
                         {
-                            returnvalue += "<div class=\"txtlabel\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
+                            returnvalue += "<div class=\"hidden\"><input type=\"checkbox\" disabled=\"disabled\" checked=\"checked\"/>&nbsp;&nbsp;Reimbursable</div>";
                         }
 
                         returnvalue += "<div id=\"imagelist\">" + await GetImages(Convert.ToString(idr["AttachmentID"])) + "</div>";
@@ -2414,7 +2422,7 @@ namespace PGWebFormsCore.Controllers
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select SubmitEmail, ExpenseTotal from Expense where year(ApprovalDate) = '"+txtYear+"' and month(ApprovalDate) = '"+txtMonth+ "' and ApprovalStatus = 'Approved' and FinanceApproved = 1";
+            var sqlcommandtext = "select SubmitEmail, sum(ExpenseTotal) from Expense where year(ApprovalDate) = '"+txtYear+"' and month(ApprovalDate) = '"+txtMonth+ "' and ApprovalStatus = 'Approved' and FinanceApproved = 1 group by SubmitEmail order by SubmitEmail";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();

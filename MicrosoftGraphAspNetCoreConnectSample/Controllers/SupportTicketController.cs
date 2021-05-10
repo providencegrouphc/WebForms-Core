@@ -45,6 +45,7 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Index(string strSave)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["Message"] = strSave;
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             ViewData["UID"] = InsertGUID();
@@ -52,23 +53,52 @@ namespace PGWebFormsCore.Controllers
             ViewData["username"] = User.Identity.Name;
             ViewData["email"] = User.FindFirst("preferred_username")?.Value;
             ViewData["facility"] = await operationlist();
-            ViewData["facilityapi"] = await operationlistapi();
+            //ViewData["facilityapi"] = await operationlistapi();
             return View();
         }
 
         [Authorize]
-        public async Task<IActionResult> Calendar()
+        public IActionResult Calendar()
         {
-            await docalendar();
+            ViewData["strtimes"] = docalendar();
             return View();
         }
 
-        public async Task<string> docalendar()
+        public string docalendar()
         {
-            var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
+            string strdate = "04/24/2021 1:00 pm";
+            DateTime dtdate = DateTime.Parse(strdate);
+            DateTime edtdate = dtdate.AddMinutes(15);
 
-            await GraphService.SendCalendar(graphClient);
-            return "";
+            
+            string strmin = "";
+
+            if (dtdate.Minute.ToString().Length == 1)
+            {
+                strmin = "0" + dtdate.Minute.ToString();
+            } else
+            {
+                strmin = dtdate.Minute.ToString();
+            }
+
+            strdate = dtdate.Year.ToString() + "-" + dtdate.Month.ToString() + "-" + dtdate.Day.ToString() + "T";
+            strdate += dtdate.Hour.ToString() + ":" + strmin + ":00";
+
+            if (edtdate.Minute.ToString().Length == 1)
+            {
+                strmin = "0" + edtdate.Minute.ToString();
+            }
+            else
+            {
+                strmin = edtdate.Minute.ToString();
+            }
+
+            string stredate = edtdate.Year.ToString() + "-" + edtdate.Month.ToString() + "-" + edtdate.Day.ToString() + "T";
+            stredate += edtdate.Hour.ToString() + ":" + strmin + ":00";
+            //2021-04-23T12:30:00
+
+            //await GraphService.SendCalendar(graphClient);
+            return strdate + "    " + stredate;
         }
 
             public string getGUID()
@@ -103,7 +133,7 @@ namespace PGWebFormsCore.Controllers
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
-            SqlCommand cmd = new SqlCommand("select * from ticketIssueTypes ORDER BY TICKETISSUETYPESORTORDER", con);
+            SqlCommand cmd = new SqlCommand("select ticketIssueType, case when ticketIssueTypeAction = 'email' then ticketIssueTypeTarget + '$$$' + cast(t2tickets as varchar(1)) else ticketIssueTypeTarget end as 'ticketissuetypetarget' from ticketIssueTypes", con);
             con.Open();
             SqlDataReader idr = cmd.ExecuteReader();
 
@@ -457,7 +487,7 @@ namespace PGWebFormsCore.Controllers
         public async Task<IActionResult> PostTicket(
             string strFacility, string txtName, string txtEmail, string txtPhone,
             string strContactM, string txtContactDT, string txtShared, string txtMore,
-            string strNotes, string strType, string strTypeAction, string strUID)
+            string strNotes, string strType, string strTypeAction, string strUID, string txttimezone)
         {
             try { 
             if (txtMore == "Yes")
@@ -476,7 +506,20 @@ namespace PGWebFormsCore.Controllers
                 txtShared = "False";
             }
 
-            var connection = _configuration.GetConnectionString("pgWebForm");
+                if (txtContactDT is null)
+                {
+                    txtContactDT = "";
+                }
+
+
+
+                string nexttech = "";
+                if (strContactM == "Phone" && txtContactDT != "")
+                {
+                    nexttech = getnexttech();
+                }
+
+                var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
             SqlCommand cmd = new SqlCommand();
             cmd = new SqlCommand("sp_SupportTicket_Add", con);
@@ -491,8 +534,10 @@ namespace PGWebFormsCore.Controllers
             cmd.Parameters.Add("@Performance", SqlDbType.Bit).Value = txtShared;
             cmd.Parameters.Add("@More", SqlDbType.Bit).Value = txtMore;
             cmd.Parameters.Add("@Notes", SqlDbType.VarChar).Value = strNotes;
+                cmd.Parameters.Add("@TimeZone", SqlDbType.VarChar).Value = txttimezone;
+                cmd.Parameters.Add("@ContactTech", SqlDbType.VarChar).Value = nexttech;
 
-            con.Open();
+                con.Open();
             cmd.ExecuteNonQuery();
             con.Close();
 
@@ -501,13 +546,14 @@ namespace PGWebFormsCore.Controllers
             string subject = "Support Ticket--"+strType;
             string body = "";
 
-            body += "<b>Type of Issue:</b> " + strType + "<br/>";
+                body += "<b>Web ID:</b> " + strUID + "<br/>";
+                body += "<b>Type of Issue:</b> " + strType + "<br/>";
             body += "<b>Facility:</b> " + strFacility + "<br/>";
             body += "<b>Name:</b> " + txtName + "<br/>";
             body += "<b>Email:</b> " + txtEmail + "<br/>";
             body += "<b>Phone:</b> " + txtPhone + "<br/>";
             body += "<b>Preferred Contact Method:</b> " + strContactM + "<br/>";
-            body += "<b>Best time to contact:</b> " + txtContactDT + "<br/>";
+            body += "<b>Best time to contact:</b> " + txtContactDT + " " + txttimezone + "<br/>";
             body += "<b>Interfering with job performance:</b> " + txtShared + "<br/>";
             body += "<b>Impacting more than just them:</b> " + txtMore + "<br/>";
 
@@ -521,17 +567,113 @@ namespace PGWebFormsCore.Controllers
 
             body += "<b>Details:</b> " + strNotes + "<br/>";
 
-
+                string[] splitaction = strTypeAction.Split("$$$");
+                string sendemailto = splitaction[0];
 
             await GraphService.SendEmail(graphClient, _env, "daniel.stump@pacshc.com", HttpContext, subject, body);
 
-            
-            return RedirectToAction("Index", new { strSave = "Success! Your support ticket was submitted." });
+                if (strContactM == "Phone" && txtContactDT != "")
+                {
+                    string strdate = txtContactDT;
+                    DateTime dtdate = DateTime.Parse(strdate);
+                    DateTime edtdate = dtdate.AddMinutes(15);
+
+
+                    string strmin = "";
+                    string strhour = "";
+
+                    if (dtdate.Minute.ToString().Length == 1)
+                    {
+                        strmin = "0" + dtdate.Minute.ToString();
+                    }
+                    else
+                    {
+                        strmin = dtdate.Minute.ToString();
+                    }
+
+                    if (dtdate.Hour.ToString().Length == 1)
+                    {
+                        strhour = "0" + dtdate.Hour.ToString();
+                    } else
+                    {
+                        strhour = dtdate.Hour.ToString();
+                    }
+
+                    strdate = dtdate.Year.ToString() + "-" + dtdate.Month.ToString() + "-" + dtdate.Day.ToString() + "T";
+                    strdate += strhour + ":" + strmin + ":00";
+
+                    if (edtdate.Minute.ToString().Length == 1)
+                    {
+                        strmin = "0" + edtdate.Minute.ToString();
+                    }
+                    else
+                    {
+                        strmin = edtdate.Minute.ToString();
+                    }
+
+                    if (edtdate.Hour.ToString().Length == 1)
+                    {
+                        strhour = "0" + edtdate.Hour.ToString();
+                    }
+                    else
+                    {
+                        strhour = edtdate.Hour.ToString();
+                    }
+
+
+                    string stredate = edtdate.Year.ToString() + "-" + edtdate.Month.ToString() + "-" + edtdate.Day.ToString() + "T";
+                    stredate += strhour + ":" + strmin + ":00";
+
+                    await GraphService.SendCalendar(graphClient, body, strdate, stredate, txttimezone, "daniel.stump@pacshc.com");
+                }
+                
+
+                return RedirectToAction("Index", new { strSave = "Success! Your support ticket was submitted." });
             }
             catch (ServiceException se)
             {
                 return RedirectToAction("Error", "Home", new { message = "Error: " + se.Error.Message });
             }
+        }
+
+        public string getnexttech()
+        {
+
+            string operations = "";
+            string sqltext = "";
+            sqltext += "select ";
+            sqltext += "case when ";
+            sqltext += "(select top 1 TechNumber from SupportTicketTechs order by TechNumber desc) ";
+            sqltext += "= ";
+            sqltext += "(select technumber from SupportTicketTechs where TechEmail = ( ";
+            sqltext += "select top 1 contacttech from SupportTicket where ContactTech is not null and ContactTech <> '' order by LogDate desc)) ";
+            sqltext += "then ";
+            sqltext += "(select techemail from SupportTicketTechs where TechNumber = 1) ";
+            sqltext += "else ";
+            sqltext += "(select techemail from SupportTicketTechs where TechNumber = ";
+            sqltext += "(select technumber + 1 from SupportTicketTechs where TechEmail = ( ";
+            sqltext += "select top 1 contacttech from SupportTicket where ContactTech is not null  and ContactTech <> '' order by LogDate desc))) ";
+            sqltext += "end ";
+            sqltext += "as nexttech ";
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand(sqltext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+                        operations = Convert.ToString(idr["nexttech"]);
+                }
+            }
+            con.Close();
+
+
+            return operations;
+
         }
 
     }

@@ -1,4 +1,21 @@
-﻿
+﻿@if (!User.Identity.IsAuthenticated)
+{
+<br />
+<p>Choose <b>Sign in</b> at the top of the page.</p>
+}
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (ViewData["checkauth"].ToString() == "0")
+    {
+<p>You are not authorized to view this page.</p>
+    }
+
+    if (ViewData["checkauth"].ToString() == "1")
+    {
+
+@Html.Raw(ViewData["sidebar"])
 <script src="~/js/jquery-1.12.4.js"></script>
 <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
 <script src="~/js/UI/jquery-ui.js"></script>
@@ -52,11 +69,34 @@
     .validation {
         color: red;
     }
+
+    .transfer th, td {
+        text-align: left;
+        padding: 8px;
+    }
+
+    .transfer th {
+        border-bottom: 1px solid black;
+        border-top: 1px solid black;
+    }
+
+    .transfer td {
+        border-bottom: 1px solid #aaa
+    }
 </style>
 
 <script>
     $(window).load(function () {
         facilitychange()
+    });
+
+
+    jQuery(document).ready(function ($) {
+        $('.transfer tr').click(function (event) {
+            if (event.target.type !== 'checkbox') {
+                $(':checkbox', this).trigger('click');
+            }
+        });
     });
 </script>
 
@@ -69,18 +109,22 @@
             <div class="txtlabel">Facility</div>
             <div>@Html.Raw(ViewData["facility"])</div>
 
-            
+
             <div id="divMonth">
             </div>
         </td>
         <td style="padding-left:20px; vertical-align:bottom;">
             <input type="button" id="addpatient" class="hidden" style="margin-top:10px;" value="Add Patient" onclick="add()" />
-            
+
         </td>
     </tr>
 </table>
-<hr/>
-<a href="#" onclick="showtransfer" id="linkTransfer" class="hidden" style="font-weight:bold">Transfer patients to next month</a>
+<hr />
+<div id="linkTransfer" class="hidden">
+    <a href="#" id="printlist" target="_blank" style="font-weight:bold">Print List</a><br />
+    <a href="#" onclick="showtransfer()" style="font-weight:bold">Transfer patients to another month</a>
+</div>
+
 <div style="height:10px"></div>
 <div id="resultstable"></div>
 
@@ -106,21 +150,23 @@
             document.getElementById('divMonth').innerHTML = ''
         } else {
             $.get("/TripleCheck/getmonths", { strfac: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divMonth').innerHTML = data });
-            
         }
 
 
     }
 
     function monthchange() {
-        
+
         if (document.getElementById('ddReportMonth').value == '') {
             document.getElementById('addpatient').className = "hidden"
             document.getElementById('resultstable').innerHTML = ""
             document.getElementById('linkTransfer').className = 'hidden'
         } else {
             document.getElementById('addpatient').className = "btn btn-primary"
-            $.get("/TripleCheck/IndexTable", { stritem: document.getElementById('ddReportMonth').value, facid: document.getElementById('ddFacility').value }, function (data) {starttable(data) });            
+            $.get("/TripleCheck/IndexTable", { stritem: document.getElementById('ddReportMonth').value, facid: document.getElementById('ddFacility').value }, function (data) { starttable(data) });
+            $.get("/TripleCheck/TransferTable", { stritem: document.getElementById('ddReportMonth').value, facid: document.getElementById('ddFacility').value }, function (data) {
+                document.getElementById('transfertable').innerHTML = data
+            });
         }
     }
 
@@ -132,7 +178,7 @@
 
     function starttable(data) {
         document.getElementById('resultstable').innerHTML = data
-        
+
         var table = $('#example').DataTable({
             responsive: true,
             "order": [[1, "asc"]],
@@ -149,14 +195,74 @@
 
         if (table.rows().count() > 0) {
             document.getElementById('linkTransfer').className = ''
+            var passid = document.getElementById('ddFacility').value
+            var passid2 = document.getElementById('ddReportMonth').value
+            document.getElementById("printlist").href = '/api/pdfcreator?report=tclist&&passid=' + passid + '&&passid2=' + passid2
         } else {
             document.getElementById('linkTransfer').className = 'hidden'
         }
-        
+
         table.draw()
-        
+
     }
 </script>
+
+
+<script>
+    function showtransfer() {
+
+        $("#showtransfer").dialog({
+            resizable: false,
+            height: "auto",
+            width: "80%",
+            modal: true
+        });
+    };
+
+    function dotransfer() {
+        $("input:checkbox[name=cbtransfer]:checked").each(function () {
+            $.get("/TripleCheck/DoTransfer", { strid: $(this).val(), intmonth: document.getElementById('ddReportMonthTransfer').value, strmonth: document.getElementById('ddReportMonthTransfer').options[document.getElementById('ddReportMonthTransfer').selectedIndex].text }, function (data) { });
+        });
+        $('#showtransfer').dialog('close');
+        complete()
+    }
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="showtransfer" title="Transfer">
+        @Html.Raw(ViewData["monthstransfer"])
+        <div style="height:10px;"></div>
+        <div id="transfertable"></div>
+        <br />
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" onclick="dotransfer()">Transfer</button>
+            <button type="button" class="btn btn-secondary" onclick="$('#showtransfer').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function complete() {
+
+        $("#complete").dialog({
+            resizable: false,
+            height: "auto",
+            width: "300px",
+            modal: true
+        });
+    };
+</script>
+
+<div style="visibility:hidden; height:0px; display:none">
+    <div id="complete" title="Transfer">
+        <div>Transfer Complete!</div>
+        <br />
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="$('#complete').dialog('close');">Close</button>
+        </div>
+    </div>
+</div>
 
 <script src="~/lib/jquery/jquery.js"></script>
 <script src="~/lib/select2/js/select2.js"></script>
@@ -168,3 +274,5 @@
     });
 
 </script>
+}
+}

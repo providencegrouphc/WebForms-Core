@@ -1,4 +1,19 @@
-﻿
+﻿@if (!User.Identity.IsAuthenticated)
+{
+<br />
+                <p>Choose <b>Sign in</b> at the top of the page.</p>}
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (ViewData["checkauth"].ToString() == "0")
+    {
+<p>You are not authorized to view this page.</p> }
+
+    if (ViewData["checkauth"].ToString() == "1")
+    {
+
+@Html.Raw(ViewData["sidebar"])
 <script src="~/js/jquery-1.12.4.js"></script>
 <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
 <script src="~/js/UI/jquery-ui.js"></script>
@@ -66,7 +81,7 @@
     </tr>
     <tr>
         <td>
-            <div><input type="text" class="txtbox" id="txtMedical"/></div>
+            <div><input type="text" class="txtbox" id="txtMedical" /></div>
         </td>
     </tr>
     <tr>
@@ -79,7 +94,7 @@
 <form asp-controller="TripleCheck" asp-action="AddPatient" method="post" id="ticketform" class="hidden">
     <input type="text" id="txtFacility" name="txtFacility" />
     <input type="text" id="txtMedicalID" name="txtMedicalID" />
-    <input type="text" id="txtReportMonth" name="txtReportMonth" value="@Html.Raw(ViewData["reportmonth"])"/>
+    <input type="text" id="txtReportMonth" name="txtReportMonth" value="@Html.Raw(ViewData["reportmonth"])" />
     <input type="button" id="subTicket" class="hidden" onclick="submit()" />
 </form>
 
@@ -99,3 +114,5 @@
         document.getElementById('subTicket').click()
     }
 </script>
+    }
+}

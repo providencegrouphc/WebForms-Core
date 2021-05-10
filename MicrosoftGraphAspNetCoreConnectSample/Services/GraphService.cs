@@ -553,7 +553,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
             await graphClient.Me.SendMail(email, true).Request().PostAsync();
         }
 
-        public static async Task SendCalendar(GraphServiceClient graphClient)
+        public static async Task SendCalendar(GraphServiceClient graphClient, string body, string starttime, string endtime, string timezone, string tech)
         {
             var @event = new Event
             {
@@ -561,17 +561,17 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
                 Body = new ItemBody
                 {
                     ContentType = BodyType.Html,
-                    Content = "IT Support will be contacting you about your issue at this time."
+                    Content = body
                 },
                 Start = new DateTimeTimeZone
                 {
-                    DateTime = "2021-04-23T12:00:00",
-                    TimeZone = "Mountain Standard Time"
+                    DateTime = starttime,
+                    TimeZone = timezone
                 },
                 End = new DateTimeTimeZone
                 {
-                    DateTime = "2021-04-23T12:30:00",
-                    TimeZone = "Mountain Standard Time"
+                    DateTime = endtime,
+                    TimeZone = timezone
                 },
                 Attendees = new System.Collections.Generic.List<Attendee>()
     {
@@ -579,7 +579,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
         {
             EmailAddress = new EmailAddress
             {
-                Address = "daniel.stump@pacshc.com"
+                Address = tech
             },
             Type = AttendeeType.Required
         }

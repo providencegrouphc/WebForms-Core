@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <parameters>
   <parameter name="IIS Web Application Name" description="" value="pgwebforms-core" tags="IisApp">
-    <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\daniel\.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\obj\\Release\\netcoreapp3\.1\\PubTmp\\Out\\$" />
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\daniel\.stump\\Desktop\\New\ Projet\\MicrosoftGraphAspNetCoreConnectSample\\obj\\Release\\netcoreapp3\.1\\PubTmp\\Out\\$" />
   </parameter>
 </parameters>

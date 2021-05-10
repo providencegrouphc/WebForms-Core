@@ -40,24 +40,34 @@ namespace PGWebFormsCore.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["facility"] = await operationlist();
+            ViewData["monthstransfer"] = getmonthstransfer();
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "TripleCheck");
+            ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             return View();
         }
 
         [Authorize]
-        public IActionResult Add(string passid, string passmonth)
+        public async Task<IActionResult> Add(string passid, string passmonth)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["facilityid"] = passid;
             ViewData["reportmonth"] = passmonth;
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "TripleCheck");
+            ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             return View();
         }
 
         [Authorize]
-        public IActionResult Record(string passid)
+        public async Task<IActionResult> Record(string passid)
         {
+            await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
+            ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "TripleCheck");
+            ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             getdetails(passid);
             ViewData["saveddata"] = getsaves(passid);
-            ViewData["getrecert"] = getrecerts(passid);
+            //ViewData["getrecert"] = getrecerts(passid);
             ViewData["teamdata"] = getteam(passid);
             ViewData["teameditdata"] = getteamedit(passid);
             ViewData["username"] = User.Identity.Name;
@@ -333,6 +343,56 @@ namespace PGWebFormsCore.Controllers
             return "";
         }
 
+        [HttpPost]
+        public IActionResult subnotes(string txtnotesid, string txtpartialnots)
+        {
+            if (txtpartialnots is null)
+            {
+                txtpartialnots = "";
+            }
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand();
+            cmd = new SqlCommand("sp_TripleCheck_SaveNotes", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@RecordID", SqlDbType.VarChar).Value = txtnotesid;
+            cmd.Parameters.Add("@Notes", SqlDbType.VarChar).Value = txtpartialnots;
+
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+            return View("NotesPartial");
+        }
+
+        [HttpPost]
+        public JsonResult AjaxMethod(string id, string notes)
+        {
+            if (notes is null)
+            {
+                notes = "";
+            }
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand();
+            cmd = new SqlCommand("sp_TripleCheck_SaveNotes", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@RecordID", SqlDbType.VarChar).Value = id;
+            cmd.Parameters.Add("@Notes", SqlDbType.VarChar).Value = notes;
+
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+
+            return Json(notes);
+        }
+
+
         public string removerecords(string strid, string strparent)
         {
 
@@ -412,6 +472,25 @@ namespace PGWebFormsCore.Controllers
             return returntext;
         }
 
+        public string getmonthstransfer()
+        {
+            string returntext = "<div class=\"txtlabel\">Transfer to Month</div><select class=\"txtbox\" id=\"ddReportMonthTransfer\">";
+
+                string curmonth = DateTime.Now.ToString("MMMM");
+                string curmontshort = DateTime.Now.ToString("MM");
+                string curyear = DateTime.Now.ToString("yyyy");
+                string nextmonth = DateTime.Now.AddMonths(1).ToString("MMMM");
+                string nextmonthshort = DateTime.Now.AddMonths(1).ToString("MM");
+                string nextyear = DateTime.Now.AddMonths(1).ToString("yyyy");
+
+                returntext += "<option value=\"" + curyear + curmontshort + "\">" + curmonth + " " + curyear + "</option>";
+                returntext += "<option value=\"" + nextyear + nextmonthshort + "\">" + nextmonth + " " + nextyear + "</option>";
+
+
+            returntext += "</select>";
+            return returntext;
+        }
+
         public string getdetails(string passid)
         {
 
@@ -453,6 +532,7 @@ namespace PGWebFormsCore.Controllers
                     ViewData["staydate"] = smonth + "/" + sday + "/" + syear;
 
                     ViewData["InitialCert"] = staystart.AddDays(3).ToShortDateString();
+                    
 
                     ViewData["ReCert"] = staystart.AddDays(14).ToShortDateString();
 
@@ -675,6 +755,51 @@ namespace PGWebFormsCore.Controllers
             return prepaidtable;
         }
 
+        public string TransferTable(string stritem, string facid)
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select * from TripleCheck_Records where FacilityID = '" + facid + "' and INTMonth = '" + stritem + "' and deleted = 0";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string prepaidtable = "<table class=\"transfer\" style=\"width:100%\">";
+            prepaidtable += "<thead>";
+            prepaidtable += "<tr>";
+            prepaidtable += "<th></th>";
+            prepaidtable += "<th>Medical ID</th>";
+            prepaidtable += "<th>Patient</th>";
+            prepaidtable += "<th>Stay Start</th>";
+            prepaidtable += "</tr>";
+            prepaidtable += "</thead>";
+            prepaidtable += "<tbody>";
+
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+
+                    prepaidtable += "<tr>";
+                    prepaidtable += "<td><input type=\"checkbox\" name=\"cbtransfer\" value=\""+ Convert.ToString(idr["id"])  + "\"/></td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["medicalid"]) + "</td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["firstname"]) + " " + Convert.ToString(idr["lastname"]) + "</td>";
+
+                    DateTime staystart = Convert.ToDateTime(idr["startstay"]);
+                    prepaidtable += "<td>" + staystart.ToShortDateString() + "</td>";                  
+
+                    prepaidtable += "</tr>";
+                }
+            }
+            con.Close();
+
+            prepaidtable += "</tbody></table>";
+
+            return prepaidtable;
+        }
+
         public async Task<string> operationlist()
         {
             var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
@@ -857,6 +982,30 @@ namespace PGWebFormsCore.Controllers
 
 
             return RedirectToAction("Record", new { passid = returntext });
+        }
+
+        public string DoTransfer(string strid, string intmonth, string strmonth)
+        {
+            var username = User.Identity.Name;
+            var email = User.FindFirst("preferred_username")?.Value;
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand();
+            cmd = new SqlCommand("sp_TripleCheck_Transfer", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@CreateBy", SqlDbType.VarChar).Value = username;
+            cmd.Parameters.Add("@CreateEmail", SqlDbType.VarChar).Value = email;
+            cmd.Parameters.Add("@ID", SqlDbType.VarChar).Value = strid;
+            cmd.Parameters.Add("@INTMONTH", SqlDbType.Int).Value = intmonth;
+            cmd.Parameters.Add("@REPORTMONTH", SqlDbType.VarChar).Value = strmonth;
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+
+            return "";
         }
     }
 }

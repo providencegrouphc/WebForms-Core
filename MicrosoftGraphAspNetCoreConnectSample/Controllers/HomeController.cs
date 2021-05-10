@@ -41,6 +41,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
+                await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
                 var connection = _configuration.GetConnectionString("pgWebForm");
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
                 email = User.FindFirst("preferred_username")?.Value;

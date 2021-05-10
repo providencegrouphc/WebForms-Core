@@ -16,6 +16,8 @@ using Microsoft.Extensions.Hosting;
 using MicrosoftGraphAspNetCoreConnectSample.Extensions;
 using MicrosoftGraphAspNetCoreConnectSample.Services;
 using Microsoft.AspNetCore.Session;
+using WkHtmlToPdfDotNet;
+using WkHtmlToPdfDotNet.Contracts;
 
 namespace MicrosoftGraphAspNetCoreConnectSample
 {
@@ -50,6 +52,9 @@ namespace MicrosoftGraphAspNetCoreConnectSample
             })
             .AddAzureAd(options => Configuration.Bind("AzureAd", options))
             .AddCookie();
+
+            services.AddSingleton(typeof(IConverter),
+            new SynchronizedConverter(new PdfTools()));
 
             services.AddMvc();
             services.AddControllers();

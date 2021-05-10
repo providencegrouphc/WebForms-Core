@@ -1,6 +1,7 @@
 ﻿@Html.Raw(ViewData["sidebar"])
 <script src="~/js/dropzone/dropzone.js"></script>
 <link rel="stylesheet" href="~/js/dropzone/dropzone.css" type="text/css" />
+<link rel="stylesheet" type="text/css" href="https://www.jqueryscript.net/demo/Clean-jQuery-Date-Time-Picker-Plugin-datetimepicker/jquery.datetimepicker.css" />
 
 <script src="~/js/jquery-1.12.4.js"></script>
 <link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
@@ -16,6 +17,13 @@
         border-radius: 4px;
         height: 28px;
         width: 100% !important;
+    }
+
+    .txtbox2 {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
     }
 
     .txtlabel {
@@ -60,6 +68,27 @@
         border-radius: 5px;
         text-align: center;
     }
+
+    .xdsoft_time_variant .xdsoft_disabled {
+        display: none;
+        visibility: hidden;
+    }
+
+    .xdsoft_calendar th:first-child {
+        display: none;
+    }
+
+    .xdsoft_calendar td:first-child {
+        display: none;
+    }
+
+    .xdsoft_calendar th:last-child {
+        display: none;
+    }
+
+    .xdsoft_calendar td:last-child {
+        display: none;
+    }
 </style>
 
 <script>
@@ -68,15 +97,20 @@
             $("#alert").hide("slow");
         }, 4000);
 
+
+
+
+        document.getElementById('txttimezone').value = Intl.DateTimeFormat().resolvedOptions().timeZone
+
         //alert(Intl.DateTimeFormat().resolvedOptions().timeZone)
-        alert(@Html.Raw(ViewData["facilityapi"]))
-        console.log(@Html.Raw(ViewData["facilityapi"]))
+        //alert(@Html.Raw(ViewData["facilityapi"]))
+        //console.log(@Html.Raw(ViewData["facilityapi"]))
     });
 </script>
 
 <h1>Support Ticket</h1>
 <hr />
-<textarea>@Html.Raw(ViewData["facilityapi"])</textarea>
+
 <div id="alert" class="alert alert-info @(ViewData["Message"] == null ? "hidden" : null)" role="alert">
     @Html.Raw(ViewData["Message"])
 </div>
@@ -104,13 +138,26 @@
             <div id="validatePhone" class="hidden">Please enter a phone number.</div>
 
             <div class="txtlabel">Preferred Contact Method</div>
-            <div><input type="radio" id="rdPhone" name="rdContact" /> Phone</div>
-            <div><input type="radio" id="rdEmail" name="rdContact" /> Email</div>
+            <div><input type="radio" id="rdPhone" name="rdContact" onchange="showschedule()" /><label for="rdPhone" style="font-weight:normal">&nbsp;&nbsp;Phone</label></div>
+            <div><input type="radio" id="rdEmail" name="rdContact" onchange="showschedule()" /><label for="rdEmail" style="font-weight:normal">&nbsp;&nbsp;Email</label></div>
             <div id="validateContactM" class="hidden">Please select a contact method.</div>
 
-            <div class="txtlabel">When is the best time to contact you?</div>
-            <div><input type="text" maxlength="500" id="txtContactDT" class="txtbox" name="txtContactDT" /></div>
-            <div id="validateContactDT" class="hidden">Please enter a time for contact.</div>
+            <div id="showschedule" class="hidden">
+                <div class="txtlabel">Schedule a time to be called</div>
+                <input id="schedtext" class="txtbox" disabled="disabled" />
+                <div style="height:5px"></div>
+                <div id="fakebox">
+                    <input type="text" id="datetimepicker2" name="datetimepicker2" class="txtbox" disabled="disabled" />
+                </div>
+                <input type="text" id="txttimezone" name="txttimezone" class="hidden" />
+                <div id="selectedtime">
+
+                </div>
+            </div>
+
+            @*<div class="txtlabel">When is the best time to contact you?</div>
+        <div><input type="text" maxlength="500" id="txtContactDT" class="txtbox" name="txtContactDT" /></div>
+        <div id="validateContactDT" class="hidden">Please enter a time for contact.</div>*@
 
             <div class="txtlabel">Is this interfering with the performace of your job?</div>
             <div onclick="changeyesno()"><input type="text" disabled="disabled" value="No" style="cursor:pointer" maxlength="25" id="txtShared" class="txtbox" name="txtShared" /></div>
@@ -122,6 +169,7 @@
             <textarea style="height:100px" class="txtbox" id="txtNotes" name="txtNotes"></textarea>
             <div id="validateNotes" class="hidden">Please enter some details.</div>
 
+            <input type="text" class="hidden" id="txtContactDT" name="txtContactDT" />
             <input type="text" class="hidden" id="strType" name="strType" />
             <input type="text" class="hidden" id="strTypeAction" name="strTypeAction" />
             <input type="text" class="hidden" id="strContactM" name="strContactM" />
@@ -174,6 +222,7 @@ new
 
             </script>
         }
+
     </div>
 
 </div>
@@ -186,10 +235,26 @@ new
 </div>
 
 <script>
+    function showschedule() {
+        if (document.getElementById('rdPhone').checked == true) {
+            var t2 = document.getElementById('ddType').value
+            var t2spit = t2.split("$$$")
+            if (t2spit[1] == '0') {
+                document.getElementById('showschedule').className = ''
+            } else {
+                document.getElementById('showschedule').className = 'hidden'
+            }
+            
+        } else {
+            document.getElementById('showschedule').className = 'hidden'
+        }
+    }
+
     function typechange(ddemail, ddoption) {
         $.get("/SupportTicket/TypeChange", { strid: document.getElementById('UID').value, stroption: ddoption }, function (data) { });
         document.getElementById('strTypeAction').value = ddemail
         document.getElementById('strType').value = ddoption
+        document.getElementById('showschedule').className = 'hidden'
 
         if (ddemail.indexOf('http') !== -1) {
             document.getElementById('linkinfo').className = ''
@@ -208,6 +273,7 @@ new
             document.getElementById('ticketform').className = ''
             document.getElementById('uploadform').className = 'col-md-4'
             document.getElementById('btnSub').className = 'btn btn-primary'
+            showschedule()
         }
     }
 
@@ -275,29 +341,104 @@ new
             errors = 1
         }
 
-        if (document.getElementById('txtContactDT').value == '') {
-            document.getElementById('validateContactDT').className = 'validation'
-            errors = 1
-        } else {
-            document.getElementById('validateContactDT').className = 'hidden'
-        }
+        //if (document.getElementById('txtContactDT').value == '') {
+        //    document.getElementById('validateContactDT').className = 'validation'
+        //    errors = 1
+        //} else {
+        //    document.getElementById('validateContactDT').className = 'hidden'
+        //}
 
         if (document.getElementById('txtNotes').value == '') {
             document.getElementById('validateNotes').className = 'validation'
             errors = 1
         } else {
             document.getElementById('validateNotes').className = 'hidden'
+            document.getElementById('strNotes').value = document.getElementById('txtNotes').value
         }
 
-        document.getElementById('strNotes').value = document.getElementById('txtNotes').value
-
+        
+        
         if (errors == 0) {
             document.getElementById('subTicket').click()
         }
     }
 </script>
+<script src="https://www.jqueryscript.net/demo/Clean-jQuery-Date-Time-Picker-Plugin-datetimepicker/jquery.datetimepicker.js"></script>
+<script>
 
 
+    var d = new Date()
+    var da = 1
+    if (d.getDay() == 5) {
+        da = 3
+    }
+
+    if (d.getDay() == 6) {
+        da = 2
+    }
+
+    d.setDate(d.getDate() + da)
+
+    var min = d.getMinutes();
+    if (min < 10) {
+        min = "0" + min.toString();
+    }
+
+    var ampm = ' am';
+    var hours = d.getHours();
+    if (hours > 16) {
+        hours = 16
+        min = "30"
+    }
+    if (hours < 9) {
+        hours = 9
+        min = "00"
+    }
+
+    if (hours > 12) {
+        hours = hours - 12
+        ampm = ' pm'
+    }
+    if (hours == 12) {
+        ampm = ' pm'
+    }
+    if (hours < 10) {
+        hours = "0" + hours.toString()
+    }
+
+    var strdate = (d.getMonth() + 1).toString() + "/" + d.getDate().toString() + "/" + d.getFullYear().toString() + " " + hours.toString() + ":" + min.toString() + ampm
+
+    $('#datetimepicker2').datetimepicker({
+        onGenerate: function (ct) {
+            jQuery(this).find('.xdsoft_date.xdsoft_weekend')
+                .addClass('xdsoft_disabled');
+        },
+        inline: true,
+        defaultTime: false,
+        defaultDate: false,
+        minDate: '+1970/01/02',
+        formatTime: "h:i a",
+        minTime: '09:00 am',
+        maxTime: '05:00 pm',
+        step: 30,
+        onChangeDateTime: function () { datechanged() },
+        format: 'm/d/Y h:i a',
+        value: strdate
+    })
+        ;
+    $('#fakebox').click(function () {
+        $('#datetimepicker2').datetimepicker('show');
+    });
+
+
+
+    function datechanged() {
+        document.getElementById('txtContactDT').value = document.getElementById('datetimepicker2').value
+        document.getElementById('schedtext').value = document.getElementById('datetimepicker2').value
+    }
+
+
+</script>
 
 <script src="~/lib/jquery/jquery.js"></script>
 <script src="~/lib/select2/js/select2.js"></script>

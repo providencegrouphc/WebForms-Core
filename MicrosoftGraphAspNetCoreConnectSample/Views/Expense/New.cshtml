@@ -303,7 +303,7 @@
                     <div><input type="text" id="txtTotal" class="txtbox" name="txtTotal" /></div>
                     <div id="validateTotal" class="hidden">Please enter a valid total.</div>
 
-                    <div class="txtlabel"><input type="checkbox" id="cbreimbursable" />&nbsp;&nbsp;Reimbursable</div>
+                    <div class="hidden"><input type="checkbox" id="cbreimbursable" />&nbsp;&nbsp;Reimbursable</div>
                     <br />
 
                     <div class="txtlabel">* Category</div>
@@ -317,8 +317,8 @@
                     <div class="txtlabel">Description</div>
                     <div><input type="text" id="txtDescription" class="txtbox" name="txtDescription" /></div>
 
-                    <div class="txtlabel">* Report</div>
-                    <div><select id="ddReport" style="width:280px !important" class="txtbox"><option>(automatic)</option></select></div>
+                    <div class="hidden">* Report</div>
+                    <div class="hidden"><select id="ddReport" style="width:280px !important" class="txtbox"><option>(automatic)</option></select></div>
                     <div id="validateReport" class="hidden">Please select a report.</div>
 
                     <input type="text" id="txtreimbursalbe" name="txtreimbursalbe" class="hidden" />
@@ -396,9 +396,9 @@
 
                     <div class="txtlabel">Description</div>
                     <div><input type="text" id="txtDDescription" class="txtbox" name="txtDDescription" /></div>
-
-                    <div class="txtlabel">* Report</div>
-                    <div><select id="ddDReport" style="width:280px !important" class="txtbox"><option>(automatic)</option></select></div>
+                    <div style="height:15px;"></div>
+                    <div class="hidden">* Report</div>
+                    <div class="hidden"><select id="ddDReport" style="width:280px !important" class="txtbox"><option>(automatic)</option></select></div>
                     <div id="validateDReport" class="hidden">Please select a report.</div>
 
                     <input type="button" id="subDistance" class="hidden" onclick="submit()" />
@@ -410,7 +410,7 @@
                     <input type="text" id="txtNewAmount" name="txtNewAmount" class="hidden" />
                     <input name="dUID" id="dUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
                     <div id="txtDsupinfo" class="hidden"></div>
-                    <div class="txtlabel"><input type="checkbox" id="cbDreimbursable" />&nbsp;&nbsp;Reimbursable</div>
+                    <div class="hidden"><input type="checkbox" id="cbDreimbursable" />&nbsp;&nbsp;Reimbursable</div>
 </form>
 
             @using (Html.BeginForm("UploadFile", "Expense",

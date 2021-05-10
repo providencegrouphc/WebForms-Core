@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj": {}
+    "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj": {}
   },
   "projects": {
-    "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj": {
+    "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj": {
       "version": "3.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
+        "projectUniqueName": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
         "projectName": "PGWebFormsCore",
-        "projectPath": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
+        "projectPath": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
         "packagesPath": "C:\\Users\\daniel.stump\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\obj\\",
+        "outputPath": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -44,6 +44,10 @@
             "Azure.Storage.Blobs": {
               "target": "Package",
               "version": "[12.8.0, )"
+            },
+            "Haukcode.WkHtmlToPdfDotNet": {
+              "target": "Package",
+              "version": "[1.4.0, )"
             },
             "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
               "target": "Package",
