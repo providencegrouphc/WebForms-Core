@@ -32,13 +32,11 @@
                 document.getElementById('fupload').className = 'hidden'
                 document.getElementById('dupload').className = ''
             }
-            
+
         }
 
-        if (document.getElementById('txtapstatus').value == 'Approved') {
-            document.getElementById('dstatus').className = 'hidden'
-            document.getElementById('astatus').className = 'hidden'
-        }
+            document.getElementById('dstatus').className = '@Html.Raw(ViewData["hidebutton"])'
+            document.getElementById('astatus').className = '@Html.Raw(ViewData["hidebutton"])'
     });
 
     $(function () {
@@ -97,33 +95,6 @@
 
 <div class="hidden" style="padding-top:35px; max-width:310px;" id="fupload">
     @using (Html.BeginForm("UploadFile", "Expense",
-      FormMethod.Post,
-      new
-      {
-          @class = "dropzone",
-          id = "dropzone-form",
-      }))
-    {
-        <div class="fallback">
-            <input name="file" type="file" multiple />
-
-        </div>
-        <input name="fUID" id="fUID" type="text" value="@Html.Raw(ViewData["attachmentid"])" class="hidden" />}
-
-    <div id="imagelist">
-        @Html.Raw(ViewData["attachments"])
-    </div>
-    <div id="astatus">
-        <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesub()" />
-        <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
-    </div>
-    <div id="supinfo" style="color:gray; font-size:12px"></div>
-    <input type="text" id="changesupinfo" class="hidden" />
-</div>
-
-
-<div class="hidden" style="padding-top:35px; max-width:310px;" id="dupload">
-    @using (Html.BeginForm("UploadFile", "Expense",
      FormMethod.Post,
      new
      {
@@ -140,11 +111,40 @@
     <div id="imagelist">
         @Html.Raw(ViewData["attachments"])
     </div>
+    <div id="validateAttachment" class="hidden">An attachment is required.</div>
+    <div id="astatus">
+        <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesub()" />
+        <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
+    </div>
+    <div id="supinfo" style="color:gray; font-size:12px"></div>
+    <input type="text" id="changesupinfo" class="hidden" />
+</div>
+
+
+<div class="hidden" style="padding-top:35px; max-width:310px;" id="dupload">
+    @using (Html.BeginForm("UploadFile", "Expense",
+    FormMethod.Post,
+    new
+    {
+        @class = "dropzone",
+        id = "dropzone-form",
+    }))
+    {
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+
+        </div>
+        <input name="fUID" id="fUID" type="text" value="@Html.Raw(ViewData["attachmentid"])" class="hidden" />}
+
+    <div id="imagelist2">
+        @Html.Raw(ViewData["attachments"])
+    </div>
+    <div id="validateAttachment2" class="hidden">An attachment is required.</div>
     <div id="dstatus">
         <input type="button" class="btn btn-primary" style="margin-bottom:10px; margin-top:15px;" value="Submit" onclick="validatesubdistance()" />
         <input type="button" class="btn btn-danger" style="margin-bottom:10px; margin-top:15px; margin-left:30px" value="Delete" onclick="showdelexpense()" />
     </div>
-    
+
 </div>
 
 @section Scripts{
@@ -158,7 +158,7 @@
             dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
             success: function (file, response) {
                 this.removeFile(file);
-                $.get("/Expense/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data });
+                $.get("/Expense/GetImages", { stritem: document.getElementById('fUID').value }, function (data) { document.getElementById('imagelist').innerHTML = data; document.getElementById('imagelist2').innerHTML = data });
                 // This return statement is necessary to remove progress bar after uploading.
                 return file.previewElement.classList.add("dz-success");
             }
@@ -195,6 +195,7 @@
     <input type="text" class="hidden" id="strDistDate" name="strDistDate" />
     <input type="text" class="hidden" id="strDistTotal" name="strDistTotal" />
     <input type="text" class="hidden" id="strDistReimbursable" name="strDistReimbursable" />
+    <input type="text" class="hidden" id="strMultiDist" name="strMultiDist" />
     <input type="text" class="hidden" id="strDistCategory" name="strDistCategory" />
     <input type="text" class="hidden" id="strDistDescription" name="strDistDescription" />
     <input type="text" class="hidden" id="strDistReport" name="strDistReport" />
@@ -241,8 +242,56 @@
 
     <script>
         function delblob(blobname) {
-            $.get("/Expense/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+            $.get("/Expense/DelBlob", { stritem: document.getElementById('fUID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data; document.getElementById('imagelist2').innerHTML = data });
 
+        }
+
+        function facilitychange() {
+
+            $.get("/Expense/getCats", { stritem: document.getElementById('ddFac').value }, function (data) { changeddcat(data) });
+        }
+
+        function changeddcat(data) {
+            var select = document.getElementById('ddCat')
+            var options = data.split('$$$$$')
+
+            var length = select.options.length;
+            for (i = length - 1; i >= 0; i--) {
+                select.options[i] = null;
+            }
+
+            for (var i = 0; i < options.length - 1; i++) {
+                var opt = options[i];
+                var el = document.createElement("option");
+                el.textContent = opt;
+                el.value = opt;
+                select.appendChild(el);
+            }
+            var option = document.createElement("option");
+            option.text = "";
+            select.add(option, select[0])
+            select.value = ''
+        }
+
+        function multichange(value) {
+            if (value.checked == true) {
+                document.getElementById('lblFromAddress').classList.add('hidden')
+                document.getElementById('txtFromAddress').classList.add('hidden')                
+                document.getElementById('validateFromAddress').classList.add('hidden')
+
+                document.getElementById('lblToAddress').classList.add('hidden')
+                document.getElementById('txtToAddress').classList.add('hidden')
+                document.getElementById('validateToAddress').classList.add('hidden')
+
+                document.getElementById('txtFromAddress').value = ''
+                document.getElementById('txtToAddress').value = ''
+            } else {
+                document.getElementById('lblFromAddress').classList.remove('hidden')
+                document.getElementById('txtFromAddress').classList.remove('hidden')
+
+                document.getElementById('lblToAddress').classList.remove('hidden')
+                document.getElementById('txtToAddress').classList.remove('hidden')
+            }
         }
 
         function delexpense() {
@@ -265,6 +314,13 @@
             amount = amount.replace('$', '')
             amount = amount.replace(' ', '')
             amount = amount.replace(/,/g, '')
+
+            if (document.getElementById('imagelist').innerHTML.trim() == '') {
+                document.getElementById('validateAttachment').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateAttachment').className = 'hidden'
+            }
 
             if (document.getElementById('txtMerchant').value == '') {
                 document.getElementById('validateMerchant').className = 'validation'
@@ -304,11 +360,11 @@
                 document.getElementById('validateCategory').className = 'hidden'
             }
 
-            if (document.getElementById('ddFac').value == '') {
+            if (document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text == '') {
                 document.getElementById('validateFacility').className = 'validation'
                 errors = 1
             } else {
-                document.getElementById('strFacility').value = document.getElementById('ddFac').value
+                document.getElementById('strFacility').value = document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text
                 document.getElementById('validateFacility').className = 'hidden'
             }
 
@@ -345,31 +401,40 @@
             amount = amount.replace('$', '')
             amount = amount.replace(' ', '')
             amount = amount.replace(/,/g, '')
-
-            if (document.getElementById('ddFac').value == '') {
+            
+            if (document.getElementById('imagelist2').innerHTML.trim() == '') {
+                document.getElementById('validateAttachment2').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateAttachment2').className = 'hidden'
+            }
+            
+            if (document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text == '') {
                 document.getElementById('validateFacility').className = 'validation'
                 errors = 1
             } else {
-                document.getElementById('strDistFacility').value = document.getElementById('ddFac').value
+                document.getElementById('strDistFacility').value = document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text
                 document.getElementById('validateFacility').className = 'hidden'
             }
 
-            if (document.getElementById('txtFromAddress').value == '') {
-                document.getElementById('validateFromAddress').className = 'validation'
-                errors = 1
-            } else {
-                document.getElementById('strDistFromAddress').value = document.getElementById('txtFromAddress').value
-                document.getElementById('validateFromAddress').className = 'hidden'
-            }
+            if (document.getElementById('multipledest').checked == false) {
+                if (document.getElementById('txtFromAddress').value == '') {
+                    document.getElementById('validateFromAddress').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strDistFromAddress').value = document.getElementById('txtFromAddress').value
+                    document.getElementById('validateFromAddress').className = 'hidden'
+                }
 
-            if (document.getElementById('txtToAddress').value == '') {
-                document.getElementById('validateToAddress').className = 'validation'
-                errors = 1
-            } else {
-                document.getElementById('strDistToAddress').value = document.getElementById('txtToAddress').value
-                document.getElementById('validateToAddress').className = 'hidden'
+                if (document.getElementById('txtToAddress').value == '') {
+                    document.getElementById('validateToAddress').className = 'validation'
+                    errors = 1
+                } else {
+                    document.getElementById('strDistToAddress').value = document.getElementById('txtToAddress').value
+                    document.getElementById('validateToAddress').className = 'hidden'
+                }
             }
-
+            
             if (document.getElementById('txtDistance').value == '') {
                 document.getElementById('validateDistance').className = 'validation'
                 errors = 1
@@ -424,9 +489,15 @@
                 document.getElementById('strDistReimbursable').value = 'false'
             }
 
+            if (document.getElementById('multipledest').checked) {
+                document.getElementById('strMultiDist').value = 'true'
+            } else {
+                document.getElementById('strMultiDist').value = 'false'
+            }
+
             document.getElementById('strDistDescription').value = document.getElementById('txtDescription').value
             document.getElementById("strDistUID").value = document.getElementById("UID").value
-
+            
             if (errors == 0) {
 
                 document.getElementById('subdistnace').click()
@@ -441,11 +512,11 @@
             amount = amount.replace(' ', '')
             amount = amount.replace(/,/g, '')
 
-            if (document.getElementById('ddFac').value == '') {
+            if (document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text == '') {
                 document.getElementById('validateFacility').className = 'validation'
                 errors = 1
             } else {
-                document.getElementById('strMultiFacility').value = document.getElementById('ddFac').value
+                document.getElementById('strMultiFacility').value = document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text
                 document.getElementById('validateFacility').className = 'hidden'
             }
 

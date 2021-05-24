@@ -25,8 +25,17 @@
 <script src="~/js/jquery.inputmask.js"></script>
 <script src="~/js/moment.js"></script>
 <script src="~/js/bootstrap-maxlength.js"></script>
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
-      crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"      crossorigin="anonymous">
+
+
+<link href="~/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+
+  <script>
+  $( function() {
+    $( document ).tooltip();
+  } );
+  </script>
 
 <script type="text/javascript">
     $(window).resize(function () {
@@ -79,15 +88,19 @@
             }
         }
 
-
+        
         checkqualifying()
         addassessment(document.getElementById('ddAddAssessment'))
         paymenttype(document.getElementById('ddPaymentType'))
-        dischargeloc(document.getElementById('ddDischargeLoc'), 'no')
-        dcyesno(document.getElementById('ddDrivenDischarge'), 'no')
+
+        dcdischargedate()
+        dcdischargeloc()
+        dcyesno()
+        dcdaychange()
+        
+        
         patientleave(document.getElementById('ddBOPatient'), 'no')
         mdsadddays('no')
-        DCNOMNC('no')
 
         consentcheck()
         checkinitial()
@@ -262,7 +275,7 @@
     }
 
     $(function () {
-        $(".txtdate").datepicker();
+        $(".txtdate").datepicker({clearBtn: true});
     });
 </script>
 
@@ -427,62 +440,23 @@
         visibility: hidden;
     }
 
+    .MDSTheroverride {
+        display: none;
+        visibility: hidden;
+    }
+
     .therapyvisable {
         display: none;
         visibility: hidden;
     }
 
-    .tooltipcss {
-        position: relative;
-        display: inline-block;
-        padding: 1px;
+    .ui-tooltip {
+        padding: 10px 20px;
+        color: white;
+        background-color: #333;
+        border-radius: 6px;
     }
-
-        .tooltipcss .tooltipcsstext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            /* Position the tooltip */
-            position: absolute;
-            z-index: 1;
-            bottom: 100%;
-            left: 50%;
-            margin-left: -60px;
-        }
-
-        .tooltipcss:hover .tooltipcsstext {
-            visibility: visible;
-        }
-
-    .tooltipcssbtm {
-        position: relative;
-        display: inline-block;
-        padding: 1px;
-    }
-
-        .tooltipcssbtm .tooltipcsstextbtm {
-            visibility: hidden;
-            width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            /* Position the tooltip */
-            position: absolute;
-            z-index: 1;
-            top: 100%;
-            left: 50%;
-            margin-left: -60px;
-        }
-
-        .tooltipcssbtm:hover .tooltipcsstextbtm {
-            visibility: visible;
-        }
+ 
 
     .tderror {
         background-color: red;
@@ -636,10 +610,7 @@
             <td id="tdBOStayFrom" class="tderror"><input type="text" class="txtbox txtdate" id="txtBOStayFrom" onchange="checkqualifying(); datecheck('BOStayFrom')" onkeyup="checkqualifying(); datecheck('BOStayFrom')" /></td>
             <td>
                 Qualifying Stay Dates From
-                <div class="tooltipcss">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstext">3 night stay required.</span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="3 night stay required." />
             </td>
             <td id="tdBOStayFromConfirm" class="confirmed"></td>
         </tr>
@@ -682,10 +653,7 @@
             </td>
             <td>
                 Therapy Onset Date
-                <div class="tooltipcss">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstext">Verify Occurrence 11 is onset of 1st condition requiring thearpy</span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Verify Occurrence 11 is onset of 1st condition requiring thearpy" />
             </td>
             <td id="tdBOOnsetConfirm" class="confirmed"></td>
         </tr>
@@ -695,10 +663,7 @@
             </td>
             <td>
                 Therapy Start of Care
-                <div class="tooltipcss">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstext">Verify Occurrence codes are present and have correct SOC dates 35(PT) 44(OT) 45(ST)</span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Verify Occurrence codes are present and have correct SOC dates 35(PT) 44(OT) 45(ST)" />
             </td>
             <td id="tdBOStartConfirm" class="confirmed"></td>
         </tr>
@@ -748,18 +713,18 @@
     <table class="TableClick">
 
 
-        <tr class="yes pay pdpm hmoa discharge home hospital trerror" id="trDCDischarge">
-            <td id="tdDCDischarge" class="tderror">
-                <input type="text" class="txtbox txtdate" id="txtDCDischarge" onchange="datecheck('DCDischarge')" onkeyup="datecheck('DCDischarge')" />
+        <tr class="yes pay pdpm hmoa discharge home hospital" id="trDCDischarge">
+            <td id="tdDCDischarge">
+                <input type="text" class="txtbox txtdate" id="txtDCDischarge" onchange="datechecknoerror('DCDischarge'); dcdischargedate()" onkeyup="datechecknoerror('DCDischarge'); dcdischargedate()" />
             </td>
             <td>Discharge Date</td>
             <td id="tdDCDischargeConfirm" class="confirmed"></td>
         </tr>
 
 
-        <tr class="yes pay pdpm hmoa levels trerror" id="trDischargeLoc">
+        <tr class="dcoverride trerror" id="trDischargeLoc">
             <td id="tdDischargeLoc" class="tderror">
-                <select class="txtbox" onchange="dischargeloc(this, 'save')" id="ddDischargeLoc">
+                <select class="txtbox" onchange="dcdischargeloc(); ddcheck('DischargeLoc')" id="ddDischargeLoc">
                     <option></option>
                     <option>01 - Home</option>
                     <option>06 - Home w/HH</option>
@@ -768,7 +733,6 @@
                     <option>07 - AMA</option>
                     <option>20 - Expired</option>
                     <option>Other</option>
-                    <option>N/A - Continued Stay</option>
                 </select>
             </td>
             <td>Discharge Location</td>
@@ -776,38 +740,43 @@
         </tr>
 
 
-        <tr class="yes pay pdpm hmoa discharge home trerror" id="trDrivenDischarge">
+        <tr class="dcoverride trerror" id="trDrivenDischarge">
             <td id="tdDrivenDischarge" class="tderror">
-                <select class="txtbox" onchange="dcyesno(this, 'save')" id="ddDrivenDischarge">
+                <select class="txtbox" onchange="dcyesno(); ddcheck('DrivenDischarge')" id="ddDrivenDischarge">
                     <option></option>
                     <option>No</option>
                     <option>Yes</option>
                 </select>
             </td>
-            <td>Patient Driven Discharge, NO LCD</td>
+            <td>Patient Driven Discharge (No LCD Given)</td>
             <td id="tdDrivenDischargeConfirm" class="confirmed"></td>
         </tr>
 
+        <tr class="dcoverride trerror" id="trDCNotePresent">
+            <td id="tdDCNotePresent" class="tderror">
+                <input type="checkbox" id="cbDCNotePresent" onchange="cbcheck('DCNotePresent')" />
+            </td>
+            <td>Note is present to support reason No NOMNC Issued</td>
+            <td id="tdDCNotePresentConfirm" class="confirmed"></td>
+        </tr>
 
-        <tr class="yes pay pdpm hmoa levels mcb discharge home ltc dcyes trerror" id="trDCLastDay">
+
+        <tr class="dcoverride trerror" id="trDCLastDay">
             <td id="tdDCLastDay" class="tderror">
-                <input type="text" class="txtbox txtdate" id="txtDCLastDay" onchange="DCNOMNC('save'); checkallmr()" onkeyup="DCNOMNC('save'); checkallmr()" />
+                <input type="text" class="txtbox txtdate" id="txtDCLastDay" onchange="datecheck('DCLastDay'); dcdaychange(); checkallmr()" onkeyup="datecheck('DCLastDay'); dcdaychange(); checkallmr()" />
             </td>
             <td>Last Covered Day (LCD)</td>
             <td id="tdDCLastDayConfirm" class="confirmed"></td>
         </tr>
 
 
-        <tr class="yes pay pdpm hmoa mcb discharge home ltc dcyes trerror" id="trDCNOMNC">
+        <tr class="dcoverride trerror" id="trDCNOMNC">
             <td id="tdDCNOMNC" class="tderror">
-                <input type="text" class="txtbox txtdate" id="txtDCNOMNC" onchange="DCNOMNC('save')" onkeyup="DCNOMNC('save')" />
+                <input type="text" class="txtbox txtdate" id="txtDCNOMNC" onchange="datecheck('DCNOMNC'); dcdaychange();" onkeyup="datecheck('DCNOMNC'); dcdaychange();" />
             </td>
             <td>
                 NOMNC Issued on
-                <div class="tooltipcss">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstext">3 day notice required.</span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="2 day notice required." />
             </td>
             <td id="tdDCNOMNCConfirm" class="confirmed"></td>
         </tr>
@@ -815,19 +784,30 @@
 
         <tr class="dcoverride trerror" id="trDOOR">
             <td id="tdDOOR" class="tderror">
-                <input id="txtDOOR" type="text" class="txtbox" maxlength="500" onkeyup="DCOverride()" />
+                <input id="txtDOOR" type="text" class="txtbox" maxlength="500" onkeyup="textcheck('DOOR')" />
             </td>
             <td>Reason not completed timely</td>
             <td id="tdDOORConfirm" class="confirmed"></td>
         </tr>
 
 
-        <tr class="yes pay pdpm hmoa discharge ltc trerror" style="border:none" id="trDCABN">
+        <tr class="dcoverride trerror" style="border:none" id="trDCABN">
             <td class="tderror" id="tdDCABN">
-                <input type="text" class="txtbox txtdate" id="txtDCABN" onchange="datecheck('DCABN')" onkeyup="datecheck('DCABN')" />
+                <input type="text" class="txtbox txtdate" id="txtDCABN" onchange="datecheck('DCABN'); dcdaychange()" onkeyup="datecheck('DCABN'); dcdaychange()" />
             </td>
-            <td>ABN Issued On</td>
+            <td>
+                ABN Issued On
+                <img src="~/images/questionmark.png" style="height:15px" title="2 day notice required." />
+            </td>
             <td id="tdDCABNConfirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="dcoverride trerror" id="trABNOR">
+            <td id="tdABNOR" class="tderror">
+                <input id="txtABNOR" type="text" class="txtbox" maxlength="500" onkeyup="textcheck('ABNOR')" />
+            </td>
+            <td>Reason not completed timely</td>
+            <td id="tdABNORConfirm" class="confirmed"></td>
         </tr>
     </table>
     <div style="height:20px"></div>
@@ -855,15 +835,7 @@
             </td>
             <td>
                 Payment Information on this line Affects Billing Next Month
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Select Yes, if the assessment on this line or this particular payment method (such as levels)
-                        will impact billing next month. If the resident has multiple assessments only select yes to the assessment
-                        that will impact billing the next month. If multiple Yes responses for the same resident occur, the next month will
-                        not generate correctly.<br /><br />Select No if the assessment or patient will not impact billing the following month.
-                    </span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
             </td>
             <td id="tdMDSPaymentConfirm" class="confirmed"></td>
         </tr>
@@ -1089,12 +1061,7 @@
             </td>
             <td>
                 Date Consent to Treat Obtained
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Should be obtained the same day as admissions
-                    </span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Should be obtained the same day as admission" />
             </td>
             <td id="tdMRConsentConfirm" class="confirmed"></td>
         </tr>
@@ -1105,7 +1072,7 @@
                 <input id="txtMRInitialDueCert" value="@Html.Raw(ViewData["InitialCert"])" class="hidden" />
                 <input type="text" class="txtbox txtdate" id="txtMRInitialDue" onchange="datechecknoerror('MRInitialDue'); checkinitial()" onkeyup="datechecknoerror('MRInitialDue'); checkinitial()" />
             </td>
-            <td>Initial Cert - Date Completed (<b>Due no later than @Html.Raw(ViewData["InitialCert"])</b>)</td>
+            <td>Initial Certification - Date Completed (<b>Due no later than @Html.Raw(ViewData["InitialCert"])</b>)</td>
             <td id="tdMRInitialDueConfirm" class="confirmed"></td>
         </tr>
 
@@ -1113,7 +1080,7 @@
             <td id="tdMRInitialReason" class="tderror">
                 <input type="text" class="txtbox" id="txtMRInitialReason" onchange="textcheck('MRInitialReason')" onkeyup="textcheck('MRInitialReason')" />
             </td>
-            <td>Remedy for no Initial Cert</td>
+            <td>Remedy for no Initial Certification</td>
             <td id="tdMRInitialReasonConfirm" class="confirmed"></td>
         </tr>
 
@@ -1135,7 +1102,7 @@
                 <input id="txtMR1ReCertDueCert" value="@Html.Raw(ViewData["ReCert"])" class="hidden" />
                 <input type="text" class="txtbox txtdate" id="txtMR1ReCertDue" onchange="datechecknoerror('MR1ReCertDue'); check1st()" onkeyup="datechecknoerror('MR1ReCertDue'); check1st()" />
             </td>
-            <td>1st Re Cert - Date Completed (<b>Due no later than @Html.Raw(ViewData["ReCert"])</b>)</td>
+            <td>1st Re Certification - Date Completed (<b>Due no later than @Html.Raw(ViewData["ReCert"])</b>)</td>
             <td id="tdMR1ReCertDueConfirm" class="confirmed"></td>
         </tr>
 
@@ -1143,7 +1110,7 @@
             <td id="tdMR1ReCertReason" class="tderror">
                 <input type="text" class="txtbox" id="txtMR1ReCertReason" onchange="textcheck('MR1ReCertReason')" onkeyup="textcheck('MR1ReCertReason')" />
             </td>
-            <td>Remedy for no 1st Re Cert</td>
+            <td>Remedy for no 1st Re Certification</td>
             <td id="tdMR1ReCertReasonConfirm" class="confirmed"></td>
         </tr>
 
@@ -1166,7 +1133,7 @@
                 <input id="txtMR2ReCertDueCert" value="" class="hidden" />
                 <input type="text" class="txtbox txtdate" id="txtMR2ReCertDue" onchange="datechecknoerror('MR2ReCertDue'); check2st()" onkeyup="datechecknoerror('MR2ReCertDue'); check2st()" />
             </td>
-            <td>2nd Re Cert - Date Completed (<b>Due no later than <span id="MR2ReCertDueCertText"></span></b>)</td>
+            <td>2nd Re Certification - Date Completed (<b>Due no later than <span id="MR2ReCertDueCertText"></span></b>)</td>
             <td id="tdMR2ReCertDueConfirm" class="confirmed"></td>
         </tr>
 
@@ -1174,7 +1141,7 @@
             <td id="tdMR2ReCertReason" class="tderror">
                 <input type="text" class="txtbox" id="txtMR2ReCertReason" onchange="textcheck('MR2ReCertReason')" onkeyup="textcheck('MR2ReCertReason')" />
             </td>
-            <td>Remedy for no 2nd Re Cert</td>
+            <td>Remedy for no 2nd Re Certification</td>
             <td id="tdMR2ReCertReasonConfirm" class="confirmed"></td>
         </tr>
 
@@ -1197,7 +1164,7 @@
                 <input id="txtMR3ReCertDueCert" value="" class="hidden" />
                 <input type="text" class="txtbox txtdate" id="txtMR3ReCertDue" onchange="datechecknoerror('MR3ReCertDue'); check3st()" onkeyup="datechecknoerror('MR3ReCertDue'); check3st()" />
             </td>
-            <td>3rd Re Cert - Date Completed (<b>Due no later than <span id="MR3ReCertDueCertText"></span></b>)</td>
+            <td>3rd Re Certification - Date Completed (<b>Due no later than <span id="MR3ReCertDueCertText"></span></b>)</td>
             <td id="tdMR3ReCertDueConfirm" class="confirmed"></td>
         </tr>
 
@@ -1205,7 +1172,7 @@
             <td id="tdMR3ReCertReason" class="tderror">
                 <input type="text" class="txtbox" id="txtMR3ReCertReason" onchange="textcheck('MR3ReCertReason')" onkeyup="textcheck('MR3ReCertReason')" />
             </td>
-            <td>Remedy for no 3rd Re Cert</td>
+            <td>Remedy for no 3rd Re Certification</td>
             <td id="tdMR3ReCertReasonConfirm" class="confirmed"></td>
         </tr>
 
@@ -1228,7 +1195,7 @@
                 <input id="txtMR4ReCertDueCert" value="" class="hidden" />
                 <input type="text" class="txtbox txtdate" id="txtMR4ReCertDue" onchange="datechecknoerror('MR4ReCertDue'); check4st()" onkeyup="datechecknoerror('MR4ReCertDue'); check4st()" />
             </td>
-            <td>4th Re Cert - Date Completed (<b>Due no later than <span id="MR4ReCertDueCertText"></span></b>)</td>
+            <td>4th Re Certification - Date Completed (<b>Due no later than <span id="MR4ReCertDueCertText"></span></b>)</td>
             <td id="tdMR4ReCertDueConfirm" class="confirmed"></td>
         </tr>
 
@@ -1236,7 +1203,7 @@
             <td id="tdMR4ReCertReason" class="tderror">
                 <input type="text" class="txtbox" id="txtMR4ReCertReason" onchange="textcheck('MR4ReCertReason')" onkeyup="textcheck('MR4ReCertReason')" />
             </td>
-            <td>Remedy for no 4th Re Cert</td>
+            <td>Remedy for no 4th Re Certification</td>
             <td id="tdMR4ReCertReasonConfirm" class="confirmed"></td>
         </tr>
 
@@ -1258,7 +1225,7 @@
                 <input id="txtMR5ReCertDueCert" value="" class="hidden" />
                 <input type="text" class="txtbox txtdate" id="txtMR5ReCertDue" onchange="datechecknoerror('MR5ReCertDue'); check5st()" onkeyup="datechecknoerror('MR5ReCertDue'); check5st()" />
             </td>
-            <td>5th Re Cert - Date Completed (<b>Due no later than <span id="MR5ReCertDueCertText"></span></b>)</td>
+            <td>5th Re Certification - Date Completed (<b>Due no later than <span id="MR5ReCertDueCertText"></span></b>)</td>
             <td id="tdMR5ReCertDueConfirm" class="confirmed"></td>
         </tr>
 
@@ -1266,7 +1233,7 @@
             <td id="tdMR5ReCertReason" class="tderror">
                 <input type="text" class="txtbox" id="txtMR5ReCertReason" onchange="textcheck('MR5ReCertReason')" onkeyup="textcheck('MR5ReCertReason')" />
             </td>
-            <td>Remedy for no 5th Re Cert</td>
+            <td>Remedy for no 5th Re Certification</td>
             <td id="tdMR5ReCertReasonConfirm" class="confirmed"></td>
         </tr>
 
@@ -1305,7 +1272,10 @@
             <td id="tdMRTherapy" class="tderror">
                 <input type="checkbox" id="cbMRTherapy" onchange="cbcheck('MRTherapy')" />
             </td>
-            <td>Therapy Treatment Diagnosis is present to support claim</td>
+            <td>
+                Therapy Medical and Treatment Diagnosis is present to support claim
+                    <img src="~/images/questionmark.png" style="height:15px" title="Verify via therapy tab in PCC." />
+            </td>
             <td id="tdMRTherapyConfirm" class="confirmed"></td>
         </tr>
 
@@ -1340,13 +1310,7 @@
             </td>
             <td>
                 PT Evaluation - Date Order MD Signed <b><span id="PTEvalDateSignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdPTEvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -1377,13 +1341,7 @@
             </td>
             <td>
                 PT Clarification Date <b><span id="PTClarDateDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdPTClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -1403,13 +1361,7 @@
             </td>
             <td>
                 PT Clarification - Date Order MD Signed <b><span id="PTClarDateSignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPTClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -1443,12 +1395,7 @@
             <td>
                 PT Reclarification #1 Date <b><span id="PTClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                           <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPTClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -1468,13 +1415,7 @@
             </td>
             <td>
                 PT Reclarification #1 - Date Order MD Signed <b><span id="PTClarDate1SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPTClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -1507,12 +1448,7 @@
             <td>
                 PT Reclarification #2 Date <b><span id="PTClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                           <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPTClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -1532,13 +1468,7 @@
             </td>
             <td>
                 PT Reclarification #2 - Date Order MD Signed <b><span id="PTClarDate2SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPTClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -1570,12 +1500,7 @@
             <td>
                 PT Reclarification #3 Date <b><span id="PTClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                           <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPTClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -1595,13 +1520,7 @@
             </td>
             <td>
                 PT Reclarification #3 - Date Order MD Signed <b><span id="PTClarDate3SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPTClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -1667,12 +1586,7 @@
             <td>
                 PT2 Evaluation - Date Order MD Signed <b><span id="PT2EvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                      <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdPT2EvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -1704,12 +1618,7 @@
             <td>
                 PT2 Clarification Date <b><span id="PT2ClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                       <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdPT2ClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -1729,13 +1638,7 @@
             </td>
             <td>
                 PT2 Clarification - Date Order MD Signed <b><span id="PT2ClarDateSignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT2ClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -1769,12 +1672,7 @@
             <td>
                 PT2 Reclarification #1 Date <b><span id="PT2ClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPT2ClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -1794,13 +1692,7 @@
             </td>
             <td>
                 PT2 Reclarification #1 - Date Order MD Signed <b><span id="PT2ClarDate1SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                    <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT2ClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -1833,12 +1725,7 @@
             <td>
                 PT2 Reclarification #2 Date <b><span id="PT2ClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPT2ClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -1858,13 +1745,7 @@
             </td>
             <td>
                 PT2 Reclarification #2 - Date Order MD Signed <b><span id="PT2ClarDate2SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT2ClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -1896,12 +1777,7 @@
             <td>
                 PT2 Reclarification #3 Date <b><span id="PT2ClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPT2ClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -1921,13 +1797,7 @@
             </td>
             <td>
                 PT2 Reclarification #3 - Date Order MD Signed <b><span id="PT2ClarDate3SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT2ClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -1995,12 +1865,7 @@
             <td>
                 PT3 Evaluation - Date Order MD Signed <b><span id="PT3EvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                      <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT3EvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -2032,12 +1897,7 @@
             <td>
                 PT3 Clarification Date <b><span id="PT3ClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                       <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdPT3ClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -2057,13 +1917,7 @@
             </td>
             <td>
                 PT3 Clarification - Date Order MD Signed <b><span id="PT3ClarDateSignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT3ClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -2096,12 +1950,7 @@
             <td>
                 PT3 Reclarification #1 Date <b><span id="PT3ClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPT3ClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -2121,13 +1970,7 @@
             </td>
             <td>
                 PT3 Reclarification #1 - Date Order MD Signed <b><span id="PT3ClarDate1SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT3ClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2160,12 +2003,7 @@
             <td>
                 PT3 Reclarification #2 Date <b><span id="PT3ClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPT3ClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -2185,13 +2023,7 @@
             </td>
             <td>
                 PT3 Reclarification #2 - Date Order MD Signed <b><span id="PT3ClarDate2SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT3ClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2223,12 +2055,7 @@
             <td>
                 PT3 Reclarification #3 Date <b><span id="PT3ClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdPT3ClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -2248,13 +2075,7 @@
             </td>
             <td>
                 PT3 Reclarification #3 - Date Order MD Signed <b><span id="PT3ClarDate3SignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdPT3ClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2313,12 +2134,7 @@
             <td>
                 OT Evaluation - Date Order MD Signed <b><span id="OTEvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                     <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdOTEvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -2350,12 +2166,7 @@
             <td>
                 OT Clarification Date <b><span id="OTClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                      <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdOTClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -2375,13 +2186,7 @@
             </td>
             <td>
                 OT Clarification - Date Order MD Signed <b><span id="OTClarDateSignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOTClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -2415,12 +2220,7 @@
             <td>
                 OT Reclarification #1 Date <b><span id="OTClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                           <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOTClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -2441,12 +2241,7 @@
             <td>
                 OT Reclarification #1 - Date Order MD Signed <b><span id="OTClarDate1SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                             <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOTClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2479,12 +2274,7 @@
             <td>
                 OT Reclarification #2 Date <b><span id="OTClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                           <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOTClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -2505,12 +2295,7 @@
             <td>
                 OT Reclarification #2 - Date Order MD Signed <b><span id="OTClarDate2SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                             <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOTClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2541,13 +2326,7 @@
             </td>
             <td>
                 OT Reclarification #3 Date <b><span id="OTClarDate3Due"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                           <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOTClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -2568,12 +2347,7 @@
             <td>
                 OT Reclarification #3 - Date Order MD Signed <b><span id="OTClarDate3SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                             <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOTClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2639,12 +2413,7 @@
             <td>
                 OT2 Evaluation - Date Order MD Signed <b><span id="OT2EvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                      <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdOT2EvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -2676,12 +2445,7 @@
             <td>
                 OT2 Clarification Date <b><span id="OT2ClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                       <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdOT2ClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -2701,13 +2465,7 @@
             </td>
             <td>
                 OT2 Clarification - Date Order MD Signed <b><span id="OT2ClarDateSignedDue"></span></b>
-
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                         <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT2ClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -2741,12 +2499,7 @@
             <td>
                 OT2 Reclarification #1 Date <b><span id="OT2ClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOT2ClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -2767,12 +2520,7 @@
             <td>
                 OT2 Reclarification #1 - Date Order MD Signed <b><span id="OT2ClarDate1SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT2ClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2805,12 +2553,7 @@
             <td>
                 OT2 Reclarification #2 Date <b><span id="OT2ClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOT2ClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -2831,12 +2574,7 @@
             <td>
                 OT2 Reclarification #2 - Date Order MD Signed <b><span id="OT2ClarDate2SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT2ClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2868,12 +2606,7 @@
             <td>
                 OT2 Reclarification #3 Date <b><span id="OT2ClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOT2ClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -2894,12 +2627,7 @@
             <td>
                 OT2 Reclarification #3 - Date Order MD Signed <b><span id="OT2ClarDate3SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT2ClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -2967,12 +2695,7 @@
             <td>
                 OT3 Evaluation - Date Order MD Signed <b><span id="OT3EvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                      <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdOT3EvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3004,12 +2727,7 @@
             <td>
                 OT3 Clarification Date <b><span id="OT3ClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                       <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdOT3ClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -3030,12 +2748,7 @@
             <td>
                 OT3 Clarification - Date Order MD Signed <b><span id="OT3ClarDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                         <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT3ClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3068,12 +2781,7 @@
             <td>
                 OT3 Reclarification #1 Date <b><span id="OT3ClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOT3ClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -3094,12 +2802,7 @@
             <td>
                 OT3 Reclarification #1 - Date Order MD Signed <b><span id="OT3ClarDate1SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT3ClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3132,12 +2835,7 @@
             <td>
                 OT3 Reclarification #2 Date <b><span id="OT3ClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOT3ClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -3158,12 +2856,7 @@
             <td>
                 OT3 Reclarification #2 - Date Order MD Signed <b><span id="OT3ClarDate2SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT3ClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3195,12 +2888,7 @@
             <td>
                 OT3 Reclarification #3 Date <b><span id="OT3ClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdOT3ClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -3221,12 +2909,7 @@
             <td>
                 OT3 Reclarification #3 - Date Order MD Signed <b><span id="OT3ClarDate3SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdOT3ClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3286,12 +2969,7 @@
             <td>
                 SLP Evaluation - Date Order MD Signed <b><span id="SLPEvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                      <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdSLPEvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3323,12 +3001,7 @@
             <td>
                 SLP Clarification Date <b><span id="SLPClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                       <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdSLPClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -3349,12 +3022,7 @@
             <td>
                 SLP Clarification - Date Order MD Signed <b><span id="SLPClarDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                         <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLPClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3388,12 +3056,7 @@
             <td>
                 SLP Reclarification #1 Date <b><span id="SLPClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLPClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -3414,12 +3077,7 @@
             <td>
                 SLP Reclarification #1 - Date Order MD Signed <b><span id="SLPClarDate1SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLPClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3452,12 +3110,7 @@
             <td>
                 SLP Reclarification #2 Date <b><span id="SLPClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLPClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -3478,12 +3131,7 @@
             <td>
                 SLP Reclarification #2 - Date Order MD Signed <b><span id="SLPClarDate2SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLPClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3515,12 +3163,7 @@
             <td>
                 SLP Reclarification #3 Date <b><span id="SLPClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                            <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLPClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -3541,12 +3184,7 @@
             <td>
                 SLP Reclarification #3 - Date Order MD Signed <b><span id="SLPClarDate3SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                              <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLPClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3611,12 +3249,7 @@
             <td>
                 SLP2 Evaluation - Date Order MD Signed <b><span id="SLP2EvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                       <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdSLP2EvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3648,12 +3281,7 @@
             <td>
                 SLP2 Clarification Date <b><span id="SLP2ClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                        <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdSLP2ClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -3674,12 +3302,7 @@
             <td>
                 SLP2 Clarification - Date Order MD Signed <b><span id="SLP2ClarDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                          <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP2ClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3713,12 +3336,7 @@
             <td>
                 SLP2 Reclarification #1 Date <b><span id="SLP2ClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                             <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLP2ClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -3739,12 +3357,7 @@
             <td>
                 SLP2 Reclarification #1 - Date Order MD Signed <b><span id="SLP2ClarDate1SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                               <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP2ClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3777,12 +3390,7 @@
             <td>
                 SLP2 Reclarification #2 Date <b><span id="SLP2ClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                             <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLP2ClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -3803,12 +3411,7 @@
             <td>
                 SLP2 Reclarification #2 - Date Order MD Signed <b><span id="SLP2ClarDate2SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                               <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP2ClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3840,12 +3443,7 @@
             <td>
                 SLP2 Reclarification #3 Date <b><span id="SLP2ClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                             <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLP2ClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -3866,12 +3464,7 @@
             <td>
                 SLP2 Reclarification #3 - Date Order MD Signed <b><span id="SLP2ClarDate3SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                               <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP2ClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -3939,12 +3532,7 @@
             <td>
                 SLP3 Evaluation - Date Order MD Signed <b><span id="SLP3EvalDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Date of evaluation order signed should be within 30 days of evaluation date
-                    </span>
-                </div>
+                                                       <img src="~/images/questionmark.png" style="height:15px" title="Date of evaluation order signed should be within 30 days of evaluation date" />
             </td>
             <td id="tdSLP3EvalDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -3976,12 +3564,7 @@
             <td>
                 SLP3 Clarification Date <b><span id="SLP3ClarDateDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date should be the same as Evaluation Date.
-                    </span>
-                </div>
+                                        <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date should be the same as Evaluation Date." />
             </td>
             <td id="tdSLP3ClarDateConfirm" class="confirmed"></td>
         </tr>
@@ -4002,12 +3585,7 @@
             <td>
                 SLP3 Clarification - Date Order MD Signed <b><span id="SLP3ClarDateSignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                          <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP3ClarDateSignedConfirm" class="confirmed"></td>
         </tr>
@@ -4040,12 +3618,7 @@
             <td>
                 SLP3 Reclarification #1 Date <b><span id="SLP3ClarDate1Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                             <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLP3ClarDate1Confirm" class="confirmed"></td>
         </tr>
@@ -4066,12 +3639,7 @@
             <td>
                 SLP3 Reclarification #1 - Date Order MD Signed <b><span id="SLP3ClarDate1SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                               <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP3ClarDate1SignedConfirm" class="confirmed"></td>
         </tr>
@@ -4104,12 +3672,7 @@
             <td>
                 SLP3 Reclarification #2 Date <b><span id="SLP3ClarDate2Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                             <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLP3ClarDate2Confirm" class="confirmed"></td>
         </tr>
@@ -4130,12 +3693,7 @@
             <td>
                 SLP3 Reclarification #2 - Date Order MD Signed <b><span id="SLP3ClarDate2SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                               <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP3ClarDate2SignedConfirm" class="confirmed"></td>
         </tr>
@@ -4167,12 +3725,7 @@
             <td>
                 SLP3 Reclarification #3 Date <b><span id="SLP3ClarDate3Due"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Reclarification needed 28 days after Clarification.
-                    </span>
-                </div>
+                                             <img src="~/images/questionmark.png" style="height:15px" title="Reclarification needed 28 days after Clarification." />
             </td>
             <td id="tdSLP3ClarDate3Confirm" class="confirmed"></td>
         </tr>
@@ -4193,12 +3746,7 @@
             <td>
                 SLP3 Reclarification #3 - Date Order MD Signed <b><span id="SLP3ClarDate3SignedDue"></span></b>
 
-                <div class="tooltipcssbtm">
-                    <img src="~/images/questionmark.png" style="height:15px" />
-                    <span class="tooltipcsstextbtm" style="width:500px">
-                        Clarification Date Signed should be within 30 days of Clarification Date.
-                    </span>
-                </div>
+                                                               <img src="~/images/questionmark.png" style="height:15px" title="Clarification Date Signed should be within 30 days of Clarification Date." />
             </td>
             <td id="tdSLP3ClarDate3SignedConfirm" class="confirmed"></td>
         </tr>
@@ -4765,66 +4313,7 @@
     }
 
 
-    function DCNOMNC(type) {
-        if (type == 'save') {
-            document.getElementById('trDOOR').classList.add('trerror')
-            document.getElementById('tdDOOR').classList.add('tderror')
-            document.getElementById('txtDOOR').value = ''
-            document.getElementById('tdDOORConfirm').innerHTML = ''
-            removechanges('DOOR')
-        }
-
-        if (moment(document.getElementById('txtDCNOMNC').value).isValid() && moment(document.getElementById('txtDCLastDay').value).isValid()) {
-            var dchange = datediff(parseDate(document.getElementById('txtDCNOMNC').value), parseDate(document.getElementById('txtDCLastDay').value))
-            if (dchange < 3) {
-                document.getElementById('tdDCLastDay').className = ""
-                document.getElementById('tdDCNOMNC').className = ""
-                document.getElementById('trDCLastDay').classList.remove("trerror")
-                document.getElementById('trDCNOMNC').classList.remove("trerror")
-                if (type == 'save') {
-                    savechanges('DCNOMNC', document.getElementById('txtDCNOMNC').value, 'textbox')
-                    savechanges('DCLastDay', document.getElementById('txtDCLastDay').value, 'textbox')
-                }
-
-                document.getElementById('trDOOR').classList.add('dcoverride')
-
-                document.getElementById('trDOOR').classList.remove('dcoverride')
-
-
-
-            } else {
-                document.getElementById('tdDCLastDay').className = ""
-                document.getElementById('tdDCNOMNC').className = ""
-                document.getElementById('trDCLastDay').classList.remove("trerror")
-                document.getElementById('trDCNOMNC').classList.remove("trerror")
-                if (type == 'save') {
-                    savechanges('DCNOMNC', document.getElementById('txtDCNOMNC').value, 'textbox')
-                    savechanges('DCLastDay', document.getElementById('txtDCLastDay').value, 'textbox')
-                }
-                document.getElementById('trDOOR').classList.add('dcoverride')
-
-            }
-
-        } else {
-            document.getElementById('tdDCLastDay').className = "tderror"
-            document.getElementById('tdDCNOMNC').className = "tderror"
-            document.getElementById('trDCLastDay').classList.add("trerror")
-            document.getElementById('trDCNOMNC').classList.add("trerror")
-            document.getElementById('trDOOR').classList.add('dcoverride')
-            removechanges('DCNOMNC')
-            removechanges('DCLastDay')
-
-        }
-
-
-
-
-        if (document.getElementById('btnDCInfo').classList.contains('active')) {
-            document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
-        }
-
-        checkcomplete()
-    }
+ 
 
 
 
@@ -6685,68 +6174,301 @@
     }
 
 
-
-    function DCOverride() {
-
-        if (document.getElementById('txtDOOR').value != '') {
-            document.getElementById('tdDOOR').className = ""
-            document.getElementById('trDOOR').classList.remove("trerror")
-            savechanges('DOOR', document.getElementById('txtDOOR').value, 'textbox')
+    function dcdischargedate() {
+        if (moment(document.getElementById('txtDCDischarge').value).isValid()) {
+            document.getElementById('tr' + 'DischargeLoc').classList.remove("dcoverride")
+            document.getElementById('trMDSTDischarge').classList.remove("MDSTheroverride")
         } else {
-            document.getElementById('tdDOOR').className = "tderror"
-            document.getElementById('trDOOR').classList.add("trerror")
+            document.getElementById('tr' + 'MDSTDischarge').classList.add("MDSTheroverride")
+            document.getElementById('td' + 'MDSTDischarge').classList.add("tderror")
+            document.getElementById('tr' + 'MDSTDischarge').classList.add("trerror")
+            document.getElementById('cb' + 'MDSTDischarge').checked = false
+            removechanges('MDSTDischarge')
+
+            document.getElementById('tr' + 'DischargeLoc').classList.add("dcoverride")
+            document.getElementById('td' + 'DischargeLoc').classList.add("tderror")
+            document.getElementById('tr' + 'DischargeLoc').classList.add("trerror")
+            document.getElementById('dd' + 'DischargeLoc').value = ''
+            removechanges('DischargeLoc')
+
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("dcoverride")
+            document.getElementById('td' + 'DrivenDischarge').classList.add("tderror")
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("trerror")
+            document.getElementById('dd' + 'DrivenDischarge').value = ''
+            removechanges('DrivenDischarge')
+
+            document.getElementById('tr' + 'DCLastDay').classList.add("dcoverride")
+            document.getElementById('td' + 'DCLastDay').classList.add("tderror")
+            document.getElementById('tr' + 'DCLastDay').classList.add("trerror")
+            document.getElementById('txt' + 'DCLastDay').value = ''
+            removechanges('DCLastDay')
+
+            document.getElementById('tr' + 'DCNOMNC').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNOMNC').classList.add("tderror")
+            document.getElementById('tr' + 'DCNOMNC').classList.add("trerror")
+            document.getElementById('txt' + 'DCNOMNC').value = ''
+            removechanges('DCNOMNC')
+
+            document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+            document.getElementById('td' + 'DOOR').classList.add("tderror")
+            document.getElementById('tr' + 'DOOR').classList.add("trerror")
+            document.getElementById('txt' + 'DOOR').value = ''
             removechanges('DOOR')
+
+            document.getElementById('tr' + 'DCABN').classList.add("dcoverride")
+            document.getElementById('td' + 'DCABN').classList.add("tderror")
+            document.getElementById('tr' + 'DCABN').classList.add("trerror")
+            document.getElementById('txt' + 'DCABN').value = ''
+            removechanges('DCABN')
+            
+            document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
+            document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
+            document.getElementById('cb' + 'DCNotePresent').checked = false
+            removechanges('DCNotePresent')
         }
+        dcresize()
+        MDSTherresize()
+        checkallmr()
         checkcomplete()
     }
 
-    function dischargeloc(dd, type) {
-        var x = document.getElementsByClassName("discharge");
-        var b;
-        for (b = 0; b < x.length; b++) {
-            x[b].classList.add("dischargetype");
-        }
+    function dcdischargeloc() {
+        var dd = document.getElementById('ddDischargeLoc')
 
         if (dd.value == '01 - Home' || dd.value == '06 - Home w/HH' || dd.value == '07 - AMA' || dd.value == 'Other') {
-            var y = document.getElementsByClassName("home");
-            var i;
-            for (i = 0; i < y.length; i++) {
-                y[i].classList.remove("dischargetype");
+            document.getElementById('tr' + 'DrivenDischarge').classList.remove("dcoverride")
+
+            document.getElementById('tr' + 'DCABN').classList.add("dcoverride")
+            document.getElementById('td' + 'DCABN').classList.add("tderror")
+            document.getElementById('tr' + 'DCABN').classList.add("trerror")
+            document.getElementById('txt' + 'DCABN').value = ''
+            removechanges('DCABN')
+
+            if (dd.value == '07 - AMA') {
+                if (document.getElementById('ddDrivenDischarge').value == '') {
+                    document.getElementById('ddDrivenDischarge').value = 'Yes'
+                    ddcheck('DrivenDischarge')
+                    dcyesno()
+                }
             }
         }
 
-        if (dd.value == '02 - Hospital' || dd.value == '20 - Expired' || dd.value == 'N/A - Continued Stay' || dd.value == '') {
-            var y = document.getElementsByClassName("hospital");
-            var i;
-            for (i = 0; i < y.length; i++) {
-                y[i].classList.remove("dischargetype");
-            }
+        if (dd.value == '02 - Hospital' || dd.value == '20 - Expired') {
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("dcoverride")
+            document.getElementById('td' + 'DrivenDischarge').classList.add("tderror")
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("trerror")
+            document.getElementById('dd' + 'DrivenDischarge').value = ''
+            removechanges('DrivenDischarge')
+
+            document.getElementById('tr' + 'DCLastDay').classList.add("dcoverride")
+            document.getElementById('td' + 'DCLastDay').classList.add("tderror")
+            document.getElementById('tr' + 'DCLastDay').classList.add("trerror")
+            document.getElementById('txt' + 'DCLastDay').value = ''
+            removechanges('DCLastDay')
+
+            document.getElementById('tr' + 'DCNOMNC').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNOMNC').classList.add("tderror")
+            document.getElementById('tr' + 'DCNOMNC').classList.add("trerror")
+            document.getElementById('txt' + 'DCNOMNC').value = ''
+            removechanges('DCNOMNC')
+
+            document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+            document.getElementById('td' + 'DOOR').classList.add("tderror")
+            document.getElementById('tr' + 'DOOR').classList.add("trerror")
+            document.getElementById('txt' + 'DOOR').value = ''
+            removechanges('DOOR')
+
+            document.getElementById('tr' + 'DCABN').classList.add("dcoverride")
+            document.getElementById('td' + 'DCABN').classList.add("tderror")
+            document.getElementById('tr' + 'DCABN').classList.add("trerror")
+            document.getElementById('txt' + 'DCABN').value = ''
+            removechanges('DCABN')
+
+            document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
+            document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
+            document.getElementById('cb' + 'DCNotePresent').checked = false
+            removechanges('DCNotePresent')
         }
 
         if (dd.value == '04 - LTC') {
-            var y = document.getElementsByClassName("ltc");
-            var i;
-            for (i = 0; i < y.length; i++) {
-                y[i].classList.remove("dischargetype");
-            }
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("dcoverride")
+            document.getElementById('td' + 'DrivenDischarge').classList.add("tderror")
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("trerror")
+            document.getElementById('dd' + 'DrivenDischarge').value = ''
+            removechanges('DrivenDischarge')
+
+            document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
+            document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
+            document.getElementById('cb' + 'DCNotePresent').checked = false
+            removechanges('DCNotePresent')
+
+            document.getElementById('tr' + 'DCLastDay').classList.remove("dcoverride")
+            document.getElementById('tr' + 'DCNOMNC').classList.remove("dcoverride")
+            document.getElementById('tr' + 'DCABN').classList.remove("dcoverride")
         }
 
         if (dd.value == '') {
-            removechanges('DischargeLoc')
-            document.getElementById('tdDischargeLoc').className = 'tderror'
-            document.getElementById('trDischargeLoc').classList.add("trerror")
-        } else {
-            if (type == 'save') {
-                savechanges('DischargeLoc', dd.value, 'dropdown')
+            
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("dcoverride")
+            document.getElementById('td' + 'DrivenDischarge').classList.add("tderror")
+            document.getElementById('tr' + 'DrivenDischarge').classList.add("trerror")
+            document.getElementById('dd' + 'DrivenDischarge').value = ''
+            removechanges('DrivenDischarge')
+
+            document.getElementById('tr' + 'DCLastDay').classList.add("dcoverride")
+            document.getElementById('td' + 'DCLastDay').classList.add("tderror")
+            document.getElementById('tr' + 'DCLastDay').classList.add("trerror")
+            document.getElementById('txt' + 'DCLastDay').value = ''
+            removechanges('DCLastDay')
+
+            document.getElementById('tr' + 'DCNOMNC').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNOMNC').classList.add("tderror")
+            document.getElementById('tr' + 'DCNOMNC').classList.add("trerror")
+            document.getElementById('txt' + 'DCNOMNC').value = ''
+            removechanges('DCNOMNC')
+
+            document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+            document.getElementById('td' + 'DOOR').classList.add("tderror")
+            document.getElementById('tr' + 'DOOR').classList.add("trerror")
+            document.getElementById('txt' + 'DOOR').value = ''
+            removechanges('DOOR')
+
+            document.getElementById('tr' + 'DCABN').classList.add("dcoverride")
+            document.getElementById('td' + 'DCABN').classList.add("tderror")
+            document.getElementById('tr' + 'DCABN').classList.add("trerror")
+            document.getElementById('txt' + 'DCABN').value = ''
+            removechanges('DCABN')
+
+            document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
+            document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
+            document.getElementById('cb' + 'DCNotePresent').checked = false
+            removechanges('DCNotePresent')
+        } 
+        dcresize()
+        checkallmr()
+        checkcomplete()
+    }
+
+    function dcdaychange() {
+        if (moment(document.getElementById('txtDCNOMNC').value).isValid() && moment(document.getElementById('txtDCLastDay').value).isValid()) {
+            var donedate = new Date(Date.parse(document.getElementById('txtDCLastDay').value))
+            donedate.setDate(donedate.getDate() + 2)
+
+            var lastdate = new Date(Date.parse(document.getElementById('txtDCNOMNC').value))
+
+            if (lastdate > donedate) {
+                document.getElementById('tr' + 'DOOR').classList.remove("dcoverride")
+                document.getElementById('tdDCNOMNC').classList.add("tdwarn")
+            } else {
+                document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+                document.getElementById('td' + 'DOOR').classList.add("tderror")
+                document.getElementById('tr' + 'DOOR').classList.add("trerror")
+                document.getElementById('txt' + 'DOOR').value = ''
+                removechanges('DOOR')
+                document.getElementById('tdDCNOMNC').classList.remove("tdwarn")
             }
 
-            document.getElementById('tdDischargeLoc').className = ''
-            document.getElementById('trDischargeLoc').classList.remove("trerror")
-        }
-        if (document.getElementById('btnDCInfo').classList.contains('active')) {
-            document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
+        } else {
+            document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+            document.getElementById('td' + 'DOOR').classList.add("tderror")
+            document.getElementById('tr' + 'DOOR').classList.add("trerror")
+            document.getElementById('txt' + 'DOOR').value = ''
+            removechanges('DOOR')
+            document.getElementById('tdDCNOMNC').classList.remove("tdwarn")
         }
 
+
+        if (moment(document.getElementById('txtDCABN').value).isValid() && moment(document.getElementById('txtDCLastDay').value).isValid()) {
+            var donedate = new Date(Date.parse(document.getElementById('txtDCLastDay').value))
+            donedate.setDate(donedate.getDate() + 2)
+
+            var lastdate = new Date(Date.parse(document.getElementById('txtDCABN').value))
+
+            if (lastdate > donedate) {
+                document.getElementById('tdDCABN').classList.add("tdwarn")
+                document.getElementById('tr' + 'ABNOR').classList.remove("dcoverride")
+            } else {
+                document.getElementById('tr' + 'ABNOR').classList.add("dcoverride")
+                document.getElementById('td' + 'ABNOR').classList.add("tderror")
+                document.getElementById('tr' + 'ABNOR').classList.add("trerror")
+                document.getElementById('txt' + 'ABNOR').value = ''
+                removechanges('ABNOR')
+                document.getElementById('tdDCABN').classList.remove("tdwarn")
+            }
+
+        } else {
+            document.getElementById('tdDCABN').classList.remove("tdwarn")
+        }
+
+        dcresize()
+        checkcomplete()
+    }
+
+    function dcyesno() {
+        if (document.getElementById('ddDrivenDischarge').value == 'Yes') {
+            document.getElementById('tr' + 'DCLastDay').classList.add("dcoverride")
+            document.getElementById('td' + 'DCLastDay').classList.add("tderror")
+            document.getElementById('tr' + 'DCLastDay').classList.add("trerror")
+            document.getElementById('txt' + 'DCLastDay').value = ''
+            removechanges('DCLastDay')
+
+            document.getElementById('tr' + 'DCNOMNC').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNOMNC').classList.add("tderror")
+            document.getElementById('tr' + 'DCNOMNC').classList.add("trerror")
+            document.getElementById('txt' + 'DCNOMNC').value = ''
+            removechanges('DCNOMNC')
+
+            document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+            document.getElementById('td' + 'DOOR').classList.add("tderror")
+            document.getElementById('tr' + 'DOOR').classList.add("trerror")
+            document.getElementById('txt' + 'DOOR').value = ''
+            removechanges('DOOR')
+
+            document.getElementById('tr' + 'DCNotePresent').classList.remove("dcoverride")
+        }
+
+        if (document.getElementById('ddDrivenDischarge').value == 'No') {
+            document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
+            document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
+            document.getElementById('cb' + 'DCNotePresent').checked = false
+            removechanges('DCNotePresent')
+
+            document.getElementById('tr' + 'DCLastDay').classList.remove("dcoverride")
+            document.getElementById('tr' + 'DCNOMNC').classList.remove("dcoverride")
+        }
+
+        if (document.getElementById('ddDrivenDischarge').value == '') {
+            if (document.getElementById('ddDischargeLoc').value != '04 - LTC') {
+                document.getElementById('tr' + 'DCLastDay').classList.add("dcoverride")
+                document.getElementById('td' + 'DCLastDay').classList.add("tderror")
+                document.getElementById('tr' + 'DCLastDay').classList.add("trerror")
+                document.getElementById('txt' + 'DCLastDay').value = ''
+                removechanges('DCLastDay')
+
+                document.getElementById('tr' + 'DCNOMNC').classList.add("dcoverride")
+                document.getElementById('td' + 'DCNOMNC').classList.add("tderror")
+                document.getElementById('tr' + 'DCNOMNC').classList.add("trerror")
+                document.getElementById('txt' + 'DCNOMNC').value = ''
+                removechanges('DCNOMNC')
+
+                document.getElementById('tr' + 'DOOR').classList.add("dcoverride")
+                document.getElementById('td' + 'DOOR').classList.add("tderror")
+                document.getElementById('tr' + 'DOOR').classList.add("trerror")
+                document.getElementById('txt' + 'DOOR').value = ''
+                removechanges('DOOR')
+            }
+            document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
+            document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
+            document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
+            document.getElementById('cb' + 'DCNotePresent').checked = false
+            removechanges('DCNotePresent')
+        }
+        dcresize()
         checkcomplete()
     }
 
@@ -6768,42 +6490,21 @@
         }
     }
 
-
-    function dcyesno(dd, type) {
-        var y = document.getElementsByClassName("dcyes");
-        var i;
-        if (dd.value == "No") {
-            for (i = 0; i < y.length; i++) {
-                y[i].classList.remove("dcyesnotype");
-            }
-            document.getElementById('tdDrivenDischarge').className = ''
-            document.getElementById('trDrivenDischarge').classList.remove("trerror")
-            if (type == 'save') {
-                savechanges('DrivenDischarge', dd.value, 'dropdown')
-            }
-        } else if (dd.value == "Yes") {
-            for (i = 0; i < y.length; i++) {
-                y[i].classList.add("dcyesnotype");
-            }
-            document.getElementById('tdDrivenDischarge').className = ''
-            document.getElementById('trDrivenDischarge').classList.remove("trerror")
-            if (type == 'save') {
-                savechanges('DrivenDischarge', dd.value, 'dropdown')
-            }
-        } else {
-            for (i = 0; i < y.length; i++) {
-                y[i].classList.add("dcyesnotype");
-            }
-            document.getElementById('tdDrivenDischarge').className = 'tderror'
-            document.getElementById('trDrivenDischarge').classList.add("trerror")
-            removechanges('DrivenDischarge')
-        }
+    function dcresize() {
 
         if (document.getElementById('btnDCInfo').classList.contains('active')) {
             document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
         }
-        checkcomplete()
     }
+    
+    function MDSTherresize() {
+        if (document.getElementById('btnMDSTherapy').classList.contains('active')) {
+            document.getElementById('MDSTherapyContent').style.maxHeight = document.getElementById('MDSTherapyContent').scrollHeight + "px";
+        }
+    }
+
+
+
 
     function ddcheck(dd) {
         if (document.getElementById('dd' + dd).value == '') {
@@ -7029,7 +6730,7 @@
         var errorcounter = '0'
         var i
         for (i = 0; i < y.length; i++) {
-            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype')) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype') || hasClass(y[i], 'MDSTheroverride')) {
 
             } else {
                 errorcounter = '1'

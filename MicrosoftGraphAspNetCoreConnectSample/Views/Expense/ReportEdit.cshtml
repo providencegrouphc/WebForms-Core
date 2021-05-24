@@ -1,0 +1,148 @@
+﻿@Html.Raw(ViewData["sidebar"])
+<script src="~/js/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="~/js/UI/jquery-ui.css" type="text/css" />
+<script src="~/js/UI/jquery-ui.js"></script>
+
+<script src="~/datatables/datatables.min.js"></script>
+<script src="~/datatables/Responsive-2.2.7/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" href="~/datatables/datatables.min.css" />
+<script src="~/js/jquery.inputmask.js"></script>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        setTimeout(function () {
+            $("#alert").hide("slow");
+
+        }, 2000);
+    });
+
+    $(window).load(function () {
+        $("#txtRate").inputmask({
+            'mask': '.99'
+        });
+    });
+
+</script>
+
+<style>
+    .collapsible {
+        background-color: white;
+        color: black;
+        cursor: pointer;
+        padding: 5px 5px 5px 5px;
+        width: 100%;
+        border: 0px;
+        border-bottom: 1px solid black;
+        text-align: left;
+        outline: none;
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+        .collapsible:hover {
+            background-color: #aaa;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: black;
+            font-weight: 500;
+            float: left;
+            margin-left: 5px;
+        }
+
+    .active:after {
+        content: "\2212";
+    }
+
+    .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: #f1f1f1;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    th {
+        border-bottom: 1px solid black
+    }
+
+    td {
+        padding: 5px;
+    }
+
+    tr {
+        border-bottom: 1px solid black
+    }
+
+    .validation {
+        color: red;
+    }
+
+    .txtbox {
+        background-color: #fff;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        height: 28px;
+        width: 100% !important;
+    }
+
+    .txtlabel {
+        margin-top: 15px;
+    }
+</style>
+
+
+<h1>Previous Reports</h1>
+<a href="/Expense/Report">Return to Report Home</a>
+<hr />
+
+@Html.Raw(ViewData["shortdates"])
+
+<div class="txtlabel">Report</div>
+<div>
+    <select id="ddSelect" class="txtbox" style="width: 280px!important">
+        <option></option>
+        <option>Details</option>
+        <option>Facility and Category</option>
+    </select>
+</div>
+
+<input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Run Report" onclick="runreport()" />
+
+<script>
+    function runreport() {
+        
+        var txtdate = document.getElementById('ddDate').value
+        var txtselect = document.getElementById('ddSelect').value
+
+        if (txtdate == '' || txtselect == '') {
+
+        } else {
+            if (txtselect == 'Details') {
+                document.getElementById('txtDate').value = txtdate
+                document.getElementById('genreportgo').click()
+            }
+
+            if (txtselect == 'Facility and Category') {
+                document.getElementById('txtDateFac').value = txtdate
+                document.getElementById('genreportfac').click()
+            }
+        }
+    }
+</script>
+
+<form asp-controller="Expense" asp-action="GenReport" method="post" class="hidden">
+    <input type="button" onclick="submit()" id="genreportgo" />
+    <input type="text" id="txtDate" name="txtDate" />
+</form>
+
+<form asp-controller="Expense" asp-action="FacReport" method="post" class="hidden">
+    <input type="button" onclick="submit()" id="genreportfac" />
+    <input type="text" id="txtDateFac" name="txtDateFac" />
+</form>

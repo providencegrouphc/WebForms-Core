@@ -553,7 +553,7 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
             await graphClient.Me.SendMail(email, true).Request().PostAsync();
         }
 
-        public static async Task SendCalendar(GraphServiceClient graphClient, string body, string starttime, string endtime, string timezone, string tech)
+        public static async Task SendCalendar(GraphServiceClient graphClient, string body, string starttime, string endtime, string timezone, string tech, string tech2)
         {
             var @event = new Event
             {
@@ -580,6 +580,14 @@ namespace MicrosoftGraphAspNetCoreConnectSample.Services
             EmailAddress = new EmailAddress
             {
                 Address = tech
+            },
+            Type = AttendeeType.Required
+        },
+        new Attendee
+        {
+            EmailAddress = new EmailAddress
+            {
+                Address = tech2
             },
             Type = AttendeeType.Required
         }

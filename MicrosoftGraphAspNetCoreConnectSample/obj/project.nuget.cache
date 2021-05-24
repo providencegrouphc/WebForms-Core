@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fOxYaLg9Tx+KLMsYS+eI7QEnNcq8pmrjEX7+rwTlDKH3thoRXDCD84wVqBHcISNvAsvnZAgF2fuHMw2hRIEW7Q==",
+  "dgSpecHash": "jAUNGA/rBns3OvHQ40BH4gpSRtJF7wS+4yVrPQ28Wusv+ftOj+rhitTB5x1of3So++QLDMDQfunLWkYGjd0edg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
+  "projectFilePath": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\daniel.stump\\.nuget\\packages\\azure.core\\1.8.1\\azure.core.1.8.1.nupkg.sha512",
     "C:\\Users\\daniel.stump\\.nuget\\packages\\azure.storage.blobs\\12.8.0\\azure.storage.blobs.12.8.0.nupkg.sha512",

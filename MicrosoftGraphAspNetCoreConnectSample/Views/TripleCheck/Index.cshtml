@@ -83,6 +83,10 @@
     .transfer td {
         border-bottom: 1px solid #aaa
     }
+
+    tr {
+      cursor: pointer;  
+    }
 </style>
 
 <script>
@@ -181,7 +185,7 @@
 
         var table = $('#example').DataTable({
             responsive: true,
-            "order": [[1, "asc"]],
+            "order": [[2, "asc"], [4, "asc"]],
             "columnDefs": [
                 { "targets": [0], "visible": false, "searchable": false }
             ]

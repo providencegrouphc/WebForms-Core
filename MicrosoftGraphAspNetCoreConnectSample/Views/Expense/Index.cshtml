@@ -20,15 +20,15 @@
 
         var table = $('#example').DataTable({
             responsive: true,
-            "order": [[6, "asc"]],
+            "order": [[7, "asc"]],
             "columnDefs": [
                 { "targets": [0], "visible": false, "searchable": false },
-                { "targets": [8], "visible": false, "searchable": true }
+                { "targets": [9], "visible": false, "searchable": true }
             ]
         })
 
         table
-            .columns(8)
+            .columns(9)
             .search('no')
             .draw();
 
@@ -47,21 +47,21 @@
 
         var table = $('#example').DataTable({
             responsive: true,
-            "order": [[6, "asc"]],
+            "order": [[7, "asc"]],
             "columnDefs": [
                 { "targets": [0], "visible": false, "searchable": false },
-                { "targets": [8], "visible": false, "searchable": true }
+                { "targets": [9], "visible": false, "searchable": true }
             ]
         })
 
         if (value.checked == true) {
             table
-                .columns(8)
+                .columns(9)
                 .search()
                 .draw();
         } else {
             table
-                .columns(8)
+                .columns(9)
                 .search('no')
                 .draw();
         }

@@ -487,7 +487,8 @@ namespace PGWebFormsCore.Controllers
         public async Task<IActionResult> PostTicket(
             string strFacility, string txtName, string txtEmail, string txtPhone,
             string strContactM, string txtContactDT, string txtShared, string txtMore,
-            string strNotes, string strType, string strTypeAction, string strUID, string txttimezone)
+            string strNotes, string strType, string strTypeAction, string strUID, 
+            string txttimezone, string txtSurvey, string txtSkip)
         {
             try { 
             if (txtMore == "Yes")
@@ -506,6 +507,24 @@ namespace PGWebFormsCore.Controllers
                 txtShared = "False";
             }
 
+                if (txtSurvey == "Yes")
+                {
+                    txtSurvey = "True";
+                }
+                else
+                {
+                    txtSurvey = "False";
+                }
+
+                if (txtSkip == "Yes")
+                {
+                    txtSkip = "True";
+                }
+                else
+                {
+                    txtSkip = "False";
+                }
+
                 if (txtContactDT is null)
                 {
                     txtContactDT = "";
@@ -514,7 +533,7 @@ namespace PGWebFormsCore.Controllers
 
 
                 string nexttech = "";
-                if (strContactM == "Phone" && txtContactDT != "")
+                if (strContactM == "Phone" && txtContactDT != "" && txtSkip == "False")
                 {
                     nexttech = getnexttech();
                 }
@@ -533,7 +552,9 @@ namespace PGWebFormsCore.Controllers
             cmd.Parameters.Add("@ContactDT", SqlDbType.VarChar).Value = txtContactDT;
             cmd.Parameters.Add("@Performance", SqlDbType.Bit).Value = txtShared;
             cmd.Parameters.Add("@More", SqlDbType.Bit).Value = txtMore;
-            cmd.Parameters.Add("@Notes", SqlDbType.VarChar).Value = strNotes;
+                cmd.Parameters.Add("@Survey", SqlDbType.Bit).Value = txtSurvey;
+                cmd.Parameters.Add("@Skip", SqlDbType.Bit).Value = txtSkip;
+                cmd.Parameters.Add("@Notes", SqlDbType.VarChar).Value = strNotes;
                 cmd.Parameters.Add("@TimeZone", SqlDbType.VarChar).Value = txttimezone;
                 cmd.Parameters.Add("@ContactTech", SqlDbType.VarChar).Value = nexttech;
 
@@ -570,10 +591,14 @@ namespace PGWebFormsCore.Controllers
                 string[] splitaction = strTypeAction.Split("$$$");
                 string sendemailto = splitaction[0];
 
-            await GraphService.SendEmail(graphClient, _env, "daniel.stump@pacshc.com", HttpContext, subject, body);
+            await GraphService.SendEmail(graphClient, _env, "support@fitsolutions.biz", HttpContext, subject, body);
 
-                if (strContactM == "Phone" && txtContactDT != "")
+                if (strContactM == "Phone" && txtContactDT != "" && txtSkip == "False")
                 {
+
+                    body += "<br/><br/>";
+                    body += "<b>Assigned Tech:</b> " + nexttech + "<br/>";
+
                     string strdate = txtContactDT;
                     DateTime dtdate = DateTime.Parse(strdate);
                     DateTime edtdate = dtdate.AddMinutes(15);
@@ -623,8 +648,9 @@ namespace PGWebFormsCore.Controllers
 
                     string stredate = edtdate.Year.ToString() + "-" + edtdate.Month.ToString() + "-" + edtdate.Day.ToString() + "T";
                     stredate += strhour + ":" + strmin + ":00";
+                    
 
-                    await GraphService.SendCalendar(graphClient, body, strdate, stredate, txttimezone, "daniel.stump@pacshc.com");
+                    await GraphService.SendCalendar(graphClient, body, strdate, stredate, txttimezone, "PACSHelpdesk@providencegroup.onmicrosoft.com", nexttech);
                 }
                 
 

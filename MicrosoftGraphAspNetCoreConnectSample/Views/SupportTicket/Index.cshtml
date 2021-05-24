@@ -143,16 +143,20 @@
             <div id="validateContactM" class="hidden">Please select a contact method.</div>
 
             <div id="showschedule" class="hidden">
-                <div class="txtlabel">Schedule a time to be called</div>
-                <input id="schedtext" class="txtbox" disabled="disabled" />
-                <div style="height:5px"></div>
-                <div id="fakebox">
-                    <input type="text" id="datetimepicker2" name="datetimepicker2" class="txtbox" disabled="disabled" />
-                </div>
-                <input type="text" id="txttimezone" name="txttimezone" class="hidden" />
-                <div id="selectedtime">
+                <div class="txtlabel">Skip scheduling and wait for a call back from a tech?</div>
+                <div onclick="changeyesno4()"><input type="text" disabled="disabled" value="No" style="cursor:pointer" maxlength="25" id="txtSkip" class="txtbox" name="txtSkip" /></div>
 
+                <div id="skipschedule">
+                    <div class="txtlabel">Schedule a time to be called</div>
+                    <input id="schedtext" class="txtbox" disabled="disabled" />
+                    <div style="height:5px"></div>
+                    <div id="fakebox">
+                        <input type="text" id="datetimepicker2" name="datetimepicker2" class="txtbox" disabled="disabled" />
+                    </div>
+                    <input type="text" id="txttimezone" name="txttimezone" class="hidden" />
+                    <div id="selectedtime"></div>
                 </div>
+
             </div>
 
             @*<div class="txtlabel">When is the best time to contact you?</div>
@@ -164,6 +168,9 @@
 
             <div class="txtlabel">Is this impacting more than just you?</div>
             <div onclick="changeyesno2()"><input type="text" disabled="disabled" value="No" style="cursor:pointer" maxlength="25" id="txtMore" class="txtbox" name="txtMore" /></div>
+
+            <div class="txtlabel">Is your facility currently under survey?</div>
+            <div onclick="changeyesno3()"><input type="text" disabled="disabled" value="No" style="cursor:pointer" maxlength="25" id="txtSurvey" class="txtbox" name="txtSurvey" /></div>
 
             <div class="txtlabel">What are the details?</div>
             <textarea style="height:100px" class="txtbox" id="txtNotes" name="txtNotes"></textarea>
@@ -290,6 +297,24 @@ new
             document.getElementById('txtMore').value = 'No'
         } else {
             document.getElementById('txtMore').value = 'Yes'
+        }
+    }
+
+    function changeyesno3() {
+        if (document.getElementById('txtSurvey').value == 'Yes') {
+            document.getElementById('txtSurvey').value = 'No'
+        } else {
+            document.getElementById('txtSurvey').value = 'Yes'
+        }
+    }
+
+    function changeyesno4() {
+        if (document.getElementById('txtSkip').value == 'Yes') {
+            document.getElementById('txtSkip').value = 'No'
+            document.getElementById('skipschedule').className = ''
+        } else {
+            document.getElementById('txtSkip').value = 'Yes'
+            document.getElementById('skipschedule').className = 'hidden'
         }
     }
 

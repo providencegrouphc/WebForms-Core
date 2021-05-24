@@ -26,6 +26,9 @@
     }
 
     $(window).load(function () {
+        facilitychange()
+        facilitychangeD()
+
         $.get("/Expense/GetSup", { stritem: '' }, function (data) { if (data == 'stop') { document.getElementById('supinfo').innerHTML = ''; showsup(); } else { splitdata(data) } });
 
         $("#txtTotal").inputmask({
@@ -280,9 +283,9 @@
 <a href="/Expense">Return to Expense Home</a>
 <div style="height:10px;"></div>
 <div class="tabset">
-    <label id="Expense" class="tabseta" onclick="tabchange('Expense', 'Distance', 'Multiple')">Expense</label>
-    <label id="Distance" class="tabsetb" onclick="tabchange('Distance', 'Expense', 'Multiple')">Distance</label>
-    <label id="Multiple" class="tabsetb" onclick="tabchange('Multiple', 'Expense', 'Distance')">Multiple</label>
+    <label id="Expense" class="tabseta" onclick="tabchange('Expense', 'Distance')">Expense</label>
+    <label id="Distance" class="tabsetb" onclick="tabchange('Distance', 'Expense')">Distance</label>
+    @*<label id="Multiple" class="tabsetb" onclick="tabchange('Multiple', 'Expense', 'Distance')">Multiple</label>*@
     <div id="ZExpense" class="tab-panelsx">
         <div class="row">
             <div class="col-md-4">
@@ -307,7 +310,9 @@
                     <br />
 
                     <div class="txtlabel">* Category</div>
-                    <div>@Html.Raw(ViewData["CATS"])</div>
+                    <div>
+                        <select id="ddCat" style="width: 280px!important" class="txtbox"></select>
+                    </div>
                     <div id="validateCategory" class="hidden">Please select a category.</div>
 
                     <div class="txtlabel">* Attendees</div>
@@ -334,20 +339,21 @@
 
             <div class="col-md-4" style="padding-top:35px; max-width:310px;">
                 @using (Html.BeginForm("UploadFile", "Expense",
-                       FormMethod.Post,
-                       new
-                       {
-                           @class = "dropzone",
-                           id = "dropzone-form",
-                       }))
+                      FormMethod.Post,
+                      new
+                      {
+                          @class = "dropzone",
+                          id = "dropzone-form",
+                      }))
                 {
-    <div class="fallback">
-        <input name="file" type="file" multiple />
+            <div class="fallback">
+                <input name="file" type="file" multiple />
 
-    </div>
-                    <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+            </div>
+                            <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
 
                 <div id="imagelist"></div>
+                <div id="validateAttachment" class="hidden">An attachment is required.</div>
                 <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Expense" onclick="validatesub()" />
                 <div id="supinfo" style="color:gray; font-size:12px"></div>
                 <input type="text" id="changesupinfo" class="hidden" />
@@ -364,11 +370,14 @@
                     <div>@Html.Raw(ViewData["Facilities2"])</div>
                     <div id="validateDFacility" class="hidden">Please select a facility.</div>
 
-                    <div class="txtlabel">* From Address</div>
+                    <input type="checkbox" onchange="multichange(this)" id="multipledest"/>
+                    <label for="multipledest" class="txtlabel" style="font-weight:normal">&nbsp;&nbsp;Destinations</label>
+
+                    <div class="txtlabel" id="lblFromAddress">* From Address</div>
                     <div><input type="text" id="txtFromAddress" class="txtbox" name="txtFromAddress" /></div>
                     <div id="validateFromAddress" class="hidden">Please enter a from address.</div>
 
-                    <div class="txtlabel">* To Address</div>
+                    <div class="txtlabel" id="lblToAddress">* To Address</div>
                     <div><input type="text" id="txtToAddress" class="txtbox" name="txtToAddress" /></div>
                     <div id="validateToAddress" class="hidden">Please enter a to address.</div>
 
@@ -377,7 +386,7 @@
                     <div id="validateDistance" class="hidden">Please enter a distance.</div>
 
                     <div class="txtlabel">* Rate</div>
-                    <div><select id="ddRate" style="width:280px !important" class="txtbox"><option>.56</option></select></div>
+                    <div><select id="ddRate" style="width:280px !important" class="txtbox"><option>@Html.Raw(ViewData["getrate"])</option></select></div>
                     <div id="validateRate" class="hidden">Please select a rate.</div>
 
                     <div class="txtlabel">* Date</div>
@@ -387,11 +396,11 @@
                     <div class="txtlabel">* Amount</div>
                     <div><input type="text" id="txtAmount" class="txtbox" name="txtAmount" disabled="disabled" value="0" /></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4" style="max-width: 310px;">
 
 
                     <div class="txtlabel">* Category</div>
-                    <div>@Html.Raw(ViewData["DCATS"])</div>
+                    <div><select id="ddDCat" style="width: 280px!important" class="txtbox"></select></div>
                     <div id="validateDCategory" class="hidden">Please select a category.</div>
 
                     <div class="txtlabel">Description</div>
@@ -408,27 +417,28 @@
                     <input type="text" id="txtDCategory" name="txtDCategory" class="hidden" />
                     <input type="text" id="txtDFac" name="txtDFac" class="hidden" />
                     <input type="text" id="txtNewAmount" name="txtNewAmount" class="hidden" />
+                    <input type="text" id="txtmultidest" name="txtmultidest" class="hidden" />
                     <input name="dUID" id="dUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
                     <div id="txtDsupinfo" class="hidden"></div>
                     <div class="hidden"><input type="checkbox" id="cbDreimbursable" />&nbsp;&nbsp;Reimbursable</div>
 </form>
 
             @using (Html.BeginForm("UploadFile", "Expense",
-                       FormMethod.Post,
-                       new
-                       {
-                           @class = "dropzone",
-                           id = "dropzone-form",
-                       }))
-                {
-            <div class="fallback">
-                <input name="file" type="file" multiple />
+                      FormMethod.Post,
+                      new
+                      {
+                          @class = "dropzone",
+                          id = "dropzone-form",
+                      }))
+            {
+        <div class="fallback">
+            <input name="file" type="file" multiple />
 
-            </div>
-            <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+        </div>
+                        <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
 
             <div id="imagelist2"></div>
-
+            <div id="validateAttachment2" class="hidden">An attachment is required.</div>
             @section Scripts{
                 <script type="text/javascript">
                     Dropzone.options.dropzoneForm = {
@@ -450,7 +460,7 @@
                 </script>
             }
 
-            
+
 
 
             <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Distance" onclick="validatedist()" />
@@ -598,6 +608,60 @@
 
 
 <script>
+    function facilitychange() {
+        
+        $.get("/Expense/getCats", { stritem: document.getElementById('ddFac').value }, function (data) { changeddcat(data) });
+    }
+
+    function changeddcat(data) {
+        var select = document.getElementById('ddCat')
+        var options = data.split('$$$$$')
+
+        var length = select.options.length;
+        for (i = length - 1; i >= 0; i--) {
+            select.options[i] = null;
+        }
+
+        for (var i = 0; i < options.length - 1; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
+        var option = document.createElement("option");
+        option.text = "";
+        select.add(option, select[0])
+        select.value = ''
+    }
+
+    function facilitychangeD() {
+
+        $.get("/Expense/getCatsD", { stritem: document.getElementById('ddDFac').value }, function (data) { changeddcatD(data) });
+    }
+
+    function changeddcatD(data) {
+        var select = document.getElementById('ddDCat')
+        var options = data.split('$$$$$')
+
+        var length = select.options.length;
+        for (i = length - 1; i >= 0; i--) {
+            select.options[i] = null;
+        }
+
+        for (var i = 0; i < options.length - 1; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
+        var option = document.createElement("option");
+        option.text = "";
+        select.add(option, select[0])
+        select.value = ''
+    }
+
     function validatesub() {
         var errors = 0
     
@@ -605,6 +669,13 @@
         amount = amount.replace('$', '')
         amount = amount.replace(' ', '')
         amount = amount.replace(/,/g, '')
+
+        if (document.getElementById('imagelist').innerHTML == '') {
+            document.getElementById('validateAttachment').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateAttachment').className = 'hidden'
+        }
 
         if (document.getElementById('txtMerchant').value == '') {
             document.getElementById('validateMerchant').className = 'validation'
@@ -642,11 +713,11 @@
             document.getElementById('validateCategory').className = 'hidden'
         }
 
-        if (document.getElementById('ddFac').value == '') {
+        if (document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text == '') {
             document.getElementById('validateFacility').className = 'validation'
             errors = 1
         } else {
-            document.getElementById('txtFac').value = document.getElementById('ddFac').value
+            document.getElementById('txtFac').value = document.getElementById('ddFac').options[document.getElementById('ddFac').selectedIndex].text
             document.getElementById('validateFacility').className = 'hidden'
         }
 
@@ -707,20 +778,41 @@
         document.getElementById('supresults').innerHTML = ''
     }
 
+    function multichange(value) {
+        if (value.checked == true) {
+            document.getElementById('lblFromAddress').classList.add('hidden')
+            document.getElementById('txtFromAddress').classList.add('hidden')
+            document.getElementById('validateFromAddress').classList.add('hidden')
+
+            document.getElementById('lblToAddress').classList.add('hidden')
+            document.getElementById('txtToAddress').classList.add('hidden')
+            document.getElementById('validateToAddress').classList.add('hidden')
+
+            document.getElementById('txtFromAddress').value = ''
+            document.getElementById('txtToAddress').value = ''
+        } else {
+            document.getElementById('lblFromAddress').classList.remove('hidden')
+            document.getElementById('txtFromAddress').classList.remove('hidden')
+
+            document.getElementById('lblToAddress').classList.remove('hidden')
+            document.getElementById('txtToAddress').classList.remove('hidden')
+        }
+    }
+
     function delblob(blobname) {
-        $.get("/Expense/DelBlob", { stritem: document.getElementById('UID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data });
+        $.get("/Expense/DelBlob", { stritem: document.getElementById('UID').value, strblob: blobname }, function (data) { document.getElementById('imagelist').innerHTML = data; document.getElementById('imagelist2').innerHTML = data });
 
     }
 
-    function tabchange(tabname, tabb, tabbb) {
+    function tabchange(tabname, tabb) {
 
         document.getElementById(tabname).className = "tabseta"
         document.getElementById(tabb).className = "tabsetb"
-        document.getElementById(tabbb).className = "tabsetb"
+        
 
         document.getElementById('Z' + tabname).className = "tab-panelsx"
         document.getElementById('Z' + tabb).className = "hidden"
-        document.getElementById('Z' + tabbb).className = "hidden"
+        
     }
 
     function calcmile() {
@@ -734,6 +826,13 @@
     function validatedist() {
         var errors = 0
 
+        if (document.getElementById('imagelist2').innerHTML == '') {
+            document.getElementById('validateAttachment2').className = 'validation'
+            errors = 1
+        } else {
+            document.getElementById('validateAttachment2').className = 'hidden'
+        }
+
         if (document.getElementById('txtDistance').value == '') {
             document.getElementById('validateDistance').className = 'validation'
             errors = 1
@@ -741,19 +840,22 @@
             document.getElementById('validateDistance').className = 'hidden'
         }
 
-        if (document.getElementById('txtFromAddress').value == '') {
-            document.getElementById('validateFromAddress').className = 'validation'
-            errors = 1
-        } else {
-            document.getElementById('validateFromAddress').className = 'hidden'
+        if (document.getElementById('multipledest').checked == false) {
+            if (document.getElementById('txtFromAddress').value == '') {
+                document.getElementById('validateFromAddress').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateFromAddress').className = 'hidden'
+            }
+
+            if (document.getElementById('txtToAddress').value == '') {
+                document.getElementById('validateToAddress').className = 'validation'
+                errors = 1
+            } else {
+                document.getElementById('validateToAddress').className = 'hidden'
+            }
         }
 
-        if (document.getElementById('txtToAddress').value == '') {
-            document.getElementById('validateToAddress').className = 'validation'
-            errors = 1
-        } else {
-            document.getElementById('validateToAddress').className = 'hidden'
-        }
 
         if (document.getElementById('ddRate').value == '') {
             document.getElementById('validateRate').className = 'validation'
@@ -778,11 +880,11 @@
             document.getElementById('validateDCategory').className = 'hidden'
         }
 
-        if (document.getElementById('ddDFac').value == '') {
+        if (document.getElementById('ddDFac').options[document.getElementById('ddDFac').selectedIndex].text; == '') {
             document.getElementById('validateDFacility').className = 'validation'
             errors = 1
         } else {
-            document.getElementById('txtDFac').value = document.getElementById('ddDFac').value
+            document.getElementById('txtDFac').value = document.getElementById('ddDFac').options[document.getElementById('ddDFac').selectedIndex].text;
             document.getElementById('validateDFacility').className = 'hidden'
         }
 
@@ -798,6 +900,12 @@
             document.getElementById('txtDreimbursalbe').value = 'true'
         } else {
             document.getElementById('txtDreimbursalbe').value = 'false'
+        }
+
+        if (document.getElementById('multipledest').checked) {
+            document.getElementById('txtmultidest').value = 'true'
+        } else {
+            document.getElementById('txtmultidest').value = 'false'
         }
 
         var amount = document.getElementById('txtAmount').value

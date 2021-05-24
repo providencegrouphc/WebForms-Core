@@ -9308,11 +9308,11 @@
   "project": {
     "version": "3.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
+      "projectUniqueName": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
       "projectName": "PGWebFormsCore",
-      "projectPath": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
+      "projectPath": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\PGWebFormsCore.csproj",
       "packagesPath": "C:\\Users\\daniel.stump\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\daniel.stump\\Desktop\\New Projet\\MicrosoftGraphAspNetCoreConnectSample\\obj\\",
+      "outputPath": "C:\\Users\\daniel.stump\\Documents\\GitHub\\WebForms-Core\\MicrosoftGraphAspNetCoreConnectSample\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

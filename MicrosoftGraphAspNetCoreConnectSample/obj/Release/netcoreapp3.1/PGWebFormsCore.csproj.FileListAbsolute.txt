@@ -334,7 +334,6 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\Index.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\Add.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\Record.cshtml.g.cs
-C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\SupportTicket\Calendar.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\SupSearch.cshtml.g.cs
 C:\Users\daniel.stump\Desktop\New Projet\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\bower.json
 C:\Users\daniel.stump\Desktop\New Projet\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\bundleconfig.json
@@ -520,3 +519,11 @@ C:\Users\daniel.stump\Desktop\New Projet\MicrosoftGraphAspNetCoreConnectSample\b
 C:\Users\daniel.stump\Desktop\New Projet\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\osx-x64\native\libwkhtmltox.dylib
 C:\Users\daniel.stump\Desktop\New Projet\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\win-x64\native\wkhtmltox.dll
 C:\Users\daniel.stump\Desktop\New Projet\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\win-x86\native\wkhtmltox.dll
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\WkHtmlToPdfDotNet.dll
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\linux-x64\native\libwkhtmltox.so
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\linux-x86\native\libwkhtmltox.so
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\osx-x64\native\libwkhtmltox.dylib
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\win-x64\native\wkhtmltox.dll
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\win-x86\native\wkhtmltox.dll
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\Report.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\ReportEdit.cshtml.g.cs
