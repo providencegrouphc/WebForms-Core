@@ -10,7 +10,14 @@
 
 
 <script>
+    jQuery(document).ready(function ($) {
+        testing()
+    });
+
+
+
     $(window).resize(function () {
+
         $("#showsup").dialog("option", "position", { my: "center", at: "center", of: window });
     });
 
@@ -26,7 +33,8 @@
     }
 
     $(window).load(function () {
-        facilitychange()
+
+        facilitychange();
         facilitychangeD()
 
         $.get("/Expense/GetSup", { stritem: '' }, function (data) { if (data == 'stop') { document.getElementById('supinfo').innerHTML = ''; showsup(); } else { splitdata(data) } });
@@ -74,6 +82,9 @@
         $("#txtDate5").datepicker();
         $("#txtDate6").datepicker();
     });
+
+
+
 </script>
 
 <style>
@@ -215,7 +226,7 @@
     .dropzone {
         border: 1px solid #aaa !important;
         border-radius: 5px !important;
-        width:280px;
+        width: 280px;
     }
 
     .imgdiv {
@@ -339,18 +350,18 @@
 
             <div class="col-md-4" style="padding-top:35px; max-width:310px;">
                 @using (Html.BeginForm("UploadFile", "Expense",
-                      FormMethod.Post,
-                      new
-                      {
-                          @class = "dropzone",
-                          id = "dropzone-form",
-                      }))
+                     FormMethod.Post,
+                     new
+                     {
+                         @class = "dropzone",
+                         id = "dropzone-form",
+                     }))
                 {
-            <div class="fallback">
-                <input name="file" type="file" multiple />
+    <div class="fallback">
+        <input name="file" type="file" multiple />
 
-            </div>
-                            <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+    </div>
+                    <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
 
                 <div id="imagelist"></div>
                 <div id="validateAttachment" class="hidden">An attachment is required.</div>
@@ -359,7 +370,7 @@
                 <input type="text" id="changesupinfo" class="hidden" />
             </div>
         </div>
-        
+
 
     </div>
     <div id="ZDistance" class="hidden">
@@ -370,7 +381,7 @@
                     <div>@Html.Raw(ViewData["Facilities2"])</div>
                     <div id="validateDFacility" class="hidden">Please select a facility.</div>
 
-                    <input type="checkbox" onchange="multichange(this)" id="multipledest"/>
+                    <input type="checkbox" onchange="multichange(this)" id="multipledest" />
                     <label for="multipledest" class="txtlabel" style="font-weight:normal">&nbsp;&nbsp;Destinations</label>
 
                     <div class="txtlabel" id="lblFromAddress">* From Address</div>
@@ -421,21 +432,24 @@
                     <input name="dUID" id="dUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
                     <div id="txtDsupinfo" class="hidden"></div>
                     <div class="hidden"><input type="checkbox" id="cbDreimbursable" />&nbsp;&nbsp;Reimbursable</div>
-</form>
+                </div>
+
+            </form>
+
 
             @using (Html.BeginForm("UploadFile", "Expense",
-                      FormMethod.Post,
-                      new
-                      {
-                          @class = "dropzone",
-                          id = "dropzone-form",
-                      }))
+                    FormMethod.Post,
+                    new
+                    {
+                        @class = "dropzone",
+                        id = "dropzone-form",
+                    }))
             {
-        <div class="fallback">
-            <input name="file" type="file" multiple />
+<div class="fallback">
+    <input name="file" type="file" multiple />
 
-        </div>
-                        <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+</div>
+                <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
 
             <div id="imagelist2"></div>
             <div id="validateAttachment2" class="hidden">An attachment is required.</div>
@@ -466,109 +480,109 @@
             <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Distance" onclick="validatedist()" />
             <div id="Dsupinfo" style="color:gray; font-size:12px"></div>
         </div>
-        </div>
-    </div>
-
-    <div id="ZMultiple" class="hidden">
-        <form asp-controller="Expense" asp-action="PostMulti" method="post">
-            <div class="txtlabel">* Facility</div>
-            <div>@Html.Raw(ViewData["Facilities3"])</div>
-            <div id="validateMFacility" class="hidden">Please select a facility.</div>
-            <hr />
-            <table>
-                <tr>
-                    <td><input type="text" id="txtDate1" name="txtDate1" class="txtboxsm" placeholder="Date" /></td>
-                    <td><input type="text" id="txtMerch1" name="txtMerch1" placeholder="Merchant" class="txtboxmd" /></td>
-                    <td><input type="text" id="txtTotal1" placeholder="Total" class="txtboxsm" /></td>
-                    <td><input type="text" id="txtDesc1" name="txtDesc1" placeholder="Description" class="txtboxmd" /></td>
-                    <td id="mtd1"><div id="mhold1">@Html.Raw(ViewData["MCATS1"])</div><span class="hidden" id="mpass1">@Html.Raw(ViewData["MCATS1"])</span></td>
-                    <td><input type="button" class="btn btn-primary" style="margin-left:5px" id="mbtn1" value="X" /></td>
-                </tr>
-            </table>
-            <hr />
-            <table>
-                <tr>
-                    <td><input type="text" id="txtDate2" name="txtDate2" class="txtboxsm" placeholder="Date" /></td>
-                    <td><input type="text" id="txtMerch2" name="txtMerch2" placeholder="Merchant" class="txtboxmd" /></td>
-                    <td><input type="text" id="txtTotal2" placeholder="Total" class="txtboxsm" /></td>
-                    <td><input type="text" id="txtDesc2" name="txtDesc2" placeholder="Description" class="txtboxmd" /></td>
-                    <td id="mtd2"><span id="mhold2">@Html.Raw(ViewData["MCATS2"])</span><span class="hidden" id="mpass2">@Html.Raw(ViewData["MCATS2"])</span></td>
-                    <td><input type="button" class="btn btn-primary" id="mbtn2" style="margin-left:5px" value="X" /></td>
-                </tr>
-            </table>
-            <hr />
-            <table>
-                <tr>
-                    <td><input type="text" id="txtDate3" name="txtDate3" class="txtboxsm" placeholder="Date" /></td>
-                    <td><input type="text" id="txtMerch3" name="txtMerch3" placeholder="Merchant" class="txtboxmd" /></td>
-                    <td><input type="text" id="txtTotal3" placeholder="Total" class="txtboxsm" /></td>
-                    <td><input type="text" id="txtDesc3" name="txtDesc3" placeholder="Description" class="txtboxmd" /></td>
-                    <td id="mtd3"><span id="mhold3">@Html.Raw(ViewData["MCATS3"])</span><span class="hidden" id="mpass3">@Html.Raw(ViewData["MCATS3"])</span></td>
-                    <td><input type="button" class="btn btn-primary" id="mbtn3" style="margin-left:5px" value="X" /></td>
-                </tr>
-            </table>
-            <hr />
-            <table>
-                <tr>
-                    <td><input type="text" id="txtDate4" name="txtDate4" class="txtboxsm" placeholder="Date" /></td>
-                    <td><input type="text" id="txtMerch4" name="txtMerch4" placeholder="Merchant" class="txtboxmd" /></td>
-                    <td><input type="text" id="txtTotal4" placeholder="Total" class="txtboxsm" /></td>
-                    <td><input type="text" id="txtDesc4" name="txtDesc4" placeholder="Description" class="txtboxmd" /></td>
-                    <td id="mtd4"><span id="mhold4">@Html.Raw(ViewData["MCATS4"])</span><span class="hidden" id="mpass4">@Html.Raw(ViewData["MCATS4"])</span></td>
-                    <td><input type="button" class="btn btn-primary" id="mbtn4" style="margin-left:5px" value="X" /></td>
-                </tr>
-            </table>
-            <hr />
-            <table>
-                <tr>
-                    <td><input type="text" id="txtDate5" name="txtDate5" class="txtboxsm" placeholder="Date" /></td>
-                    <td><input type="text" id="txtMerch5" name="txtMerch5" placeholder="Merchant" class="txtboxmd" /></td>
-                    <td><input type="text" id="txtTotal5" placeholder="Total" class="txtboxsm" /></td>
-                    <td><input type="text" id="txtDesc5" name="txtDesc5" placeholder="Description" class="txtboxmd" /></td>
-                    <td id="mtd5"><span id="mhold5">@Html.Raw(ViewData["MCATS5"])</span><span class="hidden" id="mpass5">@Html.Raw(ViewData["MCATS5"])</span></td>
-                    <td><input type="button" class="btn btn-primary" id="mbtn5" style="margin-left:5px" value="X" /></td>
-                </tr>
-            </table>
-            <hr />
-            <table>
-                <tr>
-                    <td><input type="text" id="txtDate6" name="txtDate6" class="txtboxsm" placeholder="Date" /></td>
-                    <td><input type="text" id="txtMerch6" name="txtMerch6" placeholder="Merchant" class="txtboxmd" /></td>
-                    <td><input type="text" id="txtTotal6" placeholder="Total" class="txtboxsm" /></td>
-                    <td><input type="text" id="txtDesc6" name="txtDesc6" placeholder="Description" class="txtboxmd" /></td>
-                    <td id="mtd6"><span id="mhold6">@Html.Raw(ViewData["MCATS6"])</span><span class="hidden" id="mpass6">@Html.Raw(ViewData["MCATS6"])</span></td>
-                    <td><input type="button" class="btn btn-primary" id="mbtn6" style="margin-left:5px" value="X" /></td>
-                </tr>
-            </table>
-
-            <input type="text" id="txtmcat1" name="txtmcat1" class="hidden" />
-            <input type="text" id="txtmcat2" name="txtmcat2" class="hidden" />
-            <input type="text" id="txtmcat3" name="txtmcat3" class="hidden" />
-            <input type="text" id="txtmcat4" name="txtmcat4" class="hidden" />
-            <input type="text" id="txtmcat5" name="txtmcat5" class="hidden" />
-            <input type="text" id="txtmcat6" name="txtmcat6" class="hidden" />
-
-            <input type="text" id="txtmtotal1" name="txtmtotal1" class="hidden" />
-            <input type="text" id="txtmtotal2" name="txtmtotal2" class="hidden" />
-            <input type="text" id="txtmtotal3" name="txtmtotal3" class="hidden" />
-            <input type="text" id="txtmtotal4" name="txtmtotal4" class="hidden" />
-            <input type="text" id="txtmtotal5" name="txtmtotal5" class="hidden" />
-            <input type="text" id="txtmtotal6" name="txtmtotal6" class="hidden" />
-
-            <div id="txtMsupinfo" class="hidden"></div>
-            <input type="text" id="txtMFac" name="txtMFac" class="hidden" />
-            <input name="UID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
-            <input type="button" id="subMulti" class="hidden" onclick="submit()" />
-        </form>
-        <hr />
-
-        <div id="multierrors" class="hidden">Required fields missing</div>
-        <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Multiple" onclick="validatemulti()" />
-        <div id="Msupinfo" style="color:gray; font-size:12px"></div>
-
-
     </div>
 </div>
+
+<div id="ZMultiple" class="hidden">
+    <form asp-controller="Expense" asp-action="PostMulti" method="post">
+        <div class="txtlabel">* Facility</div>
+        <div>@Html.Raw(ViewData["Facilities3"])</div>
+        <div id="validateMFacility" class="hidden">Please select a facility.</div>
+        <hr />
+        <table>
+            <tr>
+                <td><input type="text" id="txtDate1" name="txtDate1" class="txtboxsm" placeholder="Date" /></td>
+                <td><input type="text" id="txtMerch1" name="txtMerch1" placeholder="Merchant" class="txtboxmd" /></td>
+                <td><input type="text" id="txtTotal1" placeholder="Total" class="txtboxsm" /></td>
+                <td><input type="text" id="txtDesc1" name="txtDesc1" placeholder="Description" class="txtboxmd" /></td>
+                <td id="mtd1"><div id="mhold1">@Html.Raw(ViewData["MCATS1"])</div><span class="hidden" id="mpass1">@Html.Raw(ViewData["MCATS1"])</span></td>
+                <td><input type="button" class="btn btn-primary" style="margin-left:5px" id="mbtn1" value="X" /></td>
+            </tr>
+        </table>
+        <hr />
+        <table>
+            <tr>
+                <td><input type="text" id="txtDate2" name="txtDate2" class="txtboxsm" placeholder="Date" /></td>
+                <td><input type="text" id="txtMerch2" name="txtMerch2" placeholder="Merchant" class="txtboxmd" /></td>
+                <td><input type="text" id="txtTotal2" placeholder="Total" class="txtboxsm" /></td>
+                <td><input type="text" id="txtDesc2" name="txtDesc2" placeholder="Description" class="txtboxmd" /></td>
+                <td id="mtd2"><span id="mhold2">@Html.Raw(ViewData["MCATS2"])</span><span class="hidden" id="mpass2">@Html.Raw(ViewData["MCATS2"])</span></td>
+                <td><input type="button" class="btn btn-primary" id="mbtn2" style="margin-left:5px" value="X" /></td>
+            </tr>
+        </table>
+        <hr />
+        <table>
+            <tr>
+                <td><input type="text" id="txtDate3" name="txtDate3" class="txtboxsm" placeholder="Date" /></td>
+                <td><input type="text" id="txtMerch3" name="txtMerch3" placeholder="Merchant" class="txtboxmd" /></td>
+                <td><input type="text" id="txtTotal3" placeholder="Total" class="txtboxsm" /></td>
+                <td><input type="text" id="txtDesc3" name="txtDesc3" placeholder="Description" class="txtboxmd" /></td>
+                <td id="mtd3"><span id="mhold3">@Html.Raw(ViewData["MCATS3"])</span><span class="hidden" id="mpass3">@Html.Raw(ViewData["MCATS3"])</span></td>
+                <td><input type="button" class="btn btn-primary" id="mbtn3" style="margin-left:5px" value="X" /></td>
+            </tr>
+        </table>
+        <hr />
+        <table>
+            <tr>
+                <td><input type="text" id="txtDate4" name="txtDate4" class="txtboxsm" placeholder="Date" /></td>
+                <td><input type="text" id="txtMerch4" name="txtMerch4" placeholder="Merchant" class="txtboxmd" /></td>
+                <td><input type="text" id="txtTotal4" placeholder="Total" class="txtboxsm" /></td>
+                <td><input type="text" id="txtDesc4" name="txtDesc4" placeholder="Description" class="txtboxmd" /></td>
+                <td id="mtd4"><span id="mhold4">@Html.Raw(ViewData["MCATS4"])</span><span class="hidden" id="mpass4">@Html.Raw(ViewData["MCATS4"])</span></td>
+                <td><input type="button" class="btn btn-primary" id="mbtn4" style="margin-left:5px" value="X" /></td>
+            </tr>
+        </table>
+        <hr />
+        <table>
+            <tr>
+                <td><input type="text" id="txtDate5" name="txtDate5" class="txtboxsm" placeholder="Date" /></td>
+                <td><input type="text" id="txtMerch5" name="txtMerch5" placeholder="Merchant" class="txtboxmd" /></td>
+                <td><input type="text" id="txtTotal5" placeholder="Total" class="txtboxsm" /></td>
+                <td><input type="text" id="txtDesc5" name="txtDesc5" placeholder="Description" class="txtboxmd" /></td>
+                <td id="mtd5"><span id="mhold5">@Html.Raw(ViewData["MCATS5"])</span><span class="hidden" id="mpass5">@Html.Raw(ViewData["MCATS5"])</span></td>
+                <td><input type="button" class="btn btn-primary" id="mbtn5" style="margin-left:5px" value="X" /></td>
+            </tr>
+        </table>
+        <hr />
+        <table>
+            <tr>
+                <td><input type="text" id="txtDate6" name="txtDate6" class="txtboxsm" placeholder="Date" /></td>
+                <td><input type="text" id="txtMerch6" name="txtMerch6" placeholder="Merchant" class="txtboxmd" /></td>
+                <td><input type="text" id="txtTotal6" placeholder="Total" class="txtboxsm" /></td>
+                <td><input type="text" id="txtDesc6" name="txtDesc6" placeholder="Description" class="txtboxmd" /></td>
+                <td id="mtd6"><span id="mhold6">@Html.Raw(ViewData["MCATS6"])</span><span class="hidden" id="mpass6">@Html.Raw(ViewData["MCATS6"])</span></td>
+                <td><input type="button" class="btn btn-primary" id="mbtn6" style="margin-left:5px" value="X" /></td>
+            </tr>
+        </table>
+
+        <input type="text" id="txtmcat1" name="txtmcat1" class="hidden" />
+        <input type="text" id="txtmcat2" name="txtmcat2" class="hidden" />
+        <input type="text" id="txtmcat3" name="txtmcat3" class="hidden" />
+        <input type="text" id="txtmcat4" name="txtmcat4" class="hidden" />
+        <input type="text" id="txtmcat5" name="txtmcat5" class="hidden" />
+        <input type="text" id="txtmcat6" name="txtmcat6" class="hidden" />
+
+        <input type="text" id="txtmtotal1" name="txtmtotal1" class="hidden" />
+        <input type="text" id="txtmtotal2" name="txtmtotal2" class="hidden" />
+        <input type="text" id="txtmtotal3" name="txtmtotal3" class="hidden" />
+        <input type="text" id="txtmtotal4" name="txtmtotal4" class="hidden" />
+        <input type="text" id="txtmtotal5" name="txtmtotal5" class="hidden" />
+        <input type="text" id="txtmtotal6" name="txtmtotal6" class="hidden" />
+
+        <div id="txtMsupinfo" class="hidden"></div>
+        <input type="text" id="txtMFac" name="txtMFac" class="hidden" />
+        <input name="UID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />
+        <input type="button" id="subMulti" class="hidden" onclick="submit()" />
+    </form>
+    <hr />
+
+    <div id="multierrors" class="hidden">Required fields missing</div>
+    <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Multiple" onclick="validatemulti()" />
+    <div id="Msupinfo" style="color:gray; font-size:12px"></div>
+
+
+</div>
+
 
 
 <div id="Expense" class="tabcontent" style="display:block">
@@ -605,7 +619,9 @@
         </div>
     </div>
 </div>
+<script>
 
+</script>
 
 <script>
     function facilitychange() {
@@ -613,7 +629,9 @@
         $.get("/Expense/getCats", { stritem: document.getElementById('ddFac').value }, function (data) { changeddcat(data) });
     }
 
+
     function changeddcat(data) {
+
         var select = document.getElementById('ddCat')
         var options = data.split('$$$$$')
 
@@ -664,7 +682,7 @@
 
     function validatesub() {
         var errors = 0
-    
+
         var amount = document.getElementById('txtTotal').value
         amount = amount.replace('$', '')
         amount = amount.replace(' ', '')
@@ -762,11 +780,11 @@
                 completesupsave(data)
             });
         }
-        
+
     }
 
     function completesupsave(data) {
-        
+
         document.getElementById('supinfo').innerHTML = data;
         document.getElementById('Dsupinfo').innerHTML = data;
         document.getElementById('Msupinfo').innerHTML = data;
@@ -808,11 +826,11 @@
 
         document.getElementById(tabname).className = "tabseta"
         document.getElementById(tabb).className = "tabsetb"
-        
+
 
         document.getElementById('Z' + tabname).className = "tab-panelsx"
         document.getElementById('Z' + tabb).className = "hidden"
-        
+
     }
 
     function calcmile() {
@@ -880,7 +898,7 @@
             document.getElementById('validateDCategory').className = 'hidden'
         }
 
-        if (document.getElementById('ddDFac').options[document.getElementById('ddDFac').selectedIndex].text; == '') {
+        if (document.getElementById('ddDFac').options[document.getElementById('ddDFac').selectedIndex].text == '') {
             document.getElementById('validateDFacility').className = 'validation'
             errors = 1
         } else {

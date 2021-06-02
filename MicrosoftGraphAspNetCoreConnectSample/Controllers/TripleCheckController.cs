@@ -554,21 +554,21 @@ namespace PGWebFormsCore.Controllers
 
                     string paymenttype = "<select class=\"txtbox\" id=\"ddPaymentType\" onchange=\"paymenttype(this)\">";
 
-                    if (Convert.ToString(idr["PaymentType"]) == "PDPM")
+                    if (Convert.ToString(idr["PaymentType"]) == "HMO A - PDPM")
                     {
-                        paymenttype += "<option selected=\"selected\">PDPM</option>";
+                        paymenttype += "<option selected=\"selected\">HMO A - PDPM</option>";
                     } else
                     {
-                        paymenttype += "<option>PDPM</option>";
+                        paymenttype += "<option>HMO A - PDPM</option>";
                     }
 
-                    if (Convert.ToString(idr["PaymentType"]) == "HMO A")
+                    if (Convert.ToString(idr["PaymentType"]) == "HMO A - RUG")
                     {
-                        paymenttype += "<option selected=\"selected\">HMO A</option>";
+                        paymenttype += "<option selected=\"selected\">HMO A - RUG</option>";
                     }
                     else
                     {
-                        paymenttype += "<option>HMO A</option>";
+                        paymenttype += "<option>HMO A - RUG</option>";
                     }
 
                     if (Convert.ToString(idr["PaymentType"]) == "Levels")
@@ -587,6 +587,15 @@ namespace PGWebFormsCore.Controllers
                     else
                     {
                         paymenttype += "<option>MCB</option>";
+                    }
+
+                    if (Convert.ToString(idr["PaymentType"]) == "MED A - PDPM")
+                    {
+                        paymenttype += "<option selected=\"selected\">MED A - PDPM</option>";
+                    }
+                    else
+                    {
+                        paymenttype += "<option>MED A - PDPM</option>";
                     }
 
                     paymenttype += "</select>";

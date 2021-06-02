@@ -32,9 +32,9 @@
 <script src="~/js/bootstrap-datepicker.min.js"></script>
 
   <script>
-  $( function() {
-    $( document ).tooltip();
-  } );
+  //$( function() {
+  //  $( document ).tooltip();
+  //} );
   </script>
 
 <script type="text/javascript">
@@ -99,8 +99,18 @@
         dcdaychange()
         
         
-        patientleave(document.getElementById('ddBOPatient'), 'no')
-        mdsadddays('no')
+        patientleave(document.getElementById('ddBOPatient'), 'no', '')
+        patientleave(document.getElementById('ddBOPatient1'), 'no', 1)
+        patientleave(document.getElementById('ddBOPatient1'), 'no', 2)
+        patientleave(document.getElementById('ddBOPatient1'), 'no', 3)
+        patientleave(document.getElementById('ddBOPatient1'), 'no', 4)
+        mdsadddays('no', '')
+        mdsadddays('no', 1)
+        mdsadddays('no', 2)
+        mdsadddays('no', 3)
+        mdsadddays('no', 4)
+
+        checkopenmds()
 
         consentcheck()
         checkinitial()
@@ -265,7 +275,21 @@
             'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
         });
 
+        $("#txtMDSUnbillDays1").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+        });
 
+                $("#txtMDSUnbillDays2").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+                });
+
+                $("#txtMDSUnbillDays3").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+                });
+
+        $("#txtMDSUnbillDays4").inputmask({
+            'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+        });
 
     });
 
@@ -445,6 +469,11 @@
         visibility: hidden;
     }
 
+    .MDSoverride {
+        display: none;
+        visibility: hidden;
+    }
+
     .therapyvisable {
         display: none;
         visibility: hidden;
@@ -504,8 +533,8 @@
         <div><input type="text" id="txtStartDate" class="txtbox" name="txtStartDate" disabled="disabled" value="@Html.Raw(ViewData["staydate"])" onkeyup="startdate()" onchange="startdate()" /></div>
         <div id="ValidationStartDate" class="hidden">Please enter a valid date.</div>
 
-        <div class="txtlabel">Additional assessment for the same stay?</div>
-        <div>
+        <div class="txtlabel hidden">Additional assessment for the same stay?</div>
+        <div class="hidden">
             @Html.Raw(ViewData["AdditionalAssessment"])
         </div>
 
@@ -681,17 +710,6 @@
             <td>Therapy modifiers are present as needed (KX, 59, CO, CQ)</td>
             <td id="tdBOModifiersConfirm" class="confirmed"></td>
         </tr>
-        <tr class="pay pdpm hmoa trerror" style="border:none" id="trBOPatient">
-            <td id="tdBOPatient" class="tderror">
-                <select class="txtbox" id="ddBOPatient" onchange="patientleave(this, 'save'); mdsadddays('save')">
-                    <option></option>
-                    <option>No</option>
-                    <option>Yes</option>
-                </select>
-            </td>
-            <td>Did the patient have a leave during the billing period?</td>
-            <td id="tdBOPatientConfirm" class="confirmed"></td>
-        </tr>
     </table>
     <div style="height:20px"></div>
 </div>
@@ -825,6 +843,17 @@
 <div class="content" style="border: 1px solid black" id="MDSContent">
     <div style="height:20px"></div>
     <table class="TableClick content">
+        <tr class="pay pdpm hmoa trerror" style="border:none" id="trBOPatient">
+            <td id="tdBOPatient" class="tderror">
+                <select class="txtbox" id="ddBOPatient" onchange="patientleave(this, 'save', ''); mdsadddays('save', '')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Did the patient have a leave during the billing period?</td>
+            <td id="tdBOPatientConfirm" class="confirmed"></td>
+        </tr>
         <tr class="pay pdpm hmoa levels mcb trerror" id="trMDSPayment">
             <td id="tdMDSPayment" class="tderror">
                 <select class="txtbox" id="ddMDSPayment" onchange="ddcheck('MDSPayment')">
@@ -835,7 +864,7 @@
             </td>
             <td>
                 Payment Information on this line Affects Billing Next Month
-                    <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
+                <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
             </td>
             <td id="tdMDSPaymentConfirm" class="confirmed"></td>
         </tr>
@@ -855,14 +884,6 @@
                 <select class="txtbox" id="ddMDSAssessmentType" onchange="ddcheck('MDSAssessmentType')">
                     <option></option>
                     <option>5 day</option>
-                    <option>IPA</option>
-                    <option>14 day</option>
-                    <option>30 day</option>
-                    <option>60 day</option>
-                    <option>90 day</option>
-                    <option>COT</option>
-                    <option>EOT</option>
-                    <option>SOT</option>
                 </select>
             </td>
             <td>Assessment Type</td>
@@ -874,7 +895,6 @@
                 <select class="txtbox" id="ddMDSAssessmentTypePDPM" onchange="ddcheck('MDSAssessmentTypePDPM')">
                     <option></option>
                     <option>5 day</option>
-                    <option>IPA</option>
                 </select>
             </td>
             <td>Assessment Type</td>
@@ -891,23 +911,26 @@
 
         <tr class="pay pdpm hmoa trerror" id="trMDSUnbillDays">
             <td id="tdMDSUnbillDays" class="tderror">
-                <input type="text" class="txtbox" id="txtMDSUnbillDays" disabled="disabled" value="0" onkeyup="numdaysinter(); mdsadddays('save')" />
+                <input type="text" class="txtbox" id="txtMDSUnbillDays" disabled="disabled" value="0" onkeyup="numdaysinter(''); mdsadddays('save', '')" />
             </td>
-            <td>Number of Unbillable Days due to Interrupted Stay/Skip days</td>
+            <td>
+                Number of Unbillable Days due to Interrupted Stay/Skip days
+                <img src="~/images/questionmark.png" style="height:15px" title="Not to exceed 2 consecutive LOA days(May have more than 1 leave of absense during skilled stay)" />
+            </td>
             <td id="tdMDSUnbillDaysConfirm" class="confirmed"></td>
         </tr>
 
         <tr class="pay pdpm hmoa trerror" id="trMDSARDStart">
             <td id="tdMDSARDStart" class="tderror">
-                <input type="text" class="txtbox txtdate" id="txtMDSARDStart" onchange="datecheck('MDSARDStart'); mdsadddays('save')" onkeyup="datecheck('MDSARDStart'); mdsadddays('save')" />
+                <input type="text" class="txtbox txtdate" id="txtMDSARDStart" onchange="datecheck('MDSARDStart'); mdsadddays('save', '')" onkeyup="datecheck('MDSARDStart'); mdsadddays('save', '')" />
             </td>
             <td>ARD Assessment Coverage Start Date</td>
             <td id="tdMDSARDStartConfirm" class="confirmed"></td>
         </tr>
 
-        <tr class="pay pdpm hmoa trerror" id="trMDSARDEnd">
-            <td id="tdMDSARDEnd" class="tderror">
-                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd" onchange="datecheck('MDSARDEnd'); mdsadddays('save')" onkeyup="datecheck('MDSARDEnd'); mdsadddays('save')" />
+        <tr class="pay pdpm hmoa" id="trMDSARDEnd">
+            <td id="tdMDSARDEnd">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd" onchange="datechecknoerror('MDSARDEnd'); mdsadddays('save', '')" onkeyup="datechecknoerror('MDSARDEnd'); mdsadddays('save', '')" />
             </td>
             <td>ARD Assessment Coverage End Date</td>
             <td id="tdMDSARDEndConfirm" class="confirmed"></td>
@@ -969,7 +992,637 @@
             <td id="tdMDSNursingConfirm" class="confirmed"></td>
         </tr>
     </table>
+
+
+    <hr style="border-top: 2px solid black;" />
+
+
+    <table class="TableClick content MDSoverride" id="track1">
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trBOPatient1">
+            <td id="tdBOPatient1" class="tderror">
+                <select class="txtbox" id="ddBOPatient1" onchange="patientleave(this, 'save', 1); mdsadddays('save', 1)">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Did the patient have a leave during the billing period?</td>
+            <td id="tdBOPatient1Confirm" class="confirmed"></td>
+        </tr>
+        <tr class="pay pdpm hmoa levels mcb trerror MDSoverride" id="trMDSPayment1">
+            <td id="tdMDSPayment1" class="tderror">
+                <select class="txtbox" id="ddMDSPayment1" onchange="ddcheck('MDSPayment1')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>
+                Payment Information on this line Affects Billing Next Month
+                <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
+            </td>
+            <td id="tdMDSPayment1Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARD1">
+            <td id="tdMDSARD1" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARD1" onchange="datecheck('MDSARD1')" onkeyup="datecheck('MDSARD1')" />
+            </td>
+            <td>ARD</td>
+            <td id="tdMDSARD1Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay hmoa trerror MDSoverride" id="trMDSAssessmentType1">
+            <td id="tdMDSAssessmentType1" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentType1" onchange="ddcheck('MDSAssessmentType1')">
+                    <option></option>
+                    <option>14 day</option>
+                    <option>30 day</option>
+                    <option>60 day</option>
+                    <option>90 day</option>
+                    <option>COT</option>
+                    <option>EOT</option>
+                    <option>SOT</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentType1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm trerror MDSoverride" id="trMDSAssessmentTypePDPM1">
+            <td id="tdMDSAssessmentTypePDPM1" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentTypePDPM1" onchange="ddcheck('MDSAssessmentTypePDPM1')">
+                    <option></option>
+                    <option>IPA</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentTypePDPM1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSHIPPS1">
+            <td id="tdMDSHIPPS1" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSHIPPS1" onkeyup="textcheck('MDSHIPPS1')" />
+            </td>
+            <td>HIPPS Code</td>
+            <td id="tdMDSHIPPS1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSUnbillDays1">
+            <td id="tdMDSUnbillDays1" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSUnbillDays1" disabled="disabled" value="0" onkeyup="numdaysinter(1); mdsadddays('save', 1)" />
+            </td>
+            <td>
+                Number of Unbillable Days due to Interrupted Stay/Skip days
+                <img src="~/images/questionmark.png" style="height:15px" title="Not to exceed 2 consecutive LOA days(May have more than 1 leave of absense during skilled stay)" />
+            </td>
+            <td id="tdMDSUnbillDays1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARDStart1">
+            <td id="tdMDSARDStart1" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDStart1" onchange="datecheck('MDSARDStart1'); mdsadddays('save', 1)" onkeyup="datecheck('MDSARDStart1'); mdsadddays('save', 1)" />
+            </td>
+            <td>ARD Assessment Coverage Start Date</td>
+            <td id="tdMDSARDStart1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa MDSoverride" id="trMDSARDEnd1">
+            <td id="tdMDSARDEnd1">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd1" onchange="datechecknoerror('MDSARDEnd1'); mdsadddays('save', 1)" onkeyup="datechecknoerror('MDSARDEnd1'); mdsadddays('save', 1)" />
+            </td>
+            <td>ARD Assessment Coverage End Date</td>
+            <td id="tdMDSARDEnd1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNumDays1">
+            <td id="tdMDSNumDays1" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSNumDays1" disabled="disabled" />
+            </td>
+            <td>ARD Number of Days Billed</td>
+            <td id="tdMDSNumDays1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSTransmitted1">
+            <td id="tdMDSTransmitted1" class="tderror">
+                <input type="checkbox" id="cbMDSTransmitted1" onchange="cbcheck('MDSTransmitted1')" />
+            </td>
+            <td>MDS Transmitted and Accepted</td>
+            <td id="tdMDSTransmitted1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSPTOT1">
+            <td id="tdMDSPTOT1" class="tderror">
+                <input type="checkbox" id="cbMDSPTOT1" onchange="cbcheck('MDSPTOT1')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports PT/OT CMG </td>
+            <td id="tdMDSPTOT1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSSLP1">
+            <td id="tdMDSSLP1" class="tderror">
+                <input type="checkbox" id="cbMDSSLP1" onchange="cbcheck('MDSSLP1')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports SLP CMG </td>
+            <td id="tdMDSSLP1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNTA1">
+            <td id="tdMDSNTA1" class="tderror">
+                <input type="checkbox" id="cbMDSNTA1" onchange="cbcheck('MDSNTA1')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports NTA CMG </td>
+            <td id="tdMDSNTA1Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trMDSNursing1">
+            <td id="tdMDSNursing1" class="tderror">
+                <input type="checkbox" id="cbMDSNursing1" onchange="cbcheck('MDSNursing1')" />
+            </td>
+            <td>ARD Look-back and Care Plan documentation supports Nursing CMG </td>
+            <td id="tdMDSNursing1Confirm" class="confirmed"></td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 2px solid black;" id="trackhead2" class="hidden" />
+    <input type="button" class="btn btn-primary" value="Add Track" id="addtrack1" onclick="addtrack(1)" />
+    <input type="button" class="btn btn-primary hidden" value="Add Track" id="addtrack2" onclick="addtrack(2)" />
+    <input type="button" class="btn btn-primary hidden" value="Remove Track" id="removetrack1" onclick="removetrack(1)" />
+    <div style="height:20px" id="trackspace2"></div>
+
+
+
+
+    <table class="TableClick content MDSoverride" id="track2">
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trBOPatient2">
+            <td id="tdBOPatient2" class="tderror">
+                <select class="txtbox" id="ddBOPatient2" onchange="patientleave(this, 'save', 2); mdsadddays('save', 2)">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Did the patient have a leave during the billing period?</td>
+            <td id="tdBOPatient2Confirm" class="confirmed"></td>
+        </tr>
+        <tr class="pay pdpm hmoa levels mcb trerror MDSoverride" id="trMDSPayment2">
+            <td id="tdMDSPayment2" class="tderror">
+                <select class="txtbox" id="ddMDSPayment2" onchange="ddcheck('MDSPayment2')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>
+                Payment Information on this line Affects Billing Next Month
+                <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
+            </td>
+            <td id="tdMDSPayment2Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARD2">
+            <td id="tdMDSARD2" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARD2" onchange="datecheck('MDSARD2')" onkeyup="datecheck('MDSARD2')" />
+            </td>
+            <td>ARD</td>
+            <td id="tdMDSARD2Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay hmoa trerror MDSoverride" id="trMDSAssessmentType2">
+            <td id="tdMDSAssessmentType2" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentType2" onchange="ddcheck('MDSAssessmentType2')">
+                    <option></option>
+                    <option>24 day</option>
+                    <option>30 day</option>
+                    <option>60 day</option>
+                    <option>90 day</option>
+                    <option>COT</option>
+                    <option>EOT</option>
+                    <option>SOT</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentType2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm trerror MDSoverride" id="trMDSAssessmentTypePDPM2">
+            <td id="tdMDSAssessmentTypePDPM2" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentTypePDPM2" onchange="ddcheck('MDSAssessmentTypePDPM2')">
+                    <option></option>
+                    <option>IPA</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentTypePDPM2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSHIPPS2">
+            <td id="tdMDSHIPPS2" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSHIPPS2" onkeyup="textcheck('MDSHIPPS2')" />
+            </td>
+            <td>HIPPS Code</td>
+            <td id="tdMDSHIPPS2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSUnbillDays2">
+            <td id="tdMDSUnbillDays2" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSUnbillDays2" disabled="disabled" value="0" onkeyup="numdaysinter(2); mdsadddays('save', 2)" />
+            </td>
+            <td>
+                Number of Unbillable Days due to Interrupted Stay/Skip days
+                <img src="~/images/questionmark.png" style="height:15px" title="Not to exceed 2 consecutive LOA days(May have more than 2 leave of absense during skilled stay)" />
+            </td>
+            <td id="tdMDSUnbillDays2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARDStart2">
+            <td id="tdMDSARDStart2" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDStart2" onchange="datecheck('MDSARDStart2'); mdsadddays('save', 2)" onkeyup="datecheck('MDSARDStart2'); mdsadddays('save', 2)" />
+            </td>
+            <td>ARD Assessment Coverage Start Date</td>
+            <td id="tdMDSARDStart2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa MDSoverride" id="trMDSARDEnd2">
+            <td id="tdMDSARDEnd2">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd2" onchange="datechecknoerror('MDSARDEnd2'); mdsadddays('save', 2)" onkeyup="datechecknoerror('MDSARDEnd2'); mdsadddays('save', 2)" />
+            </td>
+            <td>ARD Assessment Coverage End Date</td>
+            <td id="tdMDSARDEnd2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNumDays2">
+            <td id="tdMDSNumDays2" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSNumDays2" disabled="disabled" />
+            </td>
+            <td>ARD Number of Days Billed</td>
+            <td id="tdMDSNumDays2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSTransmitted2">
+            <td id="tdMDSTransmitted2" class="tderror">
+                <input type="checkbox" id="cbMDSTransmitted2" onchange="cbcheck('MDSTransmitted2')" />
+            </td>
+            <td>MDS Transmitted and Accepted</td>
+            <td id="tdMDSTransmitted2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSPTOT2">
+            <td id="tdMDSPTOT2" class="tderror">
+                <input type="checkbox" id="cbMDSPTOT2" onchange="cbcheck('MDSPTOT2')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports PT/OT CMG </td>
+            <td id="tdMDSPTOT2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSSLP2">
+            <td id="tdMDSSLP2" class="tderror">
+                <input type="checkbox" id="cbMDSSLP2" onchange="cbcheck('MDSSLP2')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports SLP CMG </td>
+            <td id="tdMDSSLP2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNTA2">
+            <td id="tdMDSNTA2" class="tderror">
+                <input type="checkbox" id="cbMDSNTA2" onchange="cbcheck('MDSNTA2')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports NTA CMG </td>
+            <td id="tdMDSNTA2Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trMDSNursing2">
+            <td id="tdMDSNursing2" class="tderror">
+                <input type="checkbox" id="cbMDSNursing2" onchange="cbcheck('MDSNursing2')" />
+            </td>
+            <td>ARD Look-back and Care Plan documentation supports Nursing CMG </td>
+            <td id="tdMDSNursing2Confirm" class="confirmed"></td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 2px solid black;" id="trackhead3" class="hidden" />
+    <input type="button" class="btn btn-primary hidden" value="Add Track" id="addtrack3" onclick="addtrack(3)" />
+    <input type="button" class="btn btn-primary hidden" value="Remove Track" id="removetrack2" onclick="removetrack(2)" />
+    <div style="height:20px" id="trackspace3" class="hidden"></div>
+
+
+
+    <table class="TableClick content MDSoverride" id="track3">
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trBOPatient3">
+            <td id="tdBOPatient3" class="tderror">
+                <select class="txtbox" id="ddBOPatient3" onchange="patientleave(this, 'save', 3); mdsadddays('save', 3)">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Did the patient have a leave during the billing period?</td>
+            <td id="tdBOPatient3Confirm" class="confirmed"></td>
+        </tr>
+        <tr class="pay pdpm hmoa levels mcb trerror MDSoverride" id="trMDSPayment3">
+            <td id="tdMDSPayment3" class="tderror">
+                <select class="txtbox" id="ddMDSPayment3" onchange="ddcheck('MDSPayment3')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>
+                Payment Information on this line Affects Billing Next Month
+                <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
+            </td>
+            <td id="tdMDSPayment3Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARD3">
+            <td id="tdMDSARD3" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARD3" onchange="datecheck('MDSARD3')" onkeyup="datecheck('MDSARD3')" />
+            </td>
+            <td>ARD</td>
+            <td id="tdMDSARD3Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay hmoa trerror MDSoverride" id="trMDSAssessmentType3">
+            <td id="tdMDSAssessmentType3" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentType3" onchange="ddcheck('MDSAssessmentType3')">
+                    <option></option>
+                    <option>34 day</option>
+                    <option>30 day</option>
+                    <option>60 day</option>
+                    <option>90 day</option>
+                    <option>COT</option>
+                    <option>EOT</option>
+                    <option>SOT</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentType3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm trerror MDSoverride" id="trMDSAssessmentTypePDPM3">
+            <td id="tdMDSAssessmentTypePDPM3" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentTypePDPM3" onchange="ddcheck('MDSAssessmentTypePDPM3')">
+                    <option></option>
+                    <option>IPA</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentTypePDPM3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSHIPPS3">
+            <td id="tdMDSHIPPS3" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSHIPPS3" onkeyup="textcheck('MDSHIPPS3')" />
+            </td>
+            <td>HIPPS Code</td>
+            <td id="tdMDSHIPPS3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSUnbillDays3">
+            <td id="tdMDSUnbillDays3" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSUnbillDays3" disabled="disabled" value="0" onkeyup="numdaysinter(3); mdsadddays('save', 3)" />
+            </td>
+            <td>
+                Number of Unbillable Days due to Interrupted Stay/Skip days
+                <img src="~/images/questionmark.png" style="height:15px" title="Not to exceed 3 consecutive LOA days(May have more than 3 leave of absense during skilled stay)" />
+            </td>
+            <td id="tdMDSUnbillDays3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARDStart3">
+            <td id="tdMDSARDStart3" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDStart3" onchange="datecheck('MDSARDStart3'); mdsadddays('save', 3)" onkeyup="datecheck('MDSARDStart3'); mdsadddays('save', 3)" />
+            </td>
+            <td>ARD Assessment Coverage Start Date</td>
+            <td id="tdMDSARDStart3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa MDSoverride" id="trMDSARDEnd3">
+            <td id="tdMDSARDEnd3">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd3" onchange="datechecknoerror('MDSARDEnd3'); mdsadddays('save', 3)" onkeyup="datechecknoerror('MDSARDEnd3'); mdsadddays('save', 3)" />
+            </td>
+            <td>ARD Assessment Coverage End Date</td>
+            <td id="tdMDSARDEnd3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNumDays3">
+            <td id="tdMDSNumDays3" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSNumDays3" disabled="disabled" />
+            </td>
+            <td>ARD Number of Days Billed</td>
+            <td id="tdMDSNumDays3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSTransmitted3">
+            <td id="tdMDSTransmitted3" class="tderror">
+                <input type="checkbox" id="cbMDSTransmitted3" onchange="cbcheck('MDSTransmitted3')" />
+            </td>
+            <td>MDS Transmitted and Accepted</td>
+            <td id="tdMDSTransmitted3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSPTOT3">
+            <td id="tdMDSPTOT3" class="tderror">
+                <input type="checkbox" id="cbMDSPTOT3" onchange="cbcheck('MDSPTOT3')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports PT/OT CMG </td>
+            <td id="tdMDSPTOT3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSSLP3">
+            <td id="tdMDSSLP3" class="tderror">
+                <input type="checkbox" id="cbMDSSLP3" onchange="cbcheck('MDSSLP3')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports SLP CMG </td>
+            <td id="tdMDSSLP3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNTA3">
+            <td id="tdMDSNTA3" class="tderror">
+                <input type="checkbox" id="cbMDSNTA3" onchange="cbcheck('MDSNTA3')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports NTA CMG </td>
+            <td id="tdMDSNTA3Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trMDSNursing3">
+            <td id="tdMDSNursing3" class="tderror">
+                <input type="checkbox" id="cbMDSNursing3" onchange="cbcheck('MDSNursing3')" />
+            </td>
+            <td>ARD Look-back and Care Plan documentation supports Nursing CMG </td>
+            <td id="tdMDSNursing3Confirm" class="confirmed"></td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 2px solid black;" id="trackhead4" class="hidden" />
+    <input type="button" class="btn btn-primary hidden" value="Add Track" id="addtrack4" onclick="addtrack(4)" />
+    <input type="button" class="btn btn-primary hidden" value="Remove Track" id="removetrack3" onclick="removetrack(3)" />
+    <div style="height:20px" id="trackspace4" class="hidden"></div>
+
+
+
+    <table class="TableClick content MDSoverride" id="track4">
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trBOPatient4">
+            <td id="tdBOPatient4" class="tderror">
+                <select class="txtbox" id="ddBOPatient4" onchange="patientleave(this, 'save', 4); mdsadddays('save', 4)">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>Did the patient have a leave during the billing period?</td>
+            <td id="tdBOPatient4Confirm" class="confirmed"></td>
+        </tr>
+        <tr class="pay pdpm hmoa levels mcb trerror MDSoverride" id="trMDSPayment4">
+            <td id="tdMDSPayment4" class="tderror">
+                <select class="txtbox" id="ddMDSPayment4" onchange="ddcheck('MDSPayment4')">
+                    <option></option>
+                    <option>No</option>
+                    <option>Yes</option>
+                </select>
+            </td>
+            <td>
+                Payment Information on this line Affects Billing Next Month
+                <img src="~/images/questionmark.png" style="height:15px" title="Yes, if patient will have continued stay into next billing month." />
+            </td>
+            <td id="tdMDSPayment4Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARD4">
+            <td id="tdMDSARD4" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARD4" onchange="datecheck('MDSARD4')" onkeyup="datecheck('MDSARD4')" />
+            </td>
+            <td>ARD</td>
+            <td id="tdMDSARD4Confirm" class="confirmed"></td>
+        </tr>
+
+
+        <tr class="pay hmoa trerror MDSoverride" id="trMDSAssessmentType4">
+            <td id="tdMDSAssessmentType4" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentType4" onchange="ddcheck('MDSAssessmentType4')">
+                    <option></option>
+                    <option>44 day</option>
+                    <option>40 day</option>
+                    <option>60 day</option>
+                    <option>90 day</option>
+                    <option>COT</option>
+                    <option>EOT</option>
+                    <option>SOT</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentType4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm trerror MDSoverride" id="trMDSAssessmentTypePDPM4">
+            <td id="tdMDSAssessmentTypePDPM4" class="tderror">
+                <select class="txtbox" id="ddMDSAssessmentTypePDPM4" onchange="ddcheck('MDSAssessmentTypePDPM4')">
+                    <option></option>
+                    <option>IPA</option>
+                </select>
+            </td>
+            <td>Assessment Type</td>
+            <td id="tdMDSAssessmentTypePDPM4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSHIPPS4">
+            <td id="tdMDSHIPPS4" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSHIPPS4" onkeyup="textcheck('MDSHIPPS4')" />
+            </td>
+            <td>HIPPS Code</td>
+            <td id="tdMDSHIPPS4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSUnbillDays4">
+            <td id="tdMDSUnbillDays4" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSUnbillDays4" disabled="disabled" value="0" onkeyup="numdaysinter(4); mdsadddays('save', 4)" />
+            </td>
+            <td>
+                Number of Unbillable Days due to Interrupted Stay/Skip days
+                <img src="~/images/questionmark.png" style="height:15px" title="Not to exceed 4 consecutive LOA days(May have more than 4 leave of absense during skilled stay)" />
+            </td>
+            <td id="tdMDSUnbillDays4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSARDStart4">
+            <td id="tdMDSARDStart4" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDStart4" onchange="datecheck('MDSARDStart4'); mdsadddays('save', 4)" onkeyup="datecheck('MDSARDStart4'); mdsadddays('save', 4)" />
+            </td>
+            <td>ARD Assessment Coverage Start Date</td>
+            <td id="tdMDSARDStart4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa MDSoverride" id="trMDSARDEnd4">
+            <td id="tdMDSARDEnd4">
+                <input type="text" class="txtbox txtdate" id="txtMDSARDEnd4" onchange="datechecknoerror('MDSARDEnd4'); mdsadddays('save', 4)" onkeyup="datechecknoerror('MDSARDEnd4'); mdsadddays('save', 4)" />
+            </td>
+            <td>ARD Assessment Coverage End Date</td>
+            <td id="tdMDSARDEnd4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNumDays4">
+            <td id="tdMDSNumDays4" class="tderror">
+                <input type="text" class="txtbox" id="txtMDSNumDays4" disabled="disabled" />
+            </td>
+            <td>ARD Number of Days Billed</td>
+            <td id="tdMDSNumDays4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSTransmitted4">
+            <td id="tdMDSTransmitted4" class="tderror">
+                <input type="checkbox" id="cbMDSTransmitted4" onchange="cbcheck('MDSTransmitted4')" />
+            </td>
+            <td>MDS Transmitted and Accepted</td>
+            <td id="tdMDSTransmitted4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSPTOT4">
+            <td id="tdMDSPTOT4" class="tderror">
+                <input type="checkbox" id="cbMDSPTOT4" onchange="cbcheck('MDSPTOT4')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports PT/OT CMG </td>
+            <td id="tdMDSPTOT4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSSLP4">
+            <td id="tdMDSSLP4" class="tderror">
+                <input type="checkbox" id="cbMDSSLP4" onchange="cbcheck('MDSSLP4')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports SLP CMG </td>
+            <td id="tdMDSSLP4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" id="trMDSNTA4">
+            <td id="tdMDSNTA4" class="tderror">
+                <input type="checkbox" id="cbMDSNTA4" onchange="cbcheck('MDSNTA4')" />
+            </td>
+            <td>ARD look-back and Care Plan documentation supports NTA CMG </td>
+            <td id="tdMDSNTA4Confirm" class="confirmed"></td>
+        </tr>
+
+        <tr class="pay pdpm hmoa trerror MDSoverride" style="border:none" id="trMDSNursing4">
+            <td id="tdMDSNursing4" class="tderror">
+                <input type="checkbox" id="cbMDSNursing4" onchange="cbcheck('MDSNursing4')" />
+            </td>
+            <td>ARD Look-back and Care Plan documentation supports Nursing CMG </td>
+            <td id="tdMDSNursing4Confirm" class="confirmed"></td>
+        </tr>
+    </table>
+
+    <hr style="border-top: 2px solid black;" id="trackhead5" class="hidden" />
+    
+    <input type="button" class="btn btn-primary hidden" value="Remove Track" id="removetrack4" onclick="removetrack(4)" />
+
+
     <div style="height:20px"></div>
+
 </div>
 
 <button class="collapsible yes" style="background-color:lightblue" id="btnMDSTherapy">
@@ -1304,9 +1957,9 @@
             <td id="tdPTEvalDateConfirm" class="confirmed"></td>
         </tr>
 
-        <tr class="yes therapyvisable" id="trPTEvalDateSigned">
-            <td id="tdPTEvalDateSigned" class="">
-                <input type="text" class="txtbox txtdate" id="txtPTEvalDateSigned" onchange="datechecknoerror('PTEvalDateSigned'); checkevalsign('PT')" onkeyup="datechecknoerror('PTEvalDateSigned'); checkevalsign('PT')" />
+        <tr class="yes therapyvisable trerror" id="trPTEvalDateSigned">
+            <td id="tdPTEvalDateSigned" class="tderror">
+                <input type="text" class="txtbox txtdate" id="txtPTEvalDateSigned" onchange="datecheck('PTEvalDateSigned'); checkevalsign('PT')" onkeyup="datecheck('PTEvalDateSigned'); checkevalsign('PT')" />
             </td>
             <td>
                 PT Evaluation - Date Order MD Signed <b><span id="PTEvalDateSignedDue"></span></b>
@@ -1315,20 +1968,19 @@
             <td id="tdPTEvalDateSignedConfirm" class="confirmed"></td>
         </tr>
 
-        <tr class="yes therapyvisable trerror" id="trPTEvalDateSignedReason">
+        @*<tr class="yes therapyvisable trerror" id="trPTEvalDateSignedReason">
             <td id="tdPTEvalDateSignedReason" class="tderror">
                 <input type="text" class="txtbox" id="txtPTEvalDateSignedReason" onchange="textcheck('PTEvalDateSignedReason');" onkeyup="textcheck('PTEvalDateSignedReason');" />
             </td>
             <td>Remedy for no PT Evaluation Order MD Signed</td>
             <td id="tdPTEvalDateSignedReasonConfirm" class="confirmed"></td>
-        </tr>
+        </tr>*@
 
         <tr class="yes therapyvisable trerror" id="trPTEvalDateSignedYesNo">
             <td id="tdPTEvalDateSignedYesNo" class="tderror">
                 <select id="ddPTEvalDateSignedYesNo" class="txtbox" onchange="ddcheck('PTEvalDateSignedYesNo'); nowarning('PTEvalDateSignedYesNo')">
                     <option></option>
                     <option>Yes</option>
-                    <option>No</option>
                 </select>
             </td>
             <td>Late Therapy MD Certification Obtained</td>
@@ -4176,14 +4828,14 @@
         for (b = 0; b < x.length; b++) {
             x[b].classList.add("paytype");
         }
-        if (dd.value == "PDPM") {
+        if (dd.value == "HMO A - PDPM" || dd.value == "MED A - PDPM") {
             var y = document.getElementsByClassName("pdpm");
             var i;
             for (i = 0; i < y.length; i++) {
                 y[i].classList.remove("paytype");
             }
         }
-        if (dd.value == "HMO A") {
+        if (dd.value == "HMO A - RUG") {
             var y = document.getElementsByClassName("hmoa");
             var i;
             for (i = 0; i < y.length; i++) {
@@ -4263,64 +4915,64 @@
         boresize()
     }
 
-    function patientleave(dd, type) {
+    function patientleave(dd, type, track) {
         if (dd.value == 'Yes') {
-            document.getElementById('tdMDSUnbillDays').className = "tderror"
-            document.getElementById('trMDSUnbillDays').classList.add("trerror")
-            document.getElementById("txtMDSUnbillDays").disabled = false;
-            document.getElementById("txtMDSUnbillDays").value = ''
-            document.getElementById('tdBOPatient').className = ''
-            document.getElementById('trBOPatient').classList.remove("trerror")
+            document.getElementById('tdMDSUnbillDays' + track.toString()).className = "tderror"
+            document.getElementById('trMDSUnbillDays' + track.toString()).classList.add("trerror")
+            document.getElementById("txtMDSUnbillDays" + track.toString()).disabled = false;
+            document.getElementById("txtMDSUnbillDays" + track.toString()).value = ''
+            document.getElementById('tdBOPatient' + track.toString()).className = ''
+            document.getElementById('trBOPatient' + track.toString()).classList.remove("trerror")
             if (type == 'save') {
-                savechanges('BOPatient', 'Yes', 'dropdown')
+                savechanges('BOPatient' + track.toString(), 'Yes', 'dropdown')
             }
-            removechanges('MDSUnbillDays')
+            removechanges('MDSUnbillDays' + track.toString())
         } else if (dd.value == 'No') {
-            document.getElementById('tdMDSUnbillDays').className = ""
-            document.getElementById('trMDSUnbillDays').classList.remove("trerror")
-            document.getElementById("txtMDSUnbillDays").disabled = true;
-            document.getElementById("txtMDSUnbillDays").value = '0'
-            document.getElementById('tdBOPatient').className = ''
-            document.getElementById('trBOPatient').classList.remove("trerror")
+            document.getElementById('tdMDSUnbillDays' + track.toString()).className = ""
+            document.getElementById('trMDSUnbillDays' + track.toString()).classList.remove("trerror")
+            document.getElementById("txtMDSUnbillDays" + track.toString()).disabled = true;
+            document.getElementById("txtMDSUnbillDays" + track.toString()).value = '0'
+            document.getElementById('tdBOPatient' + track.toString()).className = ''
+            document.getElementById('trBOPatient' + track.toString()).classList.remove("trerror")
             if (type == 'save') {
-                savechanges('BOPatient', 'No', 'dropdown')
-                savechanges('MDSUnbillDays', '0', 'textbox')
+                savechanges('BOPatient' + track.toString(), 'No', 'dropdown')
+                savechanges('MDSUnbillDays' + track.toString(), '0', 'textbox')
             }
         } else {
-            document.getElementById('tdMDSUnbillDays').className = "tderror"
-            document.getElementById('trMDSUnbillDays').classList.add("trerror")
-            document.getElementById("txtMDSUnbillDays").disabled = true;
-            document.getElementById("txtMDSUnbillDays").value = ''
-            document.getElementById('tdBOPatient').className = 'tderror'
-            document.getElementById('trBOPatient').classList.add("trerror")
-            removechanges('BOPatient')
-            removechanges('MDSUnbillDays')
+            document.getElementById('tdMDSUnbillDays' + track.toString()).className = "tderror"
+            document.getElementById('trMDSUnbillDays' + track.toString()).classList.add("trerror")
+            document.getElementById("txtMDSUnbillDays" + track.toString()).disabled = true;
+            document.getElementById("txtMDSUnbillDays" + track.toString()).value = ''
+            document.getElementById('tdBOPatient' + track.toString()).className = 'tderror'
+            document.getElementById('trBOPatient' + track.toString()).classList.add("trerror")
+            removechanges('BOPatient' + track.toString())
+            removechanges('MDSUnbillDays' + track.toString())
         }
         checkcomplete()
     }
 
-    function numdaysinter() {
-        if (document.getElementById("txtMDSUnbillDays").value == "") {
-            document.getElementById('tdMDSUnbillDays').className = "tderror"
-            document.getElementById('trMDSUnbillDays').classList.add("trerror")
-            removechanges('MDSUnbillDays')
+    function numdaysinter(track) {
+        if (document.getElementById("txtMDSUnbillDays" + track.toString()).value == "") {
+            document.getElementById('tdMDSUnbillDays' + track.toString()).className = "tderror"
+            document.getElementById('trMDSUnbillDays' + track.toString()).classList.add("trerror")
+            removechanges('MDSUnbillDays' + track.toString())
         } else {
-            document.getElementById('tdMDSUnbillDays').className = ""
-            document.getElementById('trMDSUnbillDays').classList.remove("trerror")
-            savechanges('MDSUnbillDays', document.getElementById("txtMDSUnbillDays").value, 'textbox')
+            document.getElementById('tdMDSUnbillDays' + track.toString()).className = ""
+            document.getElementById('trMDSUnbillDays' + track.toString()).classList.remove("trerror")
+            savechanges('MDSUnbillDays' + track.toString(), document.getElementById("txtMDSUnbillDays" + track.toString()).value, 'textbox')
         }
         checkcomplete()
     }
 
 
- 
+
 
 
 
     function checkevaldate(type) {
         if (moment(document.getElementById('txt' + type + 'EvalDate').value).isValid()) {
             document.getElementById('tr' + type + 'EvalDateSigned').classList.remove('therapyvisable')
-            document.getElementById('tr' + type + 'EvalDateSignedReason').classList.remove('therapyvisable')
+            //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.remove('therapyvisable')
 
             var evaldate = new Date(Date.parse(document.getElementById('txt' + type + 'EvalDate').value))
             evaldate.setDate(evaldate.getDate() + 30)
@@ -4335,20 +4987,22 @@
             document.getElementById(type + 'ClarDateDue').innerHTML = '(Due by ' + document.getElementById('txt' + type + 'EvalDate').value + ')'
 
             document.getElementById('tr' + type + 'ClarDate').classList.remove('therapyvisable')
-            document.getElementById('tr' + type + 'ClarDateReason').classList.remove('therapyvisable')
-            document.getElementById(type + 'ClarDateReasonText').innerHTML = 'Remedy for no ' + type + ' Clarification Date'
+            //document.getElementById('tr' + type + 'ClarDateReason').classList.remove('therapyvisable')
+            //document.getElementById(type + 'ClarDateReasonText').innerHTML = 'Remedy for no ' + type + ' Clarification Date'
 
             document.getElementById('tr' + type + 'DischargeDate').classList.remove('therapyvisable')
         } else {
             document.getElementById('tr' + type + 'EvalDateSigned').classList.add('therapyvisable')
+            document.getElementById('tr' + type + 'EvalDateSigned').classList.add('trerror')
+            document.getElementById('td' + type + 'EvalDateSigned').classList.add('tderror')
             document.getElementById('txt' + type + 'EvalDateSigned').value = ''
             removechanges(type + 'EvalDateSigned')
 
-            document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('therapyvisable')
-            document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('trerror')
-            document.getElementById('td' + type + 'EvalDateSignedReason').classList.add('tderror')
-            document.getElementById('txt' + type + 'EvalDateSignedReason').value = ''
-            removechanges(type + 'EvalDateSignedReason')
+            //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('therapyvisable')
+            //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('trerror')
+            //document.getElementById('td' + type + 'EvalDateSignedReason').classList.add('tderror')
+            //document.getElementById('txt' + type + 'EvalDateSignedReason').value = ''
+            //removechanges(type + 'EvalDateSignedReason')
 
             document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.add('therapyvisable')
             document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.add('trerror')
@@ -4476,11 +5130,11 @@
             var signdate = new Date(Date.parse(document.getElementById('txt' + type + 'EvalDateSigned').value))
 
             if (signdate <= evaldate) {
-                document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('therapyvisable')
-                document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('trerror')
-                document.getElementById('td' + type + 'EvalDateSignedReason').classList.add('tderror')
-                document.getElementById('txt' + type + 'EvalDateSignedReason').value = ''
-                removechanges(type + 'EvalDateSignedReason')
+                //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('therapyvisable')
+                //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('trerror')
+                //document.getElementById('td' + type + 'EvalDateSignedReason').classList.add('tderror')
+                //document.getElementById('txt' + type + 'EvalDateSignedReason').value = ''
+                //removechanges(type + 'EvalDateSignedReason')
 
                 document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.add('therapyvisable')
                 document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.add('trerror')
@@ -4488,17 +5142,17 @@
                 document.getElementById('dd' + type + 'EvalDateSignedYesNo').value = ''
                 removechanges(type + 'EvalDateSignedYesNo')
             } else {
-                document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('therapyvisable')
-                document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('trerror')
-                document.getElementById('td' + type + 'EvalDateSignedReason').classList.add('tderror')
-                document.getElementById('txt' + type + 'EvalDateSignedReason').value = ''
-                removechanges(type + 'EvalDateSignedReason')
+                //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('therapyvisable')
+                //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.add('trerror')
+                //document.getElementById('td' + type + 'EvalDateSignedReason').classList.add('tderror')
+                //document.getElementById('txt' + type + 'EvalDateSignedReason').value = ''
+                //removechanges(type + 'EvalDateSignedReason')
 
                 document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.remove('therapyvisable')
             }
         } else {
             if (moment(document.getElementById('txt' + type + 'EvalDate').value).isValid()) {
-                document.getElementById('tr' + type + 'EvalDateSignedReason').classList.remove('therapyvisable')
+                //document.getElementById('tr' + type + 'EvalDateSignedReason').classList.remove('therapyvisable')
 
                 document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.add('therapyvisable')
                 document.getElementById('tr' + type + 'EvalDateSignedYesNo').classList.add('trerror')
@@ -6220,7 +6874,7 @@
             document.getElementById('tr' + 'DCABN').classList.add("trerror")
             document.getElementById('txt' + 'DCABN').value = ''
             removechanges('DCABN')
-            
+
             document.getElementById('tr' + 'DCNotePresent').classList.add("dcoverride")
             document.getElementById('td' + 'DCNotePresent').classList.add("tderror")
             document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
@@ -6311,7 +6965,7 @@
         }
 
         if (dd.value == '') {
-            
+
             document.getElementById('tr' + 'DrivenDischarge').classList.add("dcoverride")
             document.getElementById('td' + 'DrivenDischarge').classList.add("tderror")
             document.getElementById('tr' + 'DrivenDischarge').classList.add("trerror")
@@ -6347,7 +7001,7 @@
             document.getElementById('tr' + 'DCNotePresent').classList.add("trerror")
             document.getElementById('cb' + 'DCNotePresent').checked = false
             removechanges('DCNotePresent')
-        } 
+        }
         dcresize()
         checkallmr()
         checkcomplete()
@@ -6496,14 +7150,18 @@
             document.getElementById('DCContent').style.maxHeight = document.getElementById('DCContent').scrollHeight + "px";
         }
     }
-    
+
     function MDSTherresize() {
         if (document.getElementById('btnMDSTherapy').classList.contains('active')) {
             document.getElementById('MDSTherapyContent').style.maxHeight = document.getElementById('MDSTherapyContent').scrollHeight + "px";
         }
     }
 
-
+    function MDSresize() {
+        if (document.getElementById('btnMDS').classList.contains('active')) {
+            document.getElementById('MDSContent').style.maxHeight = document.getElementById('MDSContent').scrollHeight + "px";
+        }
+    }
 
 
     function ddcheck(dd) {
@@ -6585,35 +7243,320 @@
 
     }
 
-    function mdsadddays(type) {
-        var numdays = document.getElementById('txtMDSUnbillDays').value
-        var startd = document.getElementById('txtMDSARDStart').value
-        var endd = document.getElementById('txtMDSARDEnd').value
+    function mdsadddays(type, track) {
+        var numdays = document.getElementById('txtMDSUnbillDays' + track.toString()).value
+        var startd = document.getElementById('txtMDSARDStart' + track.toString()).value
+        var endd = document.getElementById('txtMDSARDEnd' + track.toString()).value
 
-        if (numdays != '' && moment(startd).isValid() && moment(endd).isValid()) {
-            var dchange = datediff(parseDate(startd), parseDate(endd))
+
+
+
+        if (numdays != '' && moment(startd).isValid()) {
+            var todayd = new Date(parseDate(startd))
+            var m = todayd.getMonth() + 1
+            var y = todayd.getFullYear()
+            todayd = new Date(y, m, 0)
+
+            if (moment(endd).isValid()) {
+                var endd = new Date(Date.parse(endd))
+            } else {
+                var endd = todayd
+            }
+
+            var dchange = datediff(parseDate(startd), endd)
             var ddiff = dchange - numdays + 1
             if (ddiff < 0) {
-                removechanges('MDSNumDays')
-                document.getElementById('tdMDSNumDays').className = 'tderror'
-                document.getElementById('trMDSNumDays').classList.add("trerror")
-                document.getElementById('txtMDSNumDays').value = ddiff
+                removechanges('MDSNumDays' + track.toString())
+                document.getElementById('tdMDSNumDays' + track.toString()).className = 'tderror'
+                document.getElementById('trMDSNumDays' + track.toString()).classList.add("trerror")
+                document.getElementById('txtMDSNumDays' + track.toString()).value = ddiff
             } else {
-                document.getElementById('tdMDSNumDays').className = ''
-                document.getElementById('trMDSNumDays').classList.remove("trerror")
-                document.getElementById('txtMDSNumDays').value = ddiff
+                document.getElementById('tdMDSNumDays' + track.toString()).className = ''
+                document.getElementById('trMDSNumDays' + track.toString()).classList.remove("trerror")
+                document.getElementById('txtMDSNumDays' + track.toString()).value = ddiff
                 if (type == 'save') {
-                    savechanges('MDSNumDays', ddiff, 'textbox')
+                    savechanges('MDSNumDays' + track.toString(), ddiff, 'textbox')
                 }
 
             }
         } else {
-            removechanges('MDSNumDays')
-            document.getElementById('tdMDSNumDays').className = 'tderror'
-            document.getElementById('trMDSNumDays').classList.add("trerror")
-            document.getElementById('txtMDSNumDays').value = ''
+            removechanges('MDSNumDays' + track.toString())
+            document.getElementById('tdMDSNumDays' + track.toString()).className = 'tderror'
+            document.getElementById('trMDSNumDays' + track.toString()).classList.add("trerror")
+            document.getElementById('txtMDSNumDays' + track.toString()).value = ''
         }
         checkcomplete()
+    }
+
+    function addtrack(tracknum) {
+        document.getElementById('track' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trBOPatient' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSPayment' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSARD' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSAssessmentType' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSAssessmentTypePDPM' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSHIPPS' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSUnbillDays' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSARDStart' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSARDEnd' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSNumDays' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSTransmitted' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSPTOT' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSSLP' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSNTA' + tracknum.toString()).classList.remove('MDSoverride')
+        document.getElementById('trMDSNursing' + tracknum.toString()).classList.remove('MDSoverride')
+
+
+        document.getElementById('removetrack' + tracknum.toString()).classList.remove('hidden')
+
+        document.getElementById('addtrack' + tracknum.toString()).classList.add('hidden')
+
+        if (tracknum == 1) {
+            document.getElementById('addtrack2').classList.remove('hidden')
+            document.getElementById('trackhead2').classList.remove('hidden')
+            document.getElementById('trackspace2').classList.remove('hidden')
+        } else if (tracknum == 2) {
+            document.getElementById('removetrack1').classList.add('hidden')
+            document.getElementById('trackhead3').classList.remove('hidden')
+            document.getElementById('trackspace3').classList.remove('hidden')
+            document.getElementById('addtrack3').classList.remove('hidden')
+        } else if (tracknum == 3) {
+            document.getElementById('removetrack2').classList.add('hidden')
+            document.getElementById('trackhead4').classList.remove('hidden')
+            document.getElementById('trackspace4').classList.remove('hidden')
+            document.getElementById('addtrack4').classList.remove('hidden')
+        } else if (tracknum == 4) {
+            document.getElementById('removetrack3').classList.add('hidden')
+            document.getElementById('trackhead5').classList.remove('hidden')
+        }
+
+        checkcomplete()
+        MDSresize()
+    }
+
+
+    function checkopenmds() {
+        var track = 1
+        var filled = 0
+
+        if (document.getElementById('td' + 'BOPatient' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPayment' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARD' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentType' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentTypePDPM' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSHIPPS' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSUnbillDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDStart' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDEnd' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNumDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSTransmitted' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPTOT' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSSLP' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNTA' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNursing' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+
+        
+        if (filled == 1) {
+            addtrack(1)
+        }
+
+
+        var track = 2
+        var filled = 0
+
+        if (document.getElementById('td' + 'BOPatient' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPayment' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARD' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentType' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentTypePDPM' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSHIPPS' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSUnbillDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDStart' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDEnd' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNumDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSTransmitted' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPTOT' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSSLP' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNTA' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNursing' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+
+
+        if (filled == 1) {
+            addtrack(1)
+            addtrack(2)
+        }
+
+
+        var track = 3
+        var filled = 0
+
+        if (document.getElementById('td' + 'BOPatient' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPayment' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARD' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentType' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentTypePDPM' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSHIPPS' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSUnbillDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDStart' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDEnd' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNumDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSTransmitted' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPTOT' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSSLP' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNTA' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNursing' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+
+
+        if (filled == 1) {
+            addtrack(1)
+            addtrack(2)
+            addtrack(3)
+        }
+
+        var track = 4
+        var filled = 0
+
+        if (document.getElementById('td' + 'BOPatient' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPayment' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARD' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentType' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSAssessmentTypePDPM' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSHIPPS' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSUnbillDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDStart' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSARDEnd' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNumDays' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSTransmitted' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSPTOT' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSSLP' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNTA' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+        if (document.getElementById('td' + 'MDSNursing' + track.toString() + 'Confirm').innerHTML !== '') { filled = 1 }
+
+
+        if (filled == 1) {
+            addtrack(1)
+            addtrack(2)
+            addtrack(3)
+            addtrack(4)
+        }
+    }
+
+    function removetrack(track) {
+        document.getElementById('track' + track.toString()).classList.add('MDSoverride')
+
+        document.getElementById('trBOPatient' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'BOPatient' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'BOPatient' + track.toString()).classList.add("trerror")
+        document.getElementById('dd' + 'BOPatient' + track.toString()).value = ''
+        removechanges('BOPatient' + track.toString())
+
+        document.getElementById('trMDSPayment' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSPayment' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSPayment' + track.toString()).classList.add("trerror")
+        document.getElementById('dd' + 'MDSPayment' + track.toString()).value = ''
+        removechanges('MDSPayment' + track.toString())
+
+        document.getElementById('trMDSARD' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSARD' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSARD' + track.toString()).classList.add("trerror")
+        document.getElementById('txt' + 'MDSARD' + track.toString()).value = ''
+        removechanges('MDSARD' + track.toString())
+
+        document.getElementById('trMDSAssessmentType' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSAssessmentType' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSAssessmentType' + track.toString()).classList.add("trerror")
+        document.getElementById('dd' + 'MDSAssessmentType' + track.toString()).value = ''
+        removechanges('MDSAssessmentType' + track.toString())
+
+        document.getElementById('trMDSAssessmentTypePDPM' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSAssessmentTypePDPM' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSAssessmentTypePDPM' + track.toString()).classList.add("trerror")
+        document.getElementById('dd' + 'MDSAssessmentTypePDPM' + track.toString()).value = ''
+        removechanges('MDSAssessmentTypePDPM' + track.toString())
+
+        document.getElementById('trMDSHIPPS' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSHIPPS' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSHIPPS' + track.toString()).classList.add("trerror")
+        document.getElementById('txt' + 'MDSHIPPS' + track.toString()).value = ''
+        removechanges('MDSHIPPS' + track.toString())
+
+        document.getElementById('trMDSUnbillDays' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSUnbillDays' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSUnbillDays' + track.toString()).classList.add("trerror")
+        document.getElementById('txt' + 'MDSUnbillDays' + track.toString()).value = ''
+        removechanges('MDSUnbillDays' + track.toString())
+
+        document.getElementById('trMDSARDStart' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSARDStart' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSARDStart' + track.toString()).classList.add("trerror")
+        document.getElementById('txt' + 'MDSARDStart' + track.toString()).value = ''
+        removechanges('MDSARDStart' + track.toString())
+
+        document.getElementById('trMDSARDEnd' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('txt' + 'MDSARDEnd' + track.toString()).value = ''
+        removechanges('MDSARDEnd' + track.toString())
+
+        document.getElementById('trMDSNumDays' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSNumDays' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSNumDays' + track.toString()).classList.add("trerror")
+        document.getElementById('txt' + 'MDSNumDays' + track.toString()).value = ''
+        removechanges('MDSNumDays' + track.toString())
+
+        document.getElementById('trMDSTransmitted' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSTransmitted' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSTransmitted' + track.toString()).classList.add("trerror")
+        document.getElementById('cb' + 'MDSTransmitted' + track.toString()).checked = false
+        removechanges('MDSTransmitted' + track.toString())
+
+        document.getElementById('trMDSPTOT' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSPTOT' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSPTOT' + track.toString()).classList.add("trerror")
+        document.getElementById('cb' + 'MDSPTOT' + track.toString()).checked = false
+        removechanges('MDSPTOT' + track.toString())
+
+        document.getElementById('trMDSSLP' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSSLP' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSSLP' + track.toString()).classList.add("trerror")
+        document.getElementById('cb' + 'MDSSLP' + track.toString()).checked = false
+        removechanges('MDSSLP' + track.toString())
+
+        document.getElementById('trMDSNTA' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSNTA' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSNTA' + track.toString()).classList.add("trerror")
+        document.getElementById('cb' + 'MDSNTA' + track.toString()).checked = false
+        removechanges('MDSNTA' + track.toString())
+
+        document.getElementById('trMDSNursing' + track.toString()).classList.add('MDSoverride')
+        document.getElementById('td' + 'MDSNursing' + track.toString()).className = 'tderror'
+        document.getElementById('tr' + 'MDSNursing' + track.toString()).classList.add("trerror")
+        document.getElementById('cb' + 'MDSNursing' + track.toString()).checked = false
+        removechanges('MDSNursing' + track.toString())
+
+        document.getElementById('removetrack' + track.toString()).classList.add('hidden')
+        document.getElementById('addtrack' + track.toString()).classList.remove('hidden')
+
+        if (track == 1) {
+            document.getElementById('addtrack1').classList.remove('hidden')
+            document.getElementById('addtrack2').classList.add('hidden')
+            document.getElementById('trackhead2').classList.add('hidden')
+            document.getElementById('trackspace2').classList.add('hidden')
+        } else if (track == 2) {
+            document.getElementById('removetrack1').classList.remove('hidden')
+            document.getElementById('trackhead3').classList.add('hidden')
+            document.getElementById('trackspace3').classList.add('hidden')
+            document.getElementById('addtrack3').classList.add('hidden')
+        } else if (track == 3) {
+            document.getElementById('removetrack2').classList.remove('hidden')
+            document.getElementById('trackhead4').classList.add('hidden')
+            document.getElementById('trackspace4').classList.add('hidden')
+            document.getElementById('addtrack4').classList.add('hidden')
+        } else if (track == 4) {
+            document.getElementById('removetrack3').classList.remove('hidden')
+            document.getElementById('trackhead5').classList.add('hidden')
+        }
+
+        checkcomplete()
+        MDSresize()
     }
 
     function savechanges(txt, pv, ptype) {
@@ -6708,7 +7651,7 @@
         var errorcounter = '0'
         var i
         for (i = 0; i < y.length; i++) {
-            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype')) {
+            if (hasClass(y[i], 'paytype') || hasClass(y[i], 'addaddition') || hasClass(y[i], 'dischargetype') || hasClass(y[i], 'dcyesnotype') || hasClass(y[i], 'MDSoverride')) {
 
             } else {
                 errorcounter = '1'
