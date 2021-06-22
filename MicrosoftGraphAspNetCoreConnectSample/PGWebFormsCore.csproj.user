@@ -9,7 +9,7 @@
     <WebStackScaffolding_IsLayoutPageSelected>True</WebStackScaffolding_IsLayoutPageSelected>
     <WebStackScaffolding_IsPartialViewSelected>False</WebStackScaffolding_IsPartialViewSelected>
     <WebStackScaffolding_IsReferencingScriptLibrariesSelected>False</WebStackScaffolding_IsReferencingScriptLibrariesSelected>
-    <WebStackScaffolding_LayoutPageFile />
     <NameOfLastUsedPublishProfile>pgwebforms-core - Web Deploy</NameOfLastUsedPublishProfile>
+    <WebStackScaffolding_LayoutPageFile />
   </PropertyGroup>
 </Project>

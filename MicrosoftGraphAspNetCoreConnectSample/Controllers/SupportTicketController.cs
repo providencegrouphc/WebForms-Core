@@ -48,7 +48,7 @@ namespace PGWebFormsCore.Controllers
             await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["Message"] = strSave;
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
-            ViewData["UID"] = InsertGUID();
+            ViewData["UID"] = getGUID();
             ViewData["TicketType"] = getTicketType();
             ViewData["username"] = User.Identity.Name;
             ViewData["email"] = User.FindFirst("preferred_username")?.Value;
@@ -112,15 +112,15 @@ namespace PGWebFormsCore.Controllers
             return UID;
         }
 
-        public string InsertGUID()
+        public string InsertGUID(string UID)
         {
-            string UID = getGUID();
+            
             var username = User.Identity.Name;
             var email = User.FindFirst("preferred_username")?.Value;
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
-            SqlCommand cmd = new SqlCommand("INSERT INTO SUPPORTTICKET (ISSUEID, LOGDATE, USERNAME, EMAIL) VALUES ('"+UID+"', GETDATE(), '"+username+"', '"+email+"')", con);
+            SqlCommand cmd = new SqlCommand("IF ((SELECT COUNT(*) FROM SupportTicket WHERE IssueID = '"+UID+"') < 1) BEGIN INSERT INTO SUPPORTTICKET (ISSUEID, LOGDATE, USERNAME, EMAIL) VALUES ('" + UID+"', GETDATE(), '"+username+"', '"+email+"') END", con);
             con.Open();
             cmd.ExecuteNonQuery();
             con.Close();
@@ -161,7 +161,7 @@ namespace PGWebFormsCore.Controllers
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
-            SqlCommand cmd = new SqlCommand("select operationname from operations union select 'Headquarters' order by operationname", con);
+            SqlCommand cmd = new SqlCommand("select operationname from operations where operationname not like '%- gl' union select 'Headquarters' union select 'PACS' order by operationname", con);
             con.Open();
             SqlDataReader idr = cmd.ExecuteReader();
 
@@ -273,6 +273,8 @@ namespace PGWebFormsCore.Controllers
 
         public string TypeChange(string strid, string stroption)
         {
+            InsertGUID(strid);
+
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
             SqlCommand cmd = new SqlCommand("UPDATE SUPPORTTICKET SET ISSUE = '"+stroption+"' WHERE ISSUEID = '"+strid+"'", con);

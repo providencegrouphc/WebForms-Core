@@ -92,10 +92,13 @@
 <script>
     $(window).load(function () {
         facilitychange()
+
+        
     });
 
 
     jQuery(document).ready(function ($) {
+        
         $('.transfer tr').click(function (event) {
             if (event.target.type !== 'checkbox') {
                 $(':checkbox', this).trigger('click');
@@ -154,13 +157,18 @@
             document.getElementById('divMonth').innerHTML = ''
         } else {
             $.get("/TripleCheck/getmonths", { strfac: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divMonth').innerHTML = data });
+            document.getElementById('addpatient').className = "btn btn-primary"
+            $.get("/TripleCheck/IndexTable", { stritem: 'curmonth', facid: document.getElementById('ddFacility').value }, function (data) { starttable(data) });
+            $.get("/TripleCheck/TransferTable", { stritem: 'curmonth', facid: document.getElementById('ddFacility').value }, function (data) {
+                document.getElementById('transfertable').innerHTML = data
+            });
         }
 
 
     }
 
     function monthchange() {
-
+        
         if (document.getElementById('ddReportMonth').value == '') {
             document.getElementById('addpatient').className = "hidden"
             document.getElementById('resultstable').innerHTML = ""
@@ -208,6 +216,13 @@
 
         table.draw()
 
+    }
+
+    function toggle(source) {
+        checkboxes = document.getElementsByName('cbtransfer');
+        for (var i = 0, n = checkboxes.length; i < n; i++) {
+            checkboxes[i].checked = source.checked;
+        }
     }
 </script>
 

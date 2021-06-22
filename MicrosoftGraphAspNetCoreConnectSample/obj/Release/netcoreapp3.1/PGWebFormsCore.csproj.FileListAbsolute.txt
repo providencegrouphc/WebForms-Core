@@ -527,3 +527,8 @@ C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreCon
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\bin\Release\netcoreapp3.1\runtimes\win-x86\native\wkhtmltox.dll
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\Report.cshtml.g.cs
 C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\ReportEdit.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\ZZZZ\Index.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\Treasury.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\Expense\TreasuryEdit.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\TripleCheck\pdffooter.cshtml.g.cs
+C:\Users\daniel.stump\Documents\GitHub\WebForms-Core\MicrosoftGraphAspNetCoreConnectSample\obj\Release\netcoreapp3.1\Razor\Views\EmailAPI\Index.cshtml.g.cs

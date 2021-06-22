@@ -1,0 +1,63 @@
+﻿
+<button class="btn btn-primary" id="btnStart" onclick="StartFunction()">Start</button>
+&nbsp;&nbsp;
+<button class="btn btn-primary" id="btnStop" onclick="StopFunction()">Stop</button>
+&nbsp;&nbsp;
+<button class="btn btn-primary" id="btnClear" onclick="ClearFunction()">Clear</button>
+<hr />
+<br />
+<br />
+<table>
+    <tr>
+        <th style="border-bottom:1px solid #aaa">Requests</th>
+        <th style="border-bottom:1px solid #aaa; border-left:1px solid #aaa; padding-left:10px">Sql Data</th>
+    </tr>
+    <tr>
+        <td style="width:300px; margin-right:20px; vertical-align:top">
+            <h3 id="counts"></h3>
+            <div id="log"></div>
+        </td>
+        <td style="width:300px; margin-right:20px; vertical-align:top; border-left:1px solid #aaa; padding-left:10px">
+            <h3 id="countssql"></h3>
+            <div id="logsql"></div>
+        </td>
+    </tr>
+</table>
+
+
+<script>
+    var myVar
+    var myCount = 0
+   
+    ClearFunction()
+
+    function myTimer() {
+        var d = new Date();
+        var t = d.toLocaleTimeString();
+        //document.getElementById("log").innerHTML += t + ':' + d.getMilliseconds.toString() + "</br>";
+        $.get("/ZZZZ/SaveTime", { stritem: '' }, function (data) { document.getElementById("log").innerHTML += data + '</br>' });
+        myCount++
+        document.getElementById("counts").innerHTML = myCount.toString()
+    }
+
+    function StartFunction() {
+        myVar = setInterval(myTimer, 500);
+    }
+
+    function StopFunction() {
+        clearInterval(myVar);
+
+        $.get("/ZZZZ/GetTime", { stritem: '' }, function (data) { document.getElementById("logsql").innerHTML += data + '</br>' });
+        $.get("/ZZZZ/GetCount", { stritem: '' }, function (data) { document.getElementById("countssql").innerHTML += data + '</br>' });
+    }
+
+    function ClearFunction() {
+        myCount = 0
+        document.getElementById("counts").innerHTML = ''
+        document.getElementById("log").innerHTML = ''
+        document.getElementById("countssql").innerHTML = ''
+        document.getElementById("logsql").innerHTML = ''
+        $.get("/ZZZZ/Clear", { stritem: '' }, function (data) { });
+    }
+
+</script>

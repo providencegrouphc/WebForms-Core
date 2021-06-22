@@ -70,17 +70,24 @@
         $("#txtDistance").inputmask({
             'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
         });
+
+        $("#txtDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+        $("#txtDDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
+
+        $("#txtDate").datepicker();
+        $("#txtDDate").datepicker();
     });
 
     $(function () {
-        $("#txtDate").datepicker();
-        $("#txtDDate").datepicker();
-        $("#txtDate1").datepicker();
-        $("#txtDate2").datepicker();
-        $("#txtDate3").datepicker();
-        $("#txtDate4").datepicker();
-        $("#txtDate5").datepicker();
-        $("#txtDate6").datepicker();
+        
+        
+        
+        //$("#txtDate1").datepicker();
+        //$("#txtDate2").datepicker();
+        //$("#txtDate3").datepicker();
+        //$("#txtDate4").datepicker();
+        //$("#txtDate5").datepicker();
+        //$("#txtDate6").datepicker();
     });
 
 
@@ -300,7 +307,7 @@
     <div id="ZExpense" class="tab-panelsx">
         <div class="row">
             <div class="col-md-4">
-                <form asp-controller="Expense" asp-action="PostExpense" method="post">
+                <form asp-controller="Expense" asp-action="PostExpense" method="post" autocomplete="off">
                     <div class="txtlabel">* Facility</div>
                     <div>@Html.Raw(ViewData["Facilities1"])</div>
                     <div id="validateFacility" class="hidden">Please select a facility.</div>
@@ -350,13 +357,13 @@
 
             <div class="col-md-4" style="padding-top:35px; max-width:310px;">
                 @using (Html.BeginForm("UploadFile", "Expense",
-                     FormMethod.Post,
-                     new
-                     {
-                         @class = "dropzone",
-                         id = "dropzone-form",
-                     }))
-                {
+                   FormMethod.Post,
+                   new
+                   {
+                       @class = "dropzone",
+                       id = "dropzone-form",
+                   }))
+                { 
     <div class="fallback">
         <input name="file" type="file" multiple />
 
@@ -375,14 +382,14 @@
     </div>
     <div id="ZDistance" class="hidden">
         <div class="row">
-            <form asp-controller="Expense" asp-action="PostDistance" method="post">
+            <form asp-controller="Expense" asp-action="PostDistance" method="post" autocomplete="off">
                 <div class="col-md-4">
                     <div class="txtlabel">* Facility</div>
                     <div>@Html.Raw(ViewData["Facilities2"])</div>
                     <div id="validateDFacility" class="hidden">Please select a facility.</div>
 
                     <input type="checkbox" onchange="multichange(this)" id="multipledest" />
-                    <label for="multipledest" class="txtlabel" style="font-weight:normal">&nbsp;&nbsp;Destinations</label>
+                    <label for="multipledest" class="txtlabel" style="font-weight:normal">&nbsp;&nbsp;Multiple Destinations</label>
 
                     <div class="txtlabel" id="lblFromAddress">* From Address</div>
                     <div><input type="text" id="txtFromAddress" class="txtbox" name="txtFromAddress" /></div>
@@ -406,8 +413,7 @@
 
                     <div class="txtlabel">* Amount</div>
                     <div><input type="text" id="txtAmount" class="txtbox" name="txtAmount" disabled="disabled" value="0" /></div>
-                </div>
-                <div class="col-md-4" style="max-width: 310px;">
+
 
 
                     <div class="txtlabel">* Category</div>
@@ -435,56 +441,60 @@
                 </div>
 
             </form>
+            <div class="col-md-4" style="padding-top: 35px; max-width: 310px;">
 
 
-            @using (Html.BeginForm("UploadFile", "Expense",
-                    FormMethod.Post,
-                    new
-                    {
-                        @class = "dropzone",
-                        id = "dropzone-form",
-                    }))
-            {
-<div class="fallback">
-    <input name="file" type="file" multiple />
+                @using (Html.BeginForm("UploadFile", "Expense",
+       FormMethod.Post,
+       new
+       {
+           @class = "dropzone",
+           id = "dropzone-form",
+       }))
+                {
+            <div class="fallback">
+                <input name="file" type="file" multiple />
 
-</div>
-                <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
+            </div>
+                            <input name="fUID" type="text" value="@Html.Raw(ViewData["UID"])" class="hidden" />}
 
-            <div id="imagelist2"></div>
-            <div id="validateAttachment2" class="hidden">An attachment is required.</div>
-            @section Scripts{
-                <script type="text/javascript">
-                    Dropzone.options.dropzoneForm = {
-                        paramName: "file",
-                        maxFilesize: 20,
-                        maxFiles: 4,
+                <div id="imagelist2"></div>
+                <div id="validateAttachment2" class="hidden">An attachment is required.</div>
+                @section Scripts{
+                    <script type="text/javascript">
+                        Dropzone.options.dropzoneForm = {
+                            paramName: "file",
+                            maxFilesize: 20,
+                            maxFiles: 4,
 
-                        dictMaxFilesExceeded: "Custom max files msg",
-                        dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
-                        success: function (file, response) {
-                            this.removeFile(file);
-                            $.get("/Expense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data; document.getElementById('imagelist2').innerHTML = data });
-                            // This return statement is necessary to remove progress bar after uploading.
-                            return file.previewElement.classList.add("dz-success");
-                        }
-                    };
-
-
-                </script>
-            }
+                            dictMaxFilesExceeded: "Custom max files msg",
+                            dictDefaultMessage: '<img src="/images/uploadimg.png" /><br /><input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Choose files to Upload" /><br /><span style="color:gray">or drag and drop them here</span>',
+                            success: function (file, response) {
+                                this.removeFile(file);
+                                $.get("/Expense/GetImages", { stritem: document.getElementById('UID').value }, function (data) { document.getElementById('imagelist').innerHTML = data; document.getElementById('imagelist2').innerHTML = data });
+                                // This return statement is necessary to remove progress bar after uploading.
+                                return file.previewElement.classList.add("dz-success");
+                            }
+                        };
 
 
+                    </script>
+                }
 
 
-            <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Distance" onclick="validatedist()" />
-            <div id="Dsupinfo" style="color:gray; font-size:12px"></div>
+
+
+                <input type="button" class="btn btn-primary" style="margin-bottom:10px;margin-top:15px;" value="Submit Distance" onclick="validatedist()" />
+                <div id="Dsupinfo" style="color:gray; font-size:12px"></div>
+            </div>
+
+
+
         </div>
-    </div>
 </div>
 
 <div id="ZMultiple" class="hidden">
-    <form asp-controller="Expense" asp-action="PostMulti" method="post">
+    <form asp-controller="Expense" asp-action="PostMulti" method="post" autocomplete="off">
         <div class="txtlabel">* Facility</div>
         <div>@Html.Raw(ViewData["Facilities3"])</div>
         <div id="validateMFacility" class="hidden">Please select a facility.</div>

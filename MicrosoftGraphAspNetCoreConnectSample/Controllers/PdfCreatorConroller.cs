@@ -51,7 +51,7 @@ namespace PGWebFormsCore.Controllers
 
             if (report == "notes")
             {
-                footer = "Notes Report";
+                footer = "";
                 htmltext = getnotes(passid);
 
                 globalSettings = new GlobalSettings
@@ -59,14 +59,14 @@ namespace PGWebFormsCore.Controllers
                     ColorMode = ColorMode.Color,
                     Orientation = Orientation.Portrait,
                     PaperSize = PaperKind.Letter,
-                    Margins = new MarginSettings { Top = 10 },
+                    Margins = new MarginSettings { Top = 10, Bottom = 50, Left = 10, Right = 10 },
                     DocumentTitle = "PDF Report"
                 };
             }
 
             if (report == "tclist")
             {
-                footer = "Month Report";
+                footer = "";
                 htmltext = gettclist(passid, passid2);
 
                 globalSettings = new GlobalSettings
@@ -74,7 +74,7 @@ namespace PGWebFormsCore.Controllers
                     ColorMode = ColorMode.Color,
                     Orientation = Orientation.Landscape,
                     PaperSize = PaperKind.Letter,
-                    Margins = new MarginSettings { Top = 10 },
+                    Margins = new MarginSettings { Top = 10, Bottom = 50, Left = 10, Right = 10 },
                     DocumentTitle = "PDF Report"
                 };
             }
@@ -86,7 +86,7 @@ namespace PGWebFormsCore.Controllers
                 HtmlContent = htmltext,
                 WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = Path.Combine(System.IO.Directory.GetCurrentDirectory(), "assets", "styles.css") },
                 HeaderSettings = { FontName = "Arial", FontSize = 9, Right = "Page [page] of [toPage]", Line = true },
-                FooterSettings = { FontName = "Arial", FontSize = 9, Line = true, Center = footer }
+                FooterSettings = { FontName = "Arial", FontSize = 8, Line = true, Center = footer, Spacing = 30, HtmUrl = "https://pacs-technology.com/TripleCheck/pdffooter" }
             };
             var pdf = new HtmlToPdfDocument()
             {
@@ -243,6 +243,15 @@ namespace PGWebFormsCore.Controllers
                     }
 
                     prepaidtable += "</tr>";
+
+                    if (Convert.ToString(idr["notes"]) == "")
+                    {
+                        prepaidtable += "<tr><td colspan=\"11\"><hr /></td></tr>";
+                    } else
+                    {
+                        prepaidtable += "<tr><td colspan=\"11\"><b>Notes:</b><br/>" + Convert.ToString(idr["notes"]) + "<hr/></td></tr>";
+                    }
+                    
                 }
             }
             con.Close();

@@ -19,7 +19,7 @@
 
     $(window).load(function () {
         $("#txtRate").inputmask({
-            'mask': '.99'          
+            'mask': '.99'
         });
     });
 
@@ -86,11 +86,11 @@
 </style>
 
 
-<h1>Finance Review</h1>
+<h1>Treasury Review</h1>
 <a href="/Expense">Return to Expense Home</a>
 <hr />
 
-<input type="button" class="btn btn-primary" onclick="showmile()" value="Change Mileage Rate" />
+
 <div style="height:10px"></div>
 @Html.Raw(ViewData["getfinance"])
 
@@ -108,7 +108,7 @@
 
 <div style="visibility:hidden; height:0px; display:none">
     <div id="showmile" title="Change Mileage Rate">
-        <input type="text" value="@Html.Raw(ViewData["getrate"])" id="txtRate"/>
+        <input type="text" value="@Html.Raw(ViewData["getrate"])" id="txtRate" />
         <div id="validateRate" class="hidden">The rate you entered is not valid.</div>
         <div style="height:10px"></div>
         <div class="modal-footer">
@@ -150,14 +150,14 @@
             $('#showmile').dialog('close');
         }
 
-        
-        
-        
+
+
+
     }
 
 
     function quickapprove(ID) {
-        $.get("/Expense/QuickApprovefin", { stritem: ID }, function (data) { });
+        $.get("/Expense/QuickApproveTreasury", { stritem: ID }, function (data) { });
         document.getElementById(ID).className = 'hidden'
     }
 
@@ -197,7 +197,7 @@
     </div>
 </div>
 
-<form asp-controller="Expense" asp-action="PostFinanceEdit" method="post">
+<form asp-controller="Expense" asp-action="PostTreasuryEdit" method="post">
     <input type="button" id="postsubmit" class="hidden" value="Submit" onclick="submit()" />
     <input type="text" id="txtID" class="hidden" name="txtID" />
 </form>

@@ -76,28 +76,32 @@
                 $('#txtVendor').maxlength()
                 $('#txtProblem').maxlength()
                 $('#txtRecommended').maxlength()
+
+
+                
             });
 
             $(window).load(function () {
+                $("#txtDate").inputmask("99/99/9999", { 'placeholder': 'MM/DD/YYYY' });
 
                 $("#txtLowBid").inputmask({
-                    'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+                    'alias': 'numeric', 'max': 9999999, 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
                 });
 
                 $("#txtHighBid").inputmask({
-                    'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+                    'alias': 'numeric', 'max': 9999999, 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
                 });
 
                 $("#txtRecBid").inputmask({
-                    'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+                    'alias': 'numeric', 'max': 9999999, 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
                 });
 
                 $("#txtTotal").inputmask({
-                    'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
+                    'alias': 'numeric', 'max': 9999999, 'rightAlign': false, 'groupSeparator': ',', 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0'
                 });
 
                 $("#txtBidCount").inputmask({
-                    'alias': 'numeric', 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
+                    'alias': 'numeric', 'max': 99, 'rightAlign': false, 'groupSeparator': ',', 'digits': 0, 'placeholder': '0'
                 });
             });
 

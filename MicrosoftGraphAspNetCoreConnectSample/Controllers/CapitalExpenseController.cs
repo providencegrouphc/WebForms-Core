@@ -82,7 +82,7 @@ namespace PGWebFormsCore.Controllers
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             string strcheck = await financecheck(passid);
             string subbtn = "";
-            if (strcheck == "none")
+            if (strcheck == "none" || strcheck == "director")
             {
                 subbtn = "<input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px;margin-top:15px;\" value=\"Save Changes\" onclick=\"validatesub()\" />";
             }
@@ -221,11 +221,20 @@ namespace PGWebFormsCore.Controllers
                     string strDay = completionDate.Day.ToString();
                     string strYear = completionDate.Year.ToString();
 
+
+                    string subbtn = "";
+                    
                     string txtdisable = "";
                     if (Convert.ToString(idr["SubmitEmail"]) != email || Convert.ToString(idr["ApprovalStatus"]) == "Approved")
                     {
                         txtdisable = "disabled=\"disabled\"";
+                    } else
+                    {
+                        subbtn = "<input type=\"button\" class=\"btn btn-primary\" style=\"margin-bottom:10px;margin-top:15px;\" value=\"Save Changes\" onclick=\"validatesub()\" />";
                     }
+
+                    ViewData["subbtn"] = subbtn;
+
                     returntext += "<div><b><i>Submitted By:  " + Convert.ToString(idr["SubmitBy"]) + "</i></b></div>";
                     returntext += "<div><b><i>Submitted:  " + Convert.ToString(idr["SubmitDate"]) + "</i></b></div>";
 
@@ -309,12 +318,12 @@ namespace PGWebFormsCore.Controllers
             var response = await GraphService.GetUserGroups(graphClient, email, HttpContext);
             string returntext = "none";
 
-            if (response.Contains("Finance DG"))
+            if (response.Contains("Technology"))
             {
                 returntext = "finance";
             }
 
-            if (response.Contains("PACS Regional Directors of Operations") || response.Contains("Executives_SG") || response.Contains("Regional Directors of Operations DG"))
+            if (response.Contains("PACS Regional Directors of Operations") || response.Contains("Executives_SG") || response.Contains("Regional Directors of Operations DG") || response.Contains("zzzzz"))
             {
                 returntext = "director";
             }
@@ -362,12 +371,12 @@ namespace PGWebFormsCore.Controllers
             var response = await GraphService.GetUserGroups(graphClient, email, HttpContext);
             string returntext = "none";
 
-            if (response.Contains("Finance DG"))
+            if (response.Contains("Technology"))
             {
                 returntext = "finance";
             }
 
-            if (response.Contains("PACS Regional Directors of Operations") || response.Contains("Executives_SG") || response.Contains("Regional Directors of Operations DG"))
+            if (response.Contains("PACS Regional Directors of Operations") || response.Contains("Executives_SG") || response.Contains("Regional Directors of Operations DG") || response.Contains("zzzzz"))
             {
                 returntext = "director";
             }
@@ -387,7 +396,7 @@ namespace PGWebFormsCore.Controllers
 
             var sqlcommandtext = "";
 
-            if (response.Contains("PACS Regional Directors of Operations") || response.Contains("Executives_SG") || response.Contains("Regional Directors of Operations DG") || response.Contains("Finance DG"))
+            if (response.Contains("PACS Regional Directors of Operations") || response.Contains("Executives_SG") || response.Contains("Regional Directors of Operations DG") || response.Contains("Technology") || response.Contains("zzzzz"))
             {
                 sqlcommandtext = "select *, case when ApprovalStatus = 'approved' then '1' else '0' end as 'statusfilter' from CapitalExpense";
             } else
@@ -754,8 +763,8 @@ namespace PGWebFormsCore.Controllers
 
                 var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
 
-                string subject = "Expense Report Submitted";
-                string body = "A expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/Expense\">HERE</a>.";
+                string subject = "Capital Expense Report Submitted";
+                string body = "A capital expense report was just submitted.<br/><br/>You can view the report <a href=\"https://pacs-technology.com/CapitalExpense\">HERE</a>.";
 
                 // Send the email.
                 await GraphService.SendEmail(graphClient, _env, "daniel.stump@pacshc.com", HttpContext, subject, body);

@@ -22,6 +22,7 @@ using SixLabors.ImageSharp.Processing;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;
+using PGWebFormsCore.Models;
 
 namespace PGWebFormsCore.Controllers
 {
@@ -37,16 +38,29 @@ namespace PGWebFormsCore.Controllers
             _graphServiceClientFactory = graphServiceClientFactory;
             _configuration = configuration;
         }
-        [Authorize]
-        public async Task<IActionResult> Index()
+
+        public IActionResult pdffooter()
         {
+            return View();
+        }
+
+
+
+        [Authorize]
+        public async Task<IActionResult> Index(string facid)
+        {
+            if (facid is null)
+            {
+                facid = "";
+            }
             await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
-            ViewData["facility"] = await operationlist();
+            ViewData["facility"] = await operationlist(facid);
             ViewData["monthstransfer"] = getmonthstransfer();
             ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "TripleCheck");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             return View();
         }
+
 
         [Authorize]
         public async Task<IActionResult> Add(string passid, string passmonth)
@@ -439,13 +453,18 @@ namespace PGWebFormsCore.Controllers
                 string nextmonthshort = DateTime.Now.AddMonths(1).ToString("MM");
                 string nextyear = DateTime.Now.AddMonths(1).ToString("yyyy");
 
+                string prevmonth = DateTime.Now.AddMonths(-1).ToString("MMMM");
+                string prevmonthshort = DateTime.Now.AddMonths(-1).ToString("MM");
+                string prevyear = DateTime.Now.AddMonths(-1).ToString("yyyy");
+
                 var connection = _configuration.GetConnectionString("pgWebForm");
                 SqlConnection con = new SqlConnection(connection);
                 SqlCommand cmd = new SqlCommand("select distinct ReportMonth, INTMonth from TripleCheck_Records where facilityid = '" + strfac + "' order by INTMonth desc", con);
                 con.Open();
                 SqlDataReader idr = cmd.ExecuteReader();
 
-                returntext += "<option value=\""+curyear+ curmontshort+"\">" + curmonth + " " + curyear + "</option>";
+                returntext += "<option value=\"" + prevyear + prevmonthshort + "\">" + prevmonth + " " + prevyear + "</option>";
+                returntext += "<option selected=\"selected\" value=\""+curyear+ curmontshort+"\">" + curmonth + " " + curyear + "</option>";
                 returntext += "<option value=\"" + nextyear + nextmonthshort + "\">" + nextmonth + " " + nextyear + "</option>";
 
                 if (idr.HasRows)
@@ -454,7 +473,7 @@ namespace PGWebFormsCore.Controllers
                     while (idr.Read())
                     {
 
-                        if (Convert.ToString(idr["ReportMonth"]) == curmonth + " " + curyear || Convert.ToString(idr["ReportMonth"]) == nextmonth + " " + nextyear)
+                        if (Convert.ToString(idr["ReportMonth"]) == curmonth + " " + curyear || Convert.ToString(idr["ReportMonth"]) == nextmonth + " " + nextyear || Convert.ToString(idr["ReportMonth"]) == prevmonth + " " + prevyear)
                         {
                             
                         } else
@@ -508,10 +527,12 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     ViewData["patientname"] = Convert.ToString(idr["firstname"])+ " " + Convert.ToString(idr["lastname"]) + "  --  " + Convert.ToString(idr["medicalid"]) ;
-                    ViewData["patientmonth"] = Convert.ToString(idr["reportmonth"]);
+                    ViewData["patientmonth"] = getallpatientmonths(Convert.ToString(idr["medicalid"]), passid);
+
                     ViewData["patientnotes"] = Convert.ToString(idr["notes"]);
 
                     getdobgender(Convert.ToString(idr["medicalid"]), Convert.ToString(idr["facilityid"]));
+                    ViewData["facid"] = Convert.ToString(idr["facilityid"]);
 
                     string intmonth = Convert.ToString(idr["intmonth"]);
                     string strmonth = intmonth.Substring(intmonth.Length - 2);
@@ -521,20 +542,26 @@ namespace PGWebFormsCore.Controllers
                     
                     ViewData["intmonth"] = dMonth.AddMonths(1).ToShortDateString();
 
+                    try
+                    {
+                        DateTime staystart = Convert.ToDateTime(idr["startstay"]);
+                        string smonth = staystart.Month.ToString();
+                        string sday = staystart.Day.ToString();
+                        string syear = staystart.Year.ToString();
 
-                    DateTime staystart = Convert.ToDateTime(idr["startstay"]);
-                    string smonth = staystart.Month.ToString();
-                    string sday = staystart.Day.ToString();
-                    string syear = staystart.Year.ToString();
+                        if (smonth.Length == 1) { smonth = "0" + smonth; }
+                        if (sday.Length == 1) { sday = "0" + sday; }
+                        ViewData["staydate"] = smonth + "/" + sday + "/" + syear;
+                    } catch
+                    {
 
-                    if (smonth.Length == 1) { smonth = "0" + smonth; }
-                    if (sday.Length == 1) { sday = "0" + sday; }
-                    ViewData["staydate"] = smonth + "/" + sday + "/" + syear;
+                    }
 
-                    ViewData["InitialCert"] = staystart.AddDays(3).ToShortDateString();
+
+                    //ViewData["InitialCert"] = staystart.AddDays(3).ToShortDateString();
                     
 
-                    ViewData["ReCert"] = staystart.AddDays(14).ToShortDateString();
+                    //ViewData["ReCert"] = staystart.AddDays(14).ToShortDateString();
 
                     string addassess = "<select class=\"txtbox\" onchange=\"addassessment(this)\" id=\"ddAddAssessment\">";
 
@@ -636,9 +663,51 @@ namespace PGWebFormsCore.Controllers
             return "";
         }
 
+        public string getallpatientmonths(string medicalid, string passid)
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select id, ReportMonth from TripleCheck_Records where MedicalID = '"+medicalid+"' order by INTMonth, CreateDate";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+
+            string returntext = "<select class=\"largedd\" onchange=\"monthchange(this)\">";
+
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+                    if (Convert.ToString(idr["id"]) == passid)
+                    {
+                        returntext += "<option selected=\"selected\" value=\""+ Convert.ToString(idr["id"]) + "\">"+ Convert.ToString(idr["reportmonth"]) + "</option>";
+                    } else
+                    {
+                        returntext += "<option value=\"" + Convert.ToString(idr["id"]) + "\">" + Convert.ToString(idr["reportmonth"]) + "</option>";
+                    }
+
+                }
+            }
+            con.Close();
+
+            returntext += "</select>";
+            return returntext;
+        }
+
 
         public string IndexTable( string stritem, string facid)
         {
+
+            if (stritem == "curmonth")
+            {
+                string curmontshort = DateTime.Now.ToString("MM");
+                string curyear = DateTime.Now.ToString("yyyy");
+
+                stritem = curyear + curmontshort;
+            }
+
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
@@ -677,8 +746,15 @@ namespace PGWebFormsCore.Controllers
                     prepaidtable += "<td>" + Convert.ToString(idr["medicalid"]) + "</td>";
                     prepaidtable += "<td>" + Convert.ToString(idr["firstname"]) + " "+ Convert.ToString(idr["lastname"]) + "</td>";
 
-                    DateTime staystart = Convert.ToDateTime(idr["startstay"]);
-                    prepaidtable += "<td>" + staystart.ToShortDateString() + "</td>";
+                    try
+                    {
+                        DateTime staystart = Convert.ToDateTime(idr["startstay"]);
+                        prepaidtable += "<td>" + staystart.ToShortDateString() + "</td>";
+                    } catch  {
+                        
+                        prepaidtable += "<td></td>";
+                    }
+
                     
                     prepaidtable += "<td>" + Convert.ToString(idr["paymenttype"]) + "</td>";
 
@@ -769,7 +845,7 @@ namespace PGWebFormsCore.Controllers
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select * from TripleCheck_Records where FacilityID = '" + facid + "' and INTMonth = '" + stritem + "' and deleted = 0";
+            var sqlcommandtext = "select *, Case when (select count(*) from TripleCheck_Saves s where RecordID = r.ID and ParentName = 'DCDischarge') > 0 Then 1 else 0 end as 'discharge' from TripleCheck_Records r where FacilityID = '" + facid + "' and INTMonth = '" + stritem + "' and deleted = 0";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -778,7 +854,7 @@ namespace PGWebFormsCore.Controllers
             string prepaidtable = "<table class=\"transfer\" style=\"width:100%\">";
             prepaidtable += "<thead>";
             prepaidtable += "<tr>";
-            prepaidtable += "<th></th>";
+            prepaidtable += "<th><input type=\"checkbox\" onClick=\"toggle(this)\" /></th>";
             prepaidtable += "<th>Medical ID</th>";
             prepaidtable += "<th>Patient</th>";
             prepaidtable += "<th>Stay Start</th>";
@@ -791,15 +867,27 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
 
-                    prepaidtable += "<tr>";
-                    prepaidtable += "<td><input type=\"checkbox\" name=\"cbtransfer\" value=\""+ Convert.ToString(idr["id"])  + "\"/></td>";
-                    prepaidtable += "<td>" + Convert.ToString(idr["medicalid"]) + "</td>";
-                    prepaidtable += "<td>" + Convert.ToString(idr["firstname"]) + " " + Convert.ToString(idr["lastname"]) + "</td>";
+                    if (Convert.ToString(idr["discharge"]) == "0")
+                    {
+                        prepaidtable += "<tr>";
+                        prepaidtable += "<td><input type=\"checkbox\" name=\"cbtransfer\" value=\"" + Convert.ToString(idr["id"]) + "\"/></td>";
+                        prepaidtable += "<td>" + Convert.ToString(idr["medicalid"]) + "</td>";
+                        prepaidtable += "<td>" + Convert.ToString(idr["firstname"]) + " " + Convert.ToString(idr["lastname"]) + "</td>";
 
-                    DateTime staystart = Convert.ToDateTime(idr["startstay"]);
-                    prepaidtable += "<td>" + staystart.ToShortDateString() + "</td>";                  
+                        try
+                        {
+                            DateTime staystart = Convert.ToDateTime(idr["startstay"]);
+                            prepaidtable += "<td>" + staystart.ToShortDateString() + "</td>";
+                        }
+                        catch
+                        {
 
-                    prepaidtable += "</tr>";
+                            prepaidtable += "<td></td>";
+                        }
+
+                        prepaidtable += "</tr>";
+                    }
+
                 }
             }
             con.Close();
@@ -809,7 +897,7 @@ namespace PGWebFormsCore.Controllers
             return prepaidtable;
         }
 
-        public async Task<string> operationlist()
+        public async Task<string> operationlist(string facid)
         {
             var graphClient = _graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity);
             var email = User.FindFirst("preferred_username")?.Value;
@@ -830,15 +918,31 @@ namespace PGWebFormsCore.Controllers
                 operations += "<option value=\"\"></option>";
                 while (idr.Read())
                 {
-                    if (response.Contains(Convert.ToString(idr["operationname"])) && strSelect == "")
+
+                    if (facid == "")
                     {
-                        operations += "<option selected=\"selected\" value=\""+ Convert.ToString(idr["operationid"]) + "\">" + Convert.ToString(idr["operationname"]) + "</option>";
-                        strSelect = "select";
-                    }
-                    else
+                        if (response.Contains(Convert.ToString(idr["operationname"])) && strSelect == "")
+                        {
+                            operations += "<option selected=\"selected\" value=\"" + Convert.ToString(idr["operationid"]) + "\">" + Convert.ToString(idr["operationname"]) + "</option>";
+                            strSelect = "select";
+                        }
+                        else
+                        {
+                            operations += "<option  value=\"" + Convert.ToString(idr["operationid"]) + "\">" + Convert.ToString(idr["operationname"]) + "</option>";
+                        }
+                    } else
                     {
-                        operations += "<option  value=\"" + Convert.ToString(idr["operationid"]) + "\">" + Convert.ToString(idr["operationname"]) + "</option>";
+                        if (Convert.ToString(idr["operationid"]) == facid)
+                        {
+                            operations += "<option selected=\"selected\" value=\"" + Convert.ToString(idr["operationid"]) + "\">" + Convert.ToString(idr["operationname"]) + "</option>";
+                            strSelect = "select";
+                        }
+                        else
+                        {
+                            operations += "<option  value=\"" + Convert.ToString(idr["operationid"]) + "\">" + Convert.ToString(idr["operationname"]) + "</option>";
+                        }
                     }
+ 
 
 
                 }
