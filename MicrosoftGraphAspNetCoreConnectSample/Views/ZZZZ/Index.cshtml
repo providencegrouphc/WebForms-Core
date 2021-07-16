@@ -35,20 +35,20 @@
         var d = new Date();
         var t = d.toLocaleTimeString();
         //document.getElementById("log").innerHTML += t + ':' + d.getMilliseconds.toString() + "</br>";
-        $.get("/ZZZZ/SaveTime", { stritem: '' }, function (data) { document.getElementById("log").innerHTML += data + '</br>' });
+        $.get("/ZZZZ/SaveTime", { stritem: '' }, function (data) { });
         myCount++
         document.getElementById("counts").innerHTML = myCount.toString()
     }
 
     function StartFunction() {
-        myVar = setInterval(myTimer, 500);
+        myVar = setInterval(myTimer, 1000);
     }
 
     function StopFunction() {
         clearInterval(myVar);
 
-        $.get("/ZZZZ/GetTime", { stritem: '' }, function (data) { document.getElementById("logsql").innerHTML += data + '</br>' });
-        $.get("/ZZZZ/GetCount", { stritem: '' }, function (data) { document.getElementById("countssql").innerHTML += data + '</br>' });
+        //$.get("/ZZZZ/GetTime", { stritem: '' }, function (data) { document.getElementById("logsql").innerHTML += data + '</br>' });
+        //$.get("/ZZZZ/GetCount", { stritem: '' }, function (data) { document.getElementById("countssql").innerHTML += data + '</br>' });
     }
 
     function ClearFunction() {

@@ -37,24 +37,26 @@ namespace PGWebFormsCore.Controllers
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
+            string returntext = "";
+            DateTime dateValue = DateTime.Now;
+            returntext = dateValue.AddHours(1).ToString("MM/dd/yyyy hh:mm:ss.fff tt");
 
-            var sqlcommandtext = "declare @dt datetime = getdate() insert into dsTest (IssueID, LogDate) values (NEWID(), @dt) select @dt as 'dt'";
+            var sqlcommandtext = "insert into dsTest (IssueID, LogDate, JavaDate) values (NEWID(), GETDATE(), '"+returntext+"')";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
             SqlDataReader idr = cmd.ExecuteReader();
-            string returntext = "";
+            
             if (idr.HasRows)
             {
                 while (idr.Read())
                 {
-                    DateTime dateValue = Convert.ToDateTime(idr["dt"]);
-                    returntext = dateValue.ToString("MM/dd/yyyy hh:mm:ss.fff tt");
+
                 }
             }
             con.Close();
 
-            return returntext;
+            return "";
         }
 
         public string GetTime(string stritem)

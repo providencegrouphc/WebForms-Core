@@ -109,23 +109,22 @@
 
 <h1>Triple Check</h1>
 <hr />
+<div class="row">
+    <div class="col-md-5">
+        <div class="txtlabel">Facility</div>
+        <div>@Html.Raw(ViewData["facility"])</div>
+        <div id="divMonth"></div>
+        <input type="button" id="addpatient" class="hidden" style="margin-top:10px;" value="Add Patient" onclick="add()" />
+    </div>
+    <div class="col-md-3">
+        <div class="txtlabel" style="border-bottom: 1px solid #aaa; font-weight:bold">IDT Team Members Present</div>
+        <div style="overflow-y:auto; height:100px; margin-bottom:10px;" id="divTeam">
+            @Html.Raw(ViewData["teamdata"])
+        </div>
+        <div><input type="button" class="btn btn-primary" id="btnTeam" value="Add Team" onclick="showteam()" /></div>
+    </div>
+</div>
 
-<table>
-    <tr>
-        <td>
-            <div class="txtlabel">Facility</div>
-            <div>@Html.Raw(ViewData["facility"])</div>
-
-
-            <div id="divMonth">
-            </div>
-        </td>
-        <td style="padding-left:20px; vertical-align:bottom;">
-            <input type="button" id="addpatient" class="hidden" style="margin-top:10px;" value="Add Patient" onclick="add()" />
-
-        </td>
-    </tr>
-</table>
 <hr />
 <div id="linkTransfer" class="hidden">
     <a href="#" id="printlist" target="_blank" style="font-weight:bold">Print List</a><br />
@@ -147,7 +146,54 @@
 </form>
 
 
-<script>
+    <script>
+        function showteam() {
+            $.get("/TripleCheck/getteamedit", { reportmonth: document.getElementById('ddReportMonth').value, facilityid: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divTeamEdit').innerHTML = data });
+            $("#showteam").dialog({
+                resizable: false,
+                height: "auto",
+                width: "500px",
+                modal: true
+            });
+        };
+    </script>
+
+    <div style="visibility:hidden; height:0px; display:none">
+        <div id="showteam" title="Add Team">
+            <div style="overflow-y:auto; max-height:200px;" id="divTeamEdit">
+                
+            </div>
+            <div style="height:10px"></div>
+            <button type="submit" class="btn btn-primary" onclick="removeteam()">Remove Selected</button>
+            <hr />
+            <table>
+                <tr>
+                    <td>Name</td>
+                    <td>
+                        <input class="txtbox" maxlength="99" id="txtTeamName" />
+                        <div id="validateTeamName" class="hidden">Name Required</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-right:15px; padding-top:10px">Credentials</td>
+                    <td style="padding-top:10px;">
+                        <input class="txtbox" maxlength="99" id="txtTeamCred" />
+                        <div id="validateTeamCred" class="hidden">Credential Required</div>
+                    </td>
+                </tr>
+            </table>
+
+            <div style="height:10px"></div>
+            <button type="submit" class="btn btn-primary" onclick="saveteam()">Add Member</button>
+            <div style="height:10px"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="getteam()">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
     function facilitychange() {
         document.getElementById('addpatient').className = "hidden"
         document.getElementById('resultstable').innerHTML = ""
@@ -155,11 +201,14 @@
 
         if (document.getElementById('ddFacility').value == '') {
             document.getElementById('divMonth').innerHTML = ''
+            document.getElementById('divTeam').innerHTML = ''
+            document.getElementById('btnTeam').classList.add('hidden')
         } else {
-            $.get("/TripleCheck/getmonths", { strfac: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divMonth').innerHTML = data });
+            
+            $.get("/TripleCheck/getmonths", { strfac: document.getElementById('ddFacility').value, monthid: '@Html.Raw(ViewData["monthid"])' }, function (data) { document.getElementById('divMonth').innerHTML = data });
             document.getElementById('addpatient').className = "btn btn-primary"
-            $.get("/TripleCheck/IndexTable", { stritem: 'curmonth', facid: document.getElementById('ddFacility').value }, function (data) { starttable(data) });
-            $.get("/TripleCheck/TransferTable", { stritem: 'curmonth', facid: document.getElementById('ddFacility').value }, function (data) {
+            $.get("/TripleCheck/IndexTable", { stritem: '@Html.Raw(ViewData["monthid"])', facid: document.getElementById('ddFacility').value }, function (data) { starttable(data) });
+            $.get("/TripleCheck/TransferTable", { stritem: '@Html.Raw(ViewData["monthid"])', facid: document.getElementById('ddFacility').value }, function (data) {
                 document.getElementById('transfertable').innerHTML = data
             });
         }
@@ -168,17 +217,23 @@
     }
 
     function monthchange() {
-        
+
         if (document.getElementById('ddReportMonth').value == '') {
             document.getElementById('addpatient').className = "hidden"
             document.getElementById('resultstable').innerHTML = ""
             document.getElementById('linkTransfer').className = 'hidden'
+            document.getElementById('divTeam').innerHTML = ''
+            document.getElementById('btnTeam').classList.add('hidden')
         } else {
             document.getElementById('addpatient').className = "btn btn-primary"
             $.get("/TripleCheck/IndexTable", { stritem: document.getElementById('ddReportMonth').value, facid: document.getElementById('ddFacility').value }, function (data) { starttable(data) });
             $.get("/TripleCheck/TransferTable", { stritem: document.getElementById('ddReportMonth').value, facid: document.getElementById('ddFacility').value }, function (data) {
                 document.getElementById('transfertable').innerHTML = data
             });
+
+            $.get("/TripleCheck/getteam", { reportmonth: document.getElementById('ddReportMonth').value, facilityid: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divTeam').innerHTML = data });
+
+            document.getElementById('btnTeam').classList.remove('hidden')
         }
     }
 
@@ -224,7 +279,45 @@
             checkboxes[i].checked = source.checked;
         }
     }
-</script>
+
+
+    function getteam() {
+        $.get("/TripleCheck/getteam", { reportmonth: document.getElementById('ddReportMonth').value, facilityid: document.getElementById('ddFacility').value }, function (data) { document.getElementById('divTeam').innerHTML = data });
+        $('#showteam').dialog('close');
+    }
+
+    function removeteam() {
+        var markedCheckbox = document.getElementsByName('checkremove');
+        for (var checkbox of markedCheckbox) {
+            if (checkbox.checked)
+                $.get("/TripleCheck/removeteam", { reportmonth: document.getElementById('ddReportMonth').value, facilityid: document.getElementById('ddFacility').value, strTeamID: checkbox.value }, function (data) { document.getElementById('divTeamEdit').innerHTML = data });
+        }
+    }
+
+    function saveteam() {
+        var errors = '0'
+
+        if (document.getElementById('txtTeamName').value == '') {
+            document.getElementById('validateTeamName').className = 'validation'
+            errors = '1'
+        } else {
+            document.getElementById('validateTeamName').className = 'hidden'
+        }
+
+        if (document.getElementById('txtTeamCred').value == '') {
+            document.getElementById('validateTeamCred').className = 'validation'
+            errors = '1'
+        } else {
+            document.getElementById('validateTeamCred').className = 'hidden'
+        }
+
+        if (errors == '0') {
+            $.get("/TripleCheck/saveteam", { reportmonth: document.getElementById('ddReportMonth').value, facilityid: document.getElementById('ddFacility').value, strName: document.getElementById('txtTeamName').value, strCred: document.getElementById('txtTeamCred').value }, function (data) { document.getElementById('divTeamEdit').innerHTML = data });
+            document.getElementById('txtTeamCred').value = ''
+            document.getElementById('txtTeamName').value = ''
+        }
+    }
+    </script>
 
 
 <script>

@@ -221,6 +221,16 @@ namespace PGWebFormsCore.Controllers
                     string strDay = completionDate.Day.ToString();
                     string strYear = completionDate.Year.ToString();
 
+                    if (strMonth.Length == 1)
+                    {
+                        strMonth = "0" + strMonth;
+                    }
+
+                    if (strDay.Length == 1)
+                    {
+                        strDay = "0" + strDay;
+                    }
+
 
                     string subbtn = "";
                     
@@ -297,7 +307,7 @@ namespace PGWebFormsCore.Controllers
                     returntext += "<div><input " + txtdisable + " value=\"" + Convert.ToString(idr["EstimatedTotal"]) + "\" type=\"text\" id=\"txtTotal\" class=\"txtbox\" name=\"txtTotal\" /></div>";
                     returntext += "<div id=\"validateTotal\" class=\"hidden\">Please enter a cost.</div>";
                     returntext += "<div class=\"txtlabel\">Estimated Completion Date</div>";
-                    returntext += "<div><input " + txtdisable + " value=\"" + completionDate.ToShortDateString() + "\" type=\"text\" id=\"txtDate\" class=\"txtbox\" name=\"txtDate\" /></div>";
+                    returntext += "<div><input " + txtdisable + " value=\"" + strMonth + "/" + strDay + "/" + strYear + "\" type=\"text\" id=\"txtDate\" class=\"txtbox\" name=\"txtDate\" /></div>";
                     returntext += "<div id=\"validateDate\" class=\"hidden\">Please enter a valid date.</div>";
                     returntext += "</div>";
                     returntext += "</div>";

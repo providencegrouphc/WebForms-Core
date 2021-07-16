@@ -47,15 +47,24 @@ namespace PGWebFormsCore.Controllers
 
 
         [Authorize]
-        public async Task<IActionResult> Index(string facid)
+        public async Task<IActionResult> Index(string facid, string monthid)
         {
             if (facid is null)
             {
                 facid = "";
             }
+
+            if (monthid is null)
+            {
+                string curmontshort = DateTime.Now.ToString("MM");
+                string curyear = DateTime.Now.ToString("yyyy");
+
+                monthid = curyear + curmontshort;
+            }
             await GraphService.GetUserJson(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext);
             ViewData["facility"] = await operationlist(facid);
             ViewData["monthstransfer"] = getmonthstransfer();
+            ViewData["monthid"] = monthid;
             ViewData["checkauth"] = await GraphService.GetAuth(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"), "TripleCheck");
             ViewData["sidebar"] = await GraphService.GetSideBar(_graphServiceClientFactory.GetAuthenticatedGraphClient((ClaimsIdentity)User.Identity), User.FindFirst("preferred_username")?.Value, HttpContext, _configuration.GetConnectionString("pgWebForm"));
             return View();
@@ -82,8 +91,8 @@ namespace PGWebFormsCore.Controllers
             getdetails(passid);
             ViewData["saveddata"] = getsaves(passid);
             //ViewData["getrecert"] = getrecerts(passid);
-            ViewData["teamdata"] = getteam(passid);
-            ViewData["teameditdata"] = getteamedit(passid);
+            //ViewData["teamdata"] = getteam(passid);
+            //ViewData["teameditdata"] = getteamedit(passid);
             ViewData["username"] = User.Identity.Name;
             return View();
         }
@@ -163,13 +172,13 @@ namespace PGWebFormsCore.Controllers
             return returntext;
         }
 
-        public string getteam(string passid)
+        public string getteam(string facilityid, string reportmonth)
         {
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select * from TripleCheck_Team where recordID = '" + passid + "' order by teammember";
+            var sqlcommandtext = "select * from TripleCheck_Team where facilityid = '" + facilityid + "' and reportmonth = '"+reportmonth+"' order by teammember";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -189,13 +198,13 @@ namespace PGWebFormsCore.Controllers
             return returntext;
         }
 
-        public string getteamedit(string passid)
+        public string getteamedit(string facilityid, string reportmonth)
         {
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select * from TripleCheck_Team where recordID = '" + passid + "' order by teammember";
+            var sqlcommandtext = "select * from TripleCheck_Team where facilityid = '" + facilityid + "' and reportmonth = '" + reportmonth + "' order by teammember";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -299,7 +308,7 @@ namespace PGWebFormsCore.Controllers
             return "";
         }
 
-        public string saveteam(string strid, string strName, string strCred)
+        public string saveteam(string facilityid, string reportmonth, string strName, string strCred)
         {
 
             var connection = _configuration.GetConnectionString("pgWebForm");
@@ -307,7 +316,8 @@ namespace PGWebFormsCore.Controllers
             SqlCommand cmd = new SqlCommand();
             cmd = new SqlCommand("sp_TripleCheck_SaveTeam", con);
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.Add("@RecordID", SqlDbType.VarChar).Value = strid;
+            cmd.Parameters.Add("@FacilityID", SqlDbType.Int).Value = facilityid;
+            cmd.Parameters.Add("@ReportMonth", SqlDbType.VarChar).Value = reportmonth;
             cmd.Parameters.Add("@TeamMember", SqlDbType.VarChar).Value = strName;
             cmd.Parameters.Add("@TeamMemberCred", SqlDbType.VarChar).Value = strCred;
 
@@ -316,10 +326,11 @@ namespace PGWebFormsCore.Controllers
             cmd.ExecuteNonQuery();
             con.Close();
 
-            return getteamedit(strid);
+            
+            return getteamedit(facilityid, reportmonth);
         }
 
-        public string removeteam(string strid, string strTeamID)
+        public string removeteam(string facilityid, string reportmonth, string strTeamID)
         {
 
             string commandtext = "DELETE FROM TripleCheck_Team WHERE ID = '" + strTeamID + "'";
@@ -331,7 +342,8 @@ namespace PGWebFormsCore.Controllers
             cmd.ExecuteNonQuery();
             con.Close();
 
-            return getteamedit(strid);
+            
+            return getteamedit(facilityid, reportmonth);
         }
 
         public string savenotes(string strid, string stritem)
@@ -437,10 +449,12 @@ namespace PGWebFormsCore.Controllers
             return "";
         }
 
-        public string getmonths(string strfac)
+        public string getmonths(string strfac, string monthid)
         {
             string returntext = "<div class=\"txtlabel\">Month</div><select class=\"txtbox\" id=\"ddReportMonth\" onchange=\"monthchange()\">";
             returntext += "<option></option>";
+            string selected = "";
+
             if (strfac == "")
             {
                 
@@ -463,10 +477,32 @@ namespace PGWebFormsCore.Controllers
                 con.Open();
                 SqlDataReader idr = cmd.ExecuteReader();
 
-                returntext += "<option value=\"" + prevyear + prevmonthshort + "\">" + prevmonth + " " + prevyear + "</option>";
-                returntext += "<option selected=\"selected\" value=\""+curyear+ curmontshort+"\">" + curmonth + " " + curyear + "</option>";
-                returntext += "<option value=\"" + nextyear + nextmonthshort + "\">" + nextmonth + " " + nextyear + "</option>";
+                if (prevyear + prevmonthshort == monthid)
+                {
+                    returntext += "<option selected=\"selected\" value=\"" + prevyear + prevmonthshort + "\">" + prevmonth + " " + prevyear + "</option>";
+                    selected = "1";
+                }
+                else
+                {
+                    returntext += "<option value=\"" + prevyear + prevmonthshort + "\">" + prevmonth + " " + prevyear + "</option>";
+                }
 
+                
+                
+
+                string returntextend = "";
+                
+                if (nextyear + nextmonthshort == monthid)
+                {
+                    returntextend += "<option selected=\"selected\" value=\"" + nextyear + nextmonthshort + "\">" + nextmonth + " " + nextyear + "</option>";
+                    selected = "1";
+                } else
+                {
+                    returntextend += "<option value=\"" + nextyear + nextmonthshort + "\">" + nextmonth + " " + nextyear + "</option>";
+                }
+                
+
+                
                 if (idr.HasRows)
                 {
 
@@ -478,14 +514,35 @@ namespace PGWebFormsCore.Controllers
                             
                         } else
                         {
-                            returntext += "<option value=\"" + Convert.ToString(idr["IntMonth"]) + "\">" + Convert.ToString(idr["ReportMonth"]) + "</option>";
+                            if (Convert.ToString(idr["IntMonth"]) == monthid)
+                            {
+                                returntextend += "<option selected=\"selected\" value=\"" + Convert.ToString(idr["IntMonth"]) + "\">" + Convert.ToString(idr["ReportMonth"]) + "</option>";
+                                selected = "1";
+                            }
+                            else
+                            {
+                                returntextend += "<option value=\"" + Convert.ToString(idr["IntMonth"]) + "\">" + Convert.ToString(idr["ReportMonth"]) + "</option>";
+                            }
+
+                            
                         }
                     }
                 }
                 con.Close();
 
+                if (selected == "1")
+                {
+                    returntext += "<option value=\"" + curyear + curmontshort + "\">" + curmonth + " " + curyear + "</option>";
+                }
+                else
+                {
+                    returntext += "<option selected=\"selected\" value=\"" + curyear + curmontshort + "\">" + curmonth + " " + curyear + "</option>";
+                }
 
+                returntext += returntextend;
             }
+
+
 
             returntext += "</select>";
             return returntext;
@@ -533,6 +590,7 @@ namespace PGWebFormsCore.Controllers
 
                     getdobgender(Convert.ToString(idr["medicalid"]), Convert.ToString(idr["facilityid"]));
                     ViewData["facid"] = Convert.ToString(idr["facilityid"]);
+                    ViewData["monthid"] = Convert.ToString(idr["intmonth"]);
 
                     string intmonth = Convert.ToString(idr["intmonth"]);
                     string strmonth = intmonth.Substring(intmonth.Length - 2);
@@ -579,7 +637,7 @@ namespace PGWebFormsCore.Controllers
 
                     ViewData["AdditionalAssessment"] = addassess;
 
-                    string paymenttype = "<select class=\"txtbox\" id=\"ddPaymentType\" onchange=\"paymenttype(this)\">";
+                    string paymenttype = "<select class=\"txtbox\" id=\"ddPaymentType\" onchange=\"paymentchange()\">";
 
                     if (Convert.ToString(idr["PaymentType"]) == "HMO A - PDPM")
                     {
@@ -598,13 +656,13 @@ namespace PGWebFormsCore.Controllers
                         paymenttype += "<option>HMO A - RUG</option>";
                     }
 
-                    if (Convert.ToString(idr["PaymentType"]) == "Levels")
+                    if (Convert.ToString(idr["PaymentType"]) == "HMO Levels")
                     {
-                        paymenttype += "<option selected=\"selected\">Levels</option>";
+                        paymenttype += "<option selected=\"selected\">HMO Levels</option>";
                     }
                     else
                     {
-                        paymenttype += "<option>Levels</option>";
+                        paymenttype += "<option>HMO Levels</option>";
                     }
 
                     if (Convert.ToString(idr["PaymentType"]) == "MCB")
@@ -744,7 +802,7 @@ namespace PGWebFormsCore.Controllers
                     prepaidtable += "<tr>";
                     prepaidtable += "<td>" + Convert.ToString(idr["id"]) + "</td>";
                     prepaidtable += "<td>" + Convert.ToString(idr["medicalid"]) + "</td>";
-                    prepaidtable += "<td>" + Convert.ToString(idr["firstname"]) + " "+ Convert.ToString(idr["lastname"]) + "</td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["lastname"]) + ", "+ Convert.ToString(idr["firstname"]) + "</td>";
 
                     try
                     {
@@ -845,7 +903,7 @@ namespace PGWebFormsCore.Controllers
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select *, Case when (select count(*) from TripleCheck_Saves s where RecordID = r.ID and ParentName = 'DCDischarge') > 0 Then 1 else 0 end as 'discharge' from TripleCheck_Records r where FacilityID = '" + facid + "' and INTMonth = '" + stritem + "' and deleted = 0";
+            var sqlcommandtext = "select *, Case when (select count(*) from TripleCheck_Saves s where RecordID = r.ID and ParentName = 'BODischargeQ' and SavedValue = 'Yes') > 0 Then 1 else 0 end as 'discharge' from TripleCheck_Records r where FacilityID = '" + facid + "' and INTMonth = '" + stritem + "' and deleted = 0";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -872,7 +930,7 @@ namespace PGWebFormsCore.Controllers
                         prepaidtable += "<tr>";
                         prepaidtable += "<td><input type=\"checkbox\" name=\"cbtransfer\" value=\"" + Convert.ToString(idr["id"]) + "\"/></td>";
                         prepaidtable += "<td>" + Convert.ToString(idr["medicalid"]) + "</td>";
-                        prepaidtable += "<td>" + Convert.ToString(idr["firstname"]) + " " + Convert.ToString(idr["lastname"]) + "</td>";
+                        prepaidtable += "<td>" + Convert.ToString(idr["lastname"]) + ", " + Convert.ToString(idr["firstname"]) + "</td>";
 
                         try
                         {
@@ -1119,6 +1177,26 @@ namespace PGWebFormsCore.Controllers
 
 
             return "";
+        }
+
+        [HttpPost]
+        public IActionResult PaymentChange(string txtID, string txtPayType)
+        {
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            SqlCommand cmd = new SqlCommand();
+            cmd = new SqlCommand("sp_TripleCheck_PaymentChange", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@RecordID", SqlDbType.VarChar).Value = txtID;
+            cmd.Parameters.Add("@PaymentType", SqlDbType.VarChar).Value = txtPayType;
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+
+            return RedirectToAction("Record", new { passid = txtID });
         }
     }
 }

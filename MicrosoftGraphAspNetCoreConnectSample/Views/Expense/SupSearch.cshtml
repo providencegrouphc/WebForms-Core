@@ -20,7 +20,7 @@
             "order": [[1, "asc"]],
             "columnDefs": [
                 { "targets": [0], "visible": false, "searchable": false },
-                { "targets": [9], "visible": false, "searchable": true }
+                { "targets": [10], "visible": false, "searchable": true }
             ]
         })
 
@@ -42,7 +42,7 @@
             status = "0"
         }
         $('#example').DataTable()
-            .column(7)
+            .column(8)
             .search(
                 status
             )
@@ -145,36 +145,40 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Submitted By</td>
+                        <td>Request #</td>
                         <td><input type="text" class="column_filter" id="col1_filter" onkeyup="filterColumn('1')"></td>
                     </tr>
                     <tr>
-                        <td>Date</td>
+                        <td>Submitted By</td>
                         <td><input type="text" class="column_filter" id="col2_filter" onkeyup="filterColumn('2')"></td>
                     </tr>
                     <tr>
-                        <td>Total</td>
+                        <td>Date</td>
                         <td><input type="text" class="column_filter" id="col3_filter" onkeyup="filterColumn('3')"></td>
                     </tr>
                     <tr>
-                        <td>Category</td>
+                        <td>Total</td>
                         <td><input type="text" class="column_filter" id="col4_filter" onkeyup="filterColumn('4')"></td>
                     </tr>
                     <tr>
-                        <td>Description</td>
+                        <td>Category</td>
                         <td><input type="text" class="column_filter" id="col5_filter" onkeyup="filterColumn('5')"></td>
                     </tr>
                     <tr>
-                        <td>Facility</td>
+                        <td>Description</td>
                         <td><input type="text" class="column_filter" id="col6_filter" onkeyup="filterColumn('6')"></td>
                     </tr>
                     <tr>
-                        <td>Submitted</td>
+                        <td>Facility</td>
                         <td><input type="text" class="column_filter" id="col7_filter" onkeyup="filterColumn('7')"></td>
                     </tr>
                     <tr>
-                        <td>Status</td>
+                        <td>Submitted</td>
                         <td><input type="text" class="column_filter" id="col8_filter" onkeyup="filterColumn('8')"></td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td><input type="text" class="column_filter" id="col9_filter" onkeyup="filterColumn('9')"></td>
                     </tr>
                 </table>
                 <div style="height:10px"></div>

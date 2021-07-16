@@ -891,7 +891,7 @@ namespace PGWebFormsCore.Controllers
         {
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
-            SqlCommand cmd = new SqlCommand("select count(*) as 'totalsup', (select count(*) from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "' and ApprovalStatus = 'Processing') as 'pendsup' from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "'", con);
+            SqlCommand cmd = new SqlCommand("select count(*) as 'totalsup', (select count(*) from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "' and SupApprove = '0') as 'pendsup' from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "'", con);
             con.Open();
             SqlDataReader idr = cmd.ExecuteReader();
             string returnvalue = "";
@@ -917,7 +917,7 @@ namespace PGWebFormsCore.Controllers
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select id, expensetype, merchant, ExpenseDate, ExpenseTotal, Category, ExpenseDescription, Facility, SubmitDate, isnull(ApprovalStatus, 'Processing') as 'approvalstatus', isnull(completed, 'no') as 'completed' from Expense where SubmitEmail = '" + User.FindFirst("preferred_username")?.Value + "'";
+            var sqlcommandtext = "select id, requestnumber, expensetype, merchant, ExpenseDate, ExpenseTotal, Category, ExpenseDescription, Facility, SubmitDate, isnull(ApprovalStatus, 'Processing') as 'approvalstatus', isnull(completed, 'no') as 'completed' from Expense where SubmitEmail = '" + User.FindFirst("preferred_username")?.Value + "'";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -927,6 +927,7 @@ namespace PGWebFormsCore.Controllers
             prepaidtable += "<thead>";
             prepaidtable += "<tr>";
             prepaidtable += "<th>ID</th>";
+            prepaidtable += "<th>Request #</th>";
             prepaidtable += "<th>Date</th>";
             prepaidtable += "<th>Total</th>";
             prepaidtable += "<th>Merchant</th>";
@@ -957,6 +958,7 @@ namespace PGWebFormsCore.Controllers
 
                     prepaidtable += "<tr>";
                     prepaidtable += "<td>" + Convert.ToString(idr["id"]) + "</td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["expensedate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -992,7 +994,7 @@ namespace PGWebFormsCore.Controllers
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select id,submitby, ExpenseDate, ExpenseTotal, Category, ExpenseDescription, Facility, SubmitDate, isnull(ApprovalStatus, 'Processing') as 'approvalstatus', isnull(completed, 'no') as 'completed' from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "'";
+            var sqlcommandtext = "select id, requestnumber, submitby, ExpenseDate, ExpenseTotal, Category, ExpenseDescription, Facility, SubmitDate, isnull(ApprovalStatus, 'Processing') as 'approvalstatus', isnull(completed, 'no') as 'completed' from Expense where ApprovedEmail = '" + User.FindFirst("preferred_username")?.Value + "'";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -1002,6 +1004,7 @@ namespace PGWebFormsCore.Controllers
             prepaidtable += "<thead>";
             prepaidtable += "<tr>";
             prepaidtable += "<th>ID</th>";
+            prepaidtable += "<th>Request #</th>";
             prepaidtable += "<th>Submitted By</th>";
             prepaidtable += "<th>Date</th>";
             prepaidtable += "<th>Total</th>";
@@ -1032,6 +1035,7 @@ namespace PGWebFormsCore.Controllers
 
                     prepaidtable += "<tr>";
                     prepaidtable += "<td>" + Convert.ToString(idr["id"]) + "</td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     prepaidtable += "<td>" + Convert.ToString(idr["submitby"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["expensedate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
@@ -1150,6 +1154,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<table>";
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Merchant</th>";
@@ -1166,6 +1171,7 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     prepaidtable += "<tr id=\""+ Convert.ToString(idr["ID"]) + "\">";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1220,6 +1226,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<table>";
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Distance</th>";
@@ -1236,6 +1243,7 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1384,6 +1392,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<table>";
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Merchant</th>";
@@ -1400,6 +1409,7 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1454,6 +1464,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<table>";
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Distance</th>";
@@ -1470,6 +1481,7 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1560,6 +1572,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<table>";
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Merchant</th>";
@@ -1576,6 +1589,7 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1630,6 +1644,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<table>";
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Distance</th>";
@@ -1646,6 +1661,7 @@ namespace PGWebFormsCore.Controllers
                 while (idr.Read())
                 {
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1737,6 +1753,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
                 prepaidtable += "<th></th>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Merchant</th>";
@@ -1755,6 +1772,7 @@ namespace PGWebFormsCore.Controllers
 
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
                     prepaidtable += "<td><input type=\"checkbox\" onchange=\"bodyclick('" + remail + "')\" name=\""+remail+"\" id=\"" + Convert.ToString(idr["ID"]) + "\" class=\"checkers\"/></td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -1808,6 +1826,7 @@ namespace PGWebFormsCore.Controllers
                 prepaidtable += "<thead>";
                 prepaidtable += "<tr>";
                 prepaidtable += "<th></th>";
+                prepaidtable += "<th>Request #</th>";
                 prepaidtable += "<th>Date</th>";
                 prepaidtable += "<th>Total</th>";
                 prepaidtable += "<th>Distance</th>";
@@ -1826,6 +1845,7 @@ namespace PGWebFormsCore.Controllers
 
                     prepaidtable += "<tr id=\"" + Convert.ToString(idr["ID"]) + "\">";
                     prepaidtable += "<td><input type=\"checkbox\" onchange=\"bodyclick('" + remail + "')\" name=\"" + remail + "\" id=\"" + Convert.ToString(idr["ID"]) + "\" class=\"checkers\"/></td>";
+                    prepaidtable += "<td>" + Convert.ToString(idr["requestnumber"]) + "</td>";
                     DateTime expensedate = Convert.ToDateTime(idr["submitdate"]);
                     prepaidtable += "<td>" + expensedate.ToShortDateString() + "</td>";
                     decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
@@ -3348,17 +3368,17 @@ namespace PGWebFormsCore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GenReport(string txtDate)
+        public IActionResult GenReport(string txtDate)
         {
             MemoryStream memoryStream = new MemoryStream();
             TextWriter tw = new StreamWriter(memoryStream);
 
-            tw.WriteLine("PAYCHEX ID,Last Name,First Name,Bonus Supplemental,Bonus,Vaccine Bonus,Expense Reimb- Non tax");
+            tw.WriteLine("Card Holder,Tag,Posted Date,Merchant,Amount,GL Code,Category,Comments");
 
             var connection = _configuration.GetConnectionString("pgWebForm");
             SqlConnection con = new SqlConnection(connection);
 
-            var sqlcommandtext = "select SubmitEmail, sum(ExpenseTotal) as 'expensetotal' from Expense where reportshortdate = '" + txtDate+"' group by SubmitEmail order by SubmitEmail";
+            var sqlcommandtext = "select SubmitBy, Facility, ExpenseDate, Merchant, ExpenseTotal, C.GLCode, E.Category, ExpenseDescription from Expense E inner join ExpenseCategory C on E.Category = C.Category WHERE ReportShortDate = '" + txtDate + "' ORDER BY SubmitBy";
 
             SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
             con.Open();
@@ -3367,13 +3387,19 @@ namespace PGWebFormsCore.Controllers
             {
                 while (idr.Read())
                 {
-                    var wrline = ",";
-                    wrline += await getgiven(Convert.ToString(idr["submitemail"])) + ",";
-                    wrline += await getsur(Convert.ToString(idr["submitemail"])) + ",";
-                    wrline += ",";
-                    wrline += ",";
-                    wrline += ",";
-                    wrline += Convert.ToString(idr["expensetotal"]) + ",";
+
+                    DateTime expensedate = Convert.ToDateTime(idr["expensedate"]);
+                    decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+
+                    var wrline = Convert.ToString(idr["SubmitBy"]) + ",";
+                    wrline += Convert.ToString(idr["Facility"]) + ",";
+                    wrline += expensedate.ToShortDateString() + ",";
+                    wrline += Convert.ToString(idr["Merchant"]) + ",";
+                    wrline += expensetotal.ToString() + ",";
+                    wrline += Convert.ToString(idr["GLCode"]) + ",";
+                    wrline += Convert.ToString(idr["Category"]) + ",";
+                    wrline += Convert.ToString(idr["ExpenseDescription"]);
+
 
                     tw.WriteLine(wrline);
                 }
@@ -3524,6 +3550,240 @@ namespace PGWebFormsCore.Controllers
             con.Close();
 
             return factotal;
+        }
+
+
+        [HttpPost]
+        public IActionResult RegionalReport(string txtDateReg)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            TextWriter tw = new StreamWriter(memoryStream);
+
+            List<string> CostCenters = GetCostCenters();
+            List<string> GLCodes = GetRegGlCodes();
+
+            string header = "Account";
+
+            foreach(string costcenter in CostCenters)
+            {
+                header += "," + costcenter;
+            }            
+
+            tw.WriteLine(header);
+
+            foreach (string glcode in GLCodes)
+            {
+                string rowdata = glcode;
+
+
+                    var connection = _configuration.GetConnectionString("pgWebForm");
+                    SqlConnection con = new SqlConnection(connection);
+                    string sqltext = "";
+
+                if (glcode == "Total")
+                {
+                    sqltext += "declare @tmptable table (expenseamount money, facility varchar(500)) ";
+                    sqltext += "insert into @tmptable (expenseamount, facility) ";
+                    sqltext += "select expensetotal, facility ";
+                    sqltext += "from Expense e inner join ExpenseCategory c on e.Category = c.Category ";
+                    sqltext += "inner join ExpenseCostCenters Cost on e.Facility = Cost.CostCenter ";
+                    sqltext += "where c.Level = 'regional' and ReportShortDate = '" + txtDateReg + "' ";
+                    sqltext += "and Cost.CostGroup = 'Regional' ";
+                    sqltext += "select Cost.CostCenter,  isnull(sum(E.expenseamount), '-') as expensetotal from @tmptable E ";
+                    sqltext += "full outer join ExpenseCostCenters Cost on E.Facility = Cost.CostCenter ";
+                    sqltext += "where Cost.CostGroup = 'regional' ";
+                    sqltext += "group by Cost.CostCenter ";
+                    sqltext += "order by CostCenter ";
+                } else
+                {
+                    sqltext += "declare @tmptable table (expenseamount money, facility varchar(500)) ";
+                    sqltext += "insert into @tmptable (expenseamount, facility) ";
+                    sqltext += "select expensetotal, facility ";
+                    sqltext += "from Expense e inner join ExpenseCategory c on e.Category = c.Category ";
+                    sqltext += "inner join ExpenseCostCenters Cost on e.Facility = Cost.CostCenter ";
+                    sqltext += "where c.GLCode = '" + glcode + "' and ReportShortDate = '" + txtDateReg + "' ";
+                    sqltext += "and Cost.CostGroup = 'Regional' ";
+                    sqltext += "select Cost.CostCenter,  isnull(sum(E.expenseamount), '-') as expensetotal from @tmptable E ";
+                    sqltext += "full outer join ExpenseCostCenters Cost on E.Facility = Cost.CostCenter ";
+                    sqltext += "where Cost.CostGroup = 'regional' ";
+                    sqltext += "group by Cost.CostCenter ";
+                    sqltext += "union ";
+                    sqltext += "select 'ZZZ', isnull(sum(expenseamount), '-') as expensetotal from @tmptable ";
+                    sqltext += "order by CostCenter ";
+                }
+
+
+                    var sqlcommandtext = sqltext;
+
+                    SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+                    con.Open();
+                    SqlDataReader idr = cmd.ExecuteReader();
+                    if (idr.HasRows)
+                    {
+                        while (idr.Read())
+                        {                                                       
+                            decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+                            rowdata += "," + expensetotal.ToString();
+                        }
+                    }
+                    con.Close();
+                
+                tw.WriteLine(rowdata);
+            }
+
+
+
+            tw.Flush();
+            tw.Close();
+
+            return File(memoryStream.GetBuffer(), "text/plain", txtDateReg+ "_" + "RegionalExpenses.csv");
+        }
+
+
+        public List<string> GetCostCenters()
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            List<string> CostCenters = new List<string>();
+            var sqlcommandtext = "SELECT CostCenter FROM ExpenseCostCenters WHERE CostGroup = 'REGIONAL' order by CostCenter";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+                    CostCenters.Add(Convert.ToString(idr["costcenter"]));
+                }
+            }
+            con.Close();
+
+            CostCenters.Add("Total");
+
+            return CostCenters;
+        }
+
+        public List<string> GetRegGlCodes()
+        {
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+            List<string> RegGlCodes = new List<string>();
+            var sqlcommandtext = "SELECT GLCode FROM ExpenseCategory WHERE [Level] = 'REGIONAL' order by GLCode";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+                    RegGlCodes.Add(Convert.ToString(idr["glcode"]));
+                }
+            }
+            con.Close();
+
+            RegGlCodes.Add("Total");
+
+            return RegGlCodes;
+        }
+
+
+        [HttpPost]
+        public IActionResult SNFReport(string txtDateSNF)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            TextWriter tw = new StreamWriter(memoryStream);
+
+            tw.WriteLine("FACILITY,REFERENCE_DESCRIPTION,ACCOUNT,DESCRIPTION,DEBIT,CREDIT,EFFECTIVE_DATE,FISCAL_YEAR,FISCAL_PERIOD");
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select Facility, reportshortdate, cat.GLCode, 'Personal Expense' as 'description', ";
+            sqlcommandtext += "sum(ExpenseTotal) as debit, '' as 'credit', YEAR(reportshortdate) as 'fiscal_year', ";
+            sqlcommandtext += "month(ReportShortDate) as 'fiscal_period' ";
+            sqlcommandtext += "from Expense E ";
+            sqlcommandtext += "full outer join ExpenseCostCenters C on e.Facility = c.CostCenter ";
+            sqlcommandtext += "inner join ExpenseCategory cat on e.Category = cat.Category ";
+            sqlcommandtext += "where CostGroup is null and ReportShortDate = '" + txtDateSNF + "' ";
+            sqlcommandtext += "group by reportshortdate, Facility, cat.GLCode ";
+            sqlcommandtext += "order by Facility, cat.GLCode ";
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+
+                    DateTime expensedate = Convert.ToDateTime(idr["reportshortdate"]);
+                    decimal expensetotal = Convert.ToDecimal(idr["debit"]);
+
+                    var wrline = Convert.ToString(idr["Facility"]) + ",";                    
+                    wrline += expensedate.ToShortDateString() + ",";
+                    wrline += Convert.ToString(idr["glcode"]) + ",";
+                    wrline += Convert.ToString(idr["description"]) + ",";
+                    wrline += expensetotal.ToString() + ",";
+                    wrline += Convert.ToString(idr["credit"]) + ",";
+                    wrline += expensedate.ToShortDateString() + ",";
+                    wrline += Convert.ToString(idr["fiscal_year"]) + ",";
+                    wrline += Convert.ToString(idr["fiscal_period"]);
+
+
+                    tw.WriteLine(wrline);
+                }
+            }
+            con.Close();
+
+            tw.Flush();
+            tw.Close();
+
+            return File(memoryStream.GetBuffer(), "text/plain", txtDateSNF + "_" + "SNFExpenses.csv");
+        }
+
+        [HttpPost]
+        public IActionResult PayrollReport(string txtDatePay)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            TextWriter tw = new StreamWriter(memoryStream);
+
+            tw.WriteLine("Employee Name,Effective Date,Amount");
+
+            var connection = _configuration.GetConnectionString("pgWebForm");
+            SqlConnection con = new SqlConnection(connection);
+
+            var sqlcommandtext = "select SubmitBy, ReportShortDate, sum(expensetotal) as 'expensetotal' from expense ";
+            sqlcommandtext += "where ReportShortDate = '" + txtDatePay + "' ";
+            sqlcommandtext += "group by ReportShortDate, SubmitBy ";
+
+
+            SqlCommand cmd = new SqlCommand(sqlcommandtext, con);
+            con.Open();
+            SqlDataReader idr = cmd.ExecuteReader();
+            if (idr.HasRows)
+            {
+                while (idr.Read())
+                {
+
+                    DateTime expensedate = Convert.ToDateTime(idr["reportshortdate"]);
+                    decimal expensetotal = Convert.ToDecimal(idr["expensetotal"]);
+
+                    var wrline = Convert.ToString(idr["submitby"]) + ",";
+                    wrline += expensedate.ToShortDateString() + ",";
+                    wrline += expensetotal.ToString();
+
+
+                    tw.WriteLine(wrline);
+                }
+            }
+            con.Close();
+
+            tw.Flush();
+            tw.Close();
+
+            return File(memoryStream.GetBuffer(), "text/plain", txtDatePay + "_" + "Payroll.csv");
         }
 
     }

@@ -109,7 +109,9 @@
     <select id="ddSelect" class="txtbox" style="width: 280px!important">
         <option></option>
         <option>Details</option>
-        <option>Facility and Category</option>
+        <option>Payroll</option>
+        <option>Regional Expense</option>
+        <option>SNF Expense</option>
     </select>
 </div>
 
@@ -129,9 +131,19 @@
                 document.getElementById('genreportgo').click()
             }
 
-            if (txtselect == 'Facility and Category') {
-                document.getElementById('txtDateFac').value = txtdate
-                document.getElementById('genreportfac').click()
+            if (txtselect == 'Payroll') {
+                document.getElementById('txtDatePay').value = txtdate
+                document.getElementById('genreportPay').click()
+            }
+
+            if (txtselect == 'Regional Expense') {
+                document.getElementById('txtDateReg').value = txtdate
+                document.getElementById('genreportReg').click()
+            }
+
+            if (txtselect == 'SNF Expense') {
+                document.getElementById('txtDateSNF').value = txtdate
+                document.getElementById('genreportSNF').click()
             }
         }
     }
@@ -145,4 +157,19 @@
 <form asp-controller="Expense" asp-action="FacReport" method="post" class="hidden">
     <input type="button" onclick="submit()" id="genreportfac" />
     <input type="text" id="txtDateFac" name="txtDateFac" />
+</form>
+
+<form asp-controller="Expense" asp-action="RegionalReport" method="post" class="hidden">
+    <input type="button" onclick="submit()" id="genreportReg" />
+    <input type="text" id="txtDateReg" name="txtDateReg" />
+</form>
+
+<form asp-controller="Expense" asp-action="SNFReport" method="post" class="hidden">
+    <input type="button" onclick="submit()" id="genreportSNF" />
+    <input type="text" id="txtDateSNF" name="txtDateSNF" />
+</form>
+
+<form asp-controller="Expense" asp-action="PayrollReport" method="post" class="hidden">
+    <input type="button" onclick="submit()" id="genreportPay" />
+    <input type="text" id="txtDatePay" name="txtDatePay" />
 </form>
